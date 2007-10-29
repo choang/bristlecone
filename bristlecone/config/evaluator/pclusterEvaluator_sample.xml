@@ -1,0 +1,21 @@
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/evaluator.dtd">
+<!--
+	This configuration runs a 2 minute test against the pcluster configuration.
+	It should create a load on the backend databases.
+	
+	All the names enclosed in '@' must be changed to the actual names used
+	in your system.
+-->
+<EvaluatorConfiguration name="pcluster" testDuration="120"
+	autoCommit="true" statusInterval="2" htmlFile="pclusterResults.html">
+	<Database driver="com.continuent.pcluster.driver.Driver" 		
+		url="jdbc:pcluster://@controller1@,@controller2@/@virtualdatabase@" 
+		user="@virtualdatabase_login@" 
+		password="@virtualdatabase_password@"/>	
+	 
+	<TableGroup name="tbl" size="200">
+		<ThreadGroup name="A" threadCount="100" thinkTime="500"
+			updates="7" deletes="1" inserts="2" readSize="10"
+			rampUpInterval="10" rampUpIncrement="10"/>
+	</TableGroup>
+</EvaluatorConfiguration>
