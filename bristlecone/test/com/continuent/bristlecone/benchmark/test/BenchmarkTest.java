@@ -37,6 +37,7 @@ import com.continuent.bristlecone.benchmark.impl.ConfigMetadata;
 import com.continuent.bristlecone.benchmark.impl.PropertyManager;
 import com.continuent.bristlecone.benchmark.scenarios.InsertScenario;
 import com.continuent.bristlecone.benchmark.scenarios.QueryAggregatesScenario;
+import com.continuent.bristlecone.benchmark.scenarios.QueryLongScenario;
 import com.continuent.bristlecone.benchmark.scenarios.QueryScenario;
 
 /**
@@ -460,6 +461,30 @@ public class BenchmarkTest extends TestCase
     props.setProperty("datatype", "varchar");
     
     this.runScenario("Default", QueryScenario.class, props, true, 9);
+  }
+
+  /** 
+   * Tests off-the-shelf query long scenario with parameters designed to generate
+   * 5 lines of csv output (1 header row + 8 individual scenario runs).   
+   */
+  public void testQueryLongScenario() throws Exception
+  {
+    // Set properties and run. 
+    Properties props = new Properties(); 
+    props.setProperty("bound", "duration");
+    props.setProperty("duration", "2");
+    props.setProperty("threads", "1|2");
+    
+    props.setProperty("url", url);
+    props.setProperty("user", user);
+    props.setProperty("password", password);
+    
+    props.setProperty("tables", "2");
+    props.setProperty("datarows", "1|5");
+    props.setProperty("datawidth", "10");
+    props.setProperty("datatype", "varchar");
+    
+    this.runScenario("Default", QueryLongScenario.class, props, true, 5);
   }
 
   /** 

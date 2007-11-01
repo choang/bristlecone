@@ -65,7 +65,7 @@ public class QueryAggregatesScenario extends ScenarioBase
     // Select two random tables and generate SQL to join between them. 
     SqlDialect dialect = helper.getSqlDialect();
     Table[] tables = tableSet.getRandomTables(2); 
-    String select = dialect.getSelectCrossProduct(tables);
+    String select = dialect.getSelectCrossProductCount(tables);
 
     // Generate indexes for searching.  
     int i1 = (int) (Math.random() * this.datarows);
