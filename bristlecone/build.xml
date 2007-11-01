@@ -44,6 +44,7 @@
     <property name="bindir" value="${basedir}/bin" />
     <property name="build.dist" value="${builddir}/dist" />
     <property name="build.bristlecone" value="${builddir}/dist/bristlecone" />
+    <property name="src.bristlecone" value="${builddir}/src/bristlecone" />
 
     <property name="build.classes" value="${builddir}/classes" />
     <property name="build.jar" value="${builddir}/jar" />
@@ -82,6 +83,7 @@
     <target name="clean" description="Clean output directories">
         <delete dir="${distdir}" />
         <delete dir="${builddir}" />
+        <delete dir="testdb" />
     </target>
 
     <!-- Compile the source -->
@@ -232,24 +234,80 @@
         <copy todir="${build.bristlecone}/xml" file="${xmldir}/evaluator.dtd" />
     </target>
 
+    <!-- Build source tree -->
+    <target name="src" description="Build or refresh source tree" >
+        <mkdir dir="${src.bristlecone}" />
+        <copy todir="${src.bristlecone}" file=".checkstyle" />
+        <copy todir="${src.bristlecone}" file=".checkstyle" />
+        <copy todir="${src.bristlecone}" file=".classpath" />
+        <copy todir="${src.bristlecone}" file=".project" />
+        <copy todir="${src.bristlecone}" file="LICENSE" />
+        <copy todir="${src.bristlecone}" file="README" />
+        <copy todir="${src.bristlecone}" file="build.properties" />
+        <copy todir="${src.bristlecone}" file="build.xml" />
+
+        <copy todir="${src.bristlecone}/.settings" >
+             <fileset dir=".settings" />
+        </copy>
+        <copy todir="${src.bristlecone}/bin" >
+             <fileset dir="bin" />
+        </copy>
+        <copy todir="${src.bristlecone}/config" >
+             <fileset dir="config" />
+        </copy>
+        <copy todir="${src.bristlecone}/doc" >
+             <fileset dir="doc" />
+        </copy>
+        <copy todir="${src.bristlecone}/eclipse-settings" >
+             <fileset dir="eclipse-settings" />
+        </copy>
+        <copy todir="${src.bristlecone}/lib" >
+             <fileset dir="lib" />
+        </copy>
+        <copy todir="${src.bristlecone}/lib-ext" >
+             <fileset dir="lib-ext" />
+        </copy>
+        <copy todir="${src.bristlecone}/src" >
+             <fileset dir="src" />
+        </copy>
+        <copy todir="${src.bristlecone}/test" >
+             <fileset dir="test" />
+        </copy>
+        <copy todir="${src.bristlecone}/xml" >
+             <fileset dir="xml" />
+        </copy>
+    </target>
+
     <!-- Create the distribution files -->
-    <target name="dist" depends="build" 
+    <target name="dist" depends="src,build" 
         description="Create distributable releases">
 
-        <zip destfile="${distdir}/bristlecone-${version}.zip" basedir="${build.dist}" includes="**/*">
-            <zipfileset dir="${build.bristlecone}" prefix="bristlecone-${version}">
+        <!-- Build binary files. -->
+        <zip destfile="${distdir}/bristlecone-${version}-bin.zip" basedir="${build.dist}" includes="**/*">
+            <zipfileset dir="${build.bristlecone}" prefix="bristlecone-${version}-bin">
                  <include name="*/** "/>
             </zipfileset>
         </zip>
 
-        <tar destfile="${distdir}/bristlecone-${version}.tar.gz" longfile="gnu" compression="gzip">
-            <tarfileset dir="${build.bristlecone}" prefix="bristlecone-${version}" mode="755">
-                <include name="bin/*evaluator.sh" />
+        <tar destfile="${distdir}/bristlecone-${version}-bin.tar.gz" longfile="gnu" compression="gzip">
+            <tarfileset dir="${build.bristlecone}" prefix="bristlecone-${version}-bin" mode="755">
+                <include name="bin/*.sh" />
             </tarfileset>
-            <tarfileset dir="${build.bristlecone}" prefix="bristlecone-${version}">
+            <tarfileset dir="${build.bristlecone}" prefix="bristlecone-${version}-bin">
                 <include name="**/*" />
-                <exclude name="bin/*evaluator.sh" />
+                <exclude name="bin/*.sh" />
             </tarfileset>
+        </tar>
+
+        <!-- Build source file. -->
+        <zip destfile="${distdir}/bristlecone-${version}-src.zip">
+            <zipfileset dir="${src.bristlecone}" includes="**/*" 
+                prefix="bristlecone-${version}-src"/>
+        </zip>
+
+        <tar destfile="${distdir}/bristlecone-${version}-src.tar.gz" longfile="gnu" compression="gzip">
+            <tarfileset dir="${src.bristlecone}" includes="**/*" 
+                prefix="bristlecone-${version}-src" />
         </tar>
     </target>
 
