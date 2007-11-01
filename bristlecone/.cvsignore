@@ -1,9 +1,0 @@
-build
-dist
-testdb
-testdb/*
-*.xml
-*.html
-myResults.xls
-preparedStatements.xls
-eclipse-build
