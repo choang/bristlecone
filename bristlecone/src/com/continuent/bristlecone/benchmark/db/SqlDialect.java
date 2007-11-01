@@ -61,12 +61,25 @@ public interface SqlDialect
   public String getSelectAll(Table t);
   
   /** 
+   * Return all rows of the cross product select of the table on itself. 
+   * This scans and returns N x N rows where N is the table row count. 
+   */
+  public String getSelectCrossProduct(Table table);
+  
+  /** 
+   * Return count of rows of the cross product select of the table on itself. 
+   * This scans N x N rows where N is the table row count and returns a single 
+   * row. 
+   */
+  public String getSelectCrossProductCount(Table table);
+  
+  /** 
    * Returns a SELECT statement to fetch a query that performs a cross product
    * on a set of tables limited by high and low key values, which must be supplied
    * as prepared statement parameters.  This query hits the database server
    * relatively hard.  
    */
-  public String getSelectCrossProduct(Table[] tables);
+  public String getSelectCrossProductCount(Table[] tables);
   
   /** 
    * Returns a SELECT statement to fetch a row using its primary key, which
