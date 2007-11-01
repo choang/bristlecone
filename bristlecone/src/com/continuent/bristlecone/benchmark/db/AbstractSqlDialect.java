@@ -168,13 +168,51 @@ public abstract class AbstractSqlDialect implements SqlDialect
   }
   
   /** 
+   * Return all rows of the cross product select of the table on itself. 
+   * This scans and returns N x N rows where N is the table row count. 
+   */
+  public String getSelectCrossProduct(Table table)
+  {
+    StringBuffer sb = new StringBuffer();
+    
+    // Generate the join SQL statement. 
+    sb.append("select * from "); 
+    sb.append(table.getName()); 
+    sb.append(" t0 join ");
+    sb.append(table.getName());
+    sb.append(" t1");
+    
+    String sql = sb.toString();
+    return sql;
+  }
+  
+  /** 
+   * Return count of rows of the cross product select of the table on itself. 
+   * This scans N x N rows where N is the table row count and returns a single 
+   * row. 
+   */
+  public String getSelectCrossProductCount(Table table)
+  {
+    StringBuffer sb = new StringBuffer();
+    
+    // Generate the join SQL statement. 
+    sb.append("select count(*) from "); 
+    sb.append(table.getName()); 
+    sb.append(" t0 join ");
+    sb.append(table.getName());
+    sb.append(" t1");
+    
+    String sql = sb.toString();
+    return sql;
+  }
+
+  /** 
    * Returns a SELECT statement to fetch a query that performs an aggregate 
    * over a set of of two more more tables joined in a cross product and 
    * high and low key values, which must be supplied
-   * as prepared statement parameters.  This is a query designed to beat up 
-   * servers while producing minimal results. 
+   * as prepared statement parameters.  
    */
-  public String getSelectCrossProduct(Table[] tables)
+  public String getSelectCrossProductCount(Table[] tables)
   {
     StringBuffer sb = new StringBuffer();
     
