@@ -178,7 +178,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
     // Generate the join SQL statement. 
     sb.append("select * from "); 
     sb.append(table.getName()); 
-    sb.append(" t0 join ");
+    sb.append(" t0, ");
     sb.append(table.getName());
     sb.append(" t1");
     
@@ -198,7 +198,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
     // Generate the join SQL statement. 
     sb.append("select count(*) from "); 
     sb.append(table.getName()); 
-    sb.append(" t0 join ");
+    sb.append(" t0, ");
     sb.append(table.getName());
     sb.append(" t1");
     
@@ -381,5 +381,16 @@ public abstract class AbstractSqlDialect implements SqlDialect
       default:
         throw new IllegalArgumentException("Unsupported JDBC type value: " + type);
     }
+  }
+  
+  /** 
+   * Default implementation hands back fetch size as is. 
+   */
+  public int implementationConvertFetchSize(int fetchSize)
+  {
+    if (fetchSize < 0)
+      return 0; 
+    else
+      return fetchSize;
   }
 }

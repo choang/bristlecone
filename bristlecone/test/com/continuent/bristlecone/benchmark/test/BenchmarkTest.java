@@ -465,14 +465,14 @@ public class BenchmarkTest extends TestCase
 
   /** 
    * Tests off-the-shelf query long scenario with parameters designed to generate
-   * 5 lines of csv output (1 header row + 8 individual scenario runs).   
+   * 13 lines of csv output (1 header row + 12 individual scenario runs).   
    */
   public void testQueryLongScenario() throws Exception
   {
     // Set properties and run. 
     Properties props = new Properties(); 
-    props.setProperty("bound", "duration");
-    props.setProperty("duration", "2");
+    props.setProperty("bound", "iterations");
+    props.setProperty("iterations", "3");
     props.setProperty("threads", "1|2");
     
     props.setProperty("url", url);
@@ -484,7 +484,12 @@ public class BenchmarkTest extends TestCase
     props.setProperty("datawidth", "10");
     props.setProperty("datatype", "varchar");
     
-    this.runScenario("Default", QueryLongScenario.class, props, true, 5);
+    // The QueryLongScenario adds a property for fetch size.  This can take
+    // negative values, which should be property converted to something 
+    // acceptable to the implementation. 
+    props.setProperty("fetchsize", "-1|0|100");
+    
+    this.runScenario("Default", QueryLongScenario.class, props, true, 13);
   }
 
   /** 

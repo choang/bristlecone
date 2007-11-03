@@ -149,14 +149,13 @@ public class DbUtilitiesTest extends TestCase
   }
     
   /**
-   * Generate a table with all types and confirm that all non-prepared 
-   * statements work properly. 
+   * Generate a table and confirm that cross product selects work properly.   
    */
   public void testSqlDialect2() throws Exception
   {
     // Get data for test. 
     String url = "jdbc:hsqldb:file:build/testdb/testdb;shutdown=true";
-    Table t = allTypesTable("testSqlDialect");
+    Table t = simpleTable("testSqlDialect2");
     SqlDialect dialect = SqlDialectFactory.getInstance().getDialect(url);
     Connection conn = getHsqlConnection(url);
     
@@ -188,13 +187,13 @@ public class DbUtilitiesTest extends TestCase
     String createTable = dialect.getCreateTable(t);
     stmt.execute(createTable);
     
-    // Select from the table. 
-    String selectAll = dialect.getSelectAll(t);
-    stmt.execute(selectAll);
+    // Select rows from the table using a select cross product. 
+    String selectCrossProduct = dialect.getSelectCrossProduct(t);
+    stmt.execute(selectCrossProduct);
     
-    // Delete everything from the table. 
-    String deleteAll = dialect.getDeleteAll(t);
-    stmt.execute(deleteAll);
+    // Select count(*) from the table using a select cross product. 
+    String selectCrossProductCount = dialect.getSelectCrossProductCount(t);
+    stmt.execute(selectCrossProductCount);
     
     // Drop the table. 
     String deleteTable = dialect.getDropTable(t);
@@ -243,6 +242,17 @@ public class DbUtilitiesTest extends TestCase
     return cols;
   }
 
+  // Create table definition containing an integer key and a varchar column.  
+  private Table simpleTable(String name)
+  {
+    Column[] cols = new Column[] {
+        new Column("t_integer", Types.INTEGER, 0, 0, true, false), 
+        new Column("t_varchar", Types.VARCHAR, 10)
+    };
+    Table t = new Table(name, cols);
+    return t;
+  }
+  
   // Create table definition containing all supported types.  
   private Table allTypesTable(String name)
   {

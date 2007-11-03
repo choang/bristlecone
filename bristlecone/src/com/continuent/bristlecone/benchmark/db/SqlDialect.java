@@ -129,4 +129,13 @@ public interface SqlDialect
    * Returns true if this type requires a precision specification. 
    */
   public boolean implementationTypeNeedsPrecision(int type);
+  
+  /** 
+   * Transforms a value to a conformant fetch size for the implementation. 
+   * If the value is already legal it is left unchanged.  This method
+   * allows us to deal with non-standard implementations like MySQL 
+   * Connector/J that use Integer.MIN_VALUE to trigger row-by-row streaming. 
+   * 
+   */
+  public int implementationConvertFetchSize(int fetchSize);
 }

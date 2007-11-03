@@ -40,6 +40,18 @@ public class SqlDialectForMysql extends AbstractSqlDialect
   {
     return (url.startsWith("jdbc:mysql"));
   }
+  
+  /** 
+   * Transforms negative fetch sizes to Integer.MIN_VALUE, which prompts
+   * row-by-row streaming of result sets. 
+   */
+  public int implementationConvertFetchSize(int fetchSize)
+  {
+    if (fetchSize < 0)
+      return Integer.MIN_VALUE;
+    else
+      return fetchSize;
+  }
 
   /** Add support for specialized MySQL BLOB/CLOB names. */
   public String implementationTypeName(int type)
