@@ -23,6 +23,7 @@
 package com.continuent.bristlecone.benchmark.scenarios;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.log4j.Logger;
@@ -94,6 +95,8 @@ public class QueryLongScenario extends ScenarioBase
     ResultSet rs = null;
     try
     {
+      // Begin a transaction.  This is required by PostgreSQL for fetchSize to work.  
+      conn.setAutoCommit(false);
       if (fetchsize == 0)
         stmt = conn.createStatement();
       else
@@ -117,6 +120,7 @@ public class QueryLongScenario extends ScenarioBase
         rs.close();
       if (stmt != null)
         stmt.close();
+      conn.rollback();
     }
   }
 
