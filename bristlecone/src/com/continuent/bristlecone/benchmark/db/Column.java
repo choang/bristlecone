@@ -35,6 +35,12 @@ public class Column
   private int precision;
   private boolean isPrimaryKey;
   private boolean isAutoIncrement;
+  private boolean indexed;
+  
+  /** Instantiate empty column to be filled out by accessors. */ 
+  public Column()
+  {
+  }
   
   /** Short form to generate definition. */
   public Column(String name, int type)
@@ -69,33 +75,81 @@ public class Column
     return isAutoIncrement;
   }
 
-  /** Returns true if this column is the primary key. */
+  /** Sets the column to be autoincrement.  */
+  public void setAutoIncrement(boolean isAutoIncrement)
+  {
+    this.isAutoIncrement = isAutoIncrement;
+  }
+
+  /** Returns true if this column is a primary key. */
   public boolean isPrimaryKey()
   {
     return isPrimaryKey;
   }
 
-  /** Returns the length of this column or -1 if not used. */
+  /** Sets the primary key (true if primary). */
+  public void setPrimaryKey(boolean isPrimaryKey)
+  {
+    this.isPrimaryKey = isPrimaryKey;
+  }
+
+  /** Returns the length of this column. */
   public int getLength()
   {
     return length;
   }
 
-  /** Returns the name of this column. */
+  /** Sets the length of the column or -1 if not used. */
+  public void setLength(int length)
+  {
+    this.length = length;
+  }
+
+  /** Returns the column name. */
   public String getName()
   {
     return name;
   }
 
-  /** Returns the precision of this column or -1 if not used. */
+  /** Sets the column name. */
+  public void setName(String name)
+  {
+    this.name = name;
+  }
+
+  /** Returns the column precision. */
   public int getPrecision()
   {
     return precision;
   }
 
-  /** Returns the column type, which must be a value from java.sql.Type. */
+  /** Sets the precision of this column or -1 if not used. */
+  public void setPrecision(int precision)
+  {
+    this.precision = precision;
+  }
+
+  /** Returns the column type. */
   public int getType()
   {
     return type;
   } 
+  
+  /** Sets the column type, which must be a value from java.sql.Type. */
+  public void setType(int type)
+  {
+    this.type = type;
+  }
+
+  /** Returns true if this column has an index. */
+  public boolean isIndexed()
+  {
+    return indexed;
+  }
+
+  /** Set property to true to add an extra index on this column. */
+  public void setIndexed(boolean indexed)
+  {
+    this.indexed = indexed;
+  }
 }

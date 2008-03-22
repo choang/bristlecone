@@ -23,7 +23,6 @@
 package com.continuent.bristlecone.benchmark.scenarios;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.Properties;
 
@@ -68,11 +67,13 @@ public abstract class ScenarioBase implements Scenario
   /** Analyze command that should be run after initializing data and before starting test. */
   protected String analyzeCmd = null;
   
+  /** If true reuse existing data tables. */
+  protected boolean reusedata = false;
+  
   // Implementation data for scenario
   protected TableSet tableSet;
   protected TableSetHelper helper;
   protected Connection conn = null;
-  protected PreparedStatement[] pstmtArray;
 
   // Setters for properties. 
   public void setDatarows(int datarows)
@@ -114,6 +115,11 @@ public abstract class ScenarioBase implements Scenario
   {
     this.analyzeCmd = analyzeCmd;
   }
+  
+  public void setReusedata(boolean reusedata)
+  {
+    this.reusedata = reusedata;
+  }
 
   /**
    * Perform basic initialization. 
@@ -122,10 +128,10 @@ public abstract class ScenarioBase implements Scenario
   {
     Column[] columns = new Column[] {
         new Column("mykey", Types.INTEGER, -1, -1, true, true),
-        new Column("mydata", Types.VARCHAR, 10),
+        new Column("mydata", Types.INTEGER),
         new Column("mypayload", Types.VARCHAR, (int) datawidth)
       };
-    tableSet = new TableSet("insert_scenario_", tables, 
+    tableSet = new TableSet("benchmark_scenario_", tables, 
         datarows, columns);
     helper = new TableSetHelper(url, user, password); 
     conn = helper.getConnection();
@@ -135,9 +141,16 @@ public abstract class ScenarioBase implements Scenario
   public void globalPrepare() throws Exception
   {
     // Create and populate tables. 
-    logger.info("Creating and populating test tables...");
-    helper.createAll(tableSet);
-    helper.populateAll(tableSet);
+    if (reusedata)
+    {
+      logger.info("Reusing existing test tables...");
+    }
+    else
+    {
+      logger.info("Creating and populating test tables...");
+      helper.createAll(tableSet);
+      helper.populateAll(tableSet);
+    }
     
     // Run analyze command if supplied. 
     if (analyzeCmd != null)

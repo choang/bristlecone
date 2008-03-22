@@ -43,6 +43,20 @@ public class Table
   {
     return columns;
   }
+  
+  /** 
+   * Returns a specific column using the name as index or null if no s
+   * such name can be found. 
+   */
+  public Column getColumn(String name)
+  {
+    for (int i = 0; i < columns.length; i++)
+    {
+      if (name.equals(columns[i].getName()))
+        return columns[i];
+    }
+    return null;
+  }
 
   /** Returns the table name. */
   public String getName()

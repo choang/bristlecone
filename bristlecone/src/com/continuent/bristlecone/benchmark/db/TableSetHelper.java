@@ -25,6 +25,7 @@ package com.continuent.bristlecone.benchmark.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -121,11 +122,24 @@ public class TableSetHelper
    
     for (int i = 0; i < count; i++)
     {
-      String createSql = sqlDialect.getCreateTable(tables[i]);
+      String createSql = null;
       Statement stmt = conn.createStatement();
       try
       {
+        // Create the table. 
+        createSql = sqlDialect.getCreateTable(tables[i]);
         stmt.execute(createSql);
+        
+        // Add extra index for any indexed columns. 
+        for (int c = 0; c < tables[i].getColumns().length; c++)
+        {
+          Column col = tables[i].getColumns()[c];
+          if (col.isIndexed())
+          {
+            createSql = sqlDialect.getCreateIndex(tables[i], col);
+            stmt.execute(createSql);
+          }
+        }
       }
       catch (SQLException e)
       {
@@ -273,5 +287,77 @@ public class TableSetHelper
     {
       logger.debug("Statement release failed", e);
     }
+  }
+  
+  /**
+   * Confirm [non-]existence of a particular row indexed by a key.
+   *
+   * @param key   Key value
+   * @param exists If true, expect the key to exist.  Otherwise we
+   *               expect not to find it.
+   * @param limit  Number of milliseconds to wait before giving up.
+   * @param logInterval  Interval in milliseconds between writing messages.
+   * @return true if the test succeeded, false if we exceeded the limit
+   * 
+   * @throws BenchmarkException If the test criteria appear to be bad
+   * @throws Execption If there is any other exception
+   */
+  public boolean testRowExistence(PreparedStatement keyQuery, 
+      String key, boolean exists, long limit, long logInterval) 
+      throws BenchmarkException, Exception
+  {
+    long limitTimer = System.currentTimeMillis();
+    long logIntervalTimer = limitTimer;
+    keyQuery.setString(1, key);
+
+    // Repeat the search until we exceed the time limit.
+    do
+    {
+      // Look for matching tables.
+      ResultSet rs = null;
+      int matches = 0;
+      try {
+        rs = keyQuery.executeQuery();
+        while (rs.next())
+        {
+          matches++;
+        }
+      }
+      finally
+      {
+        if (rs != null)
+          rs.close();
+      }
+
+      // If there are multiple matches the test selection criteria are buggy.
+      if (matches > 1)
+        throw new BenchmarkException("Found multiple matches when searching for record: key="
+            + key);
+
+      // Apply result matching to ensure we get what we are looking for...
+      if (exists && matches == 1)
+      {
+        // Key expected to exist and we found it.
+        return true;
+      }
+      else if (!exists && matches == 0)
+      {
+        // Key not expected to exist and we did not find it.
+        return true;
+      }
+
+      // See if we need to log a message because we have been waiting over the
+      // log limit.
+      if ((System.currentTimeMillis() - logIntervalTimer) > logInterval)
+      {
+        logIntervalTimer = System.currentTimeMillis();
+        logger.info("Waited " + (logInterval / 1000) +
+            " to test row existence: key=" + key + " existence=" + exists);
+      }
+    }
+    while ((System.currentTimeMillis() - limitTimer) < limit);
+
+    // If we got this far the test exceeded the timeout limit and is a failure.
+    return false;
   }
 }

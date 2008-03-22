@@ -23,7 +23,6 @@
 package com.continuent.bristlecone.benchmark.scenarios;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.apache.log4j.Logger;
@@ -44,9 +43,9 @@ import com.continuent.bristlecone.benchmark.db.Table;
  * 
  * @author rhodges
  */
-public class QueryLongScenario extends ScenarioBase
+public class ReadSimpleLargeResultsScenario extends ScenarioBase
 {
-  private static final Logger logger = Logger.getLogger(QueryLongScenario.class);
+  private static final Logger logger = Logger.getLogger(ReadSimpleLargeResultsScenario.class);
 
   private int fetchsize = 0;
   

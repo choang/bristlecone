@@ -62,6 +62,26 @@ public abstract class AbstractSqlDialect implements SqlDialect
   }
   
   /**
+   * Implements a generic create index that should work for all DBMS. 
+   */
+  public String getCreateIndex(Table t, Column c)
+  {
+    StringBuffer sb = new StringBuffer(); 
+    sb.append("create index "); 
+    sb.append(t.getName());
+    sb.append("_"); 
+    sb.append(c.getName());
+    sb.append("_idx on "); 
+    sb.append(t.getName());
+    sb.append(" (");
+    sb.append(c.getName());
+    sb.append(")");
+
+    String sql = sb.toString();
+    return sql;
+  }
+  
+  /**
    * Loads a generic column type specification that works for databases
    * other than PostgreSQL, which uses a type to handle autoincrement columns. 
    */
@@ -161,6 +181,39 @@ public abstract class AbstractSqlDialect implements SqlDialect
     return sb.toString();
   }
 
+  /** Returns an UPDATE statement that updates a single record by key value. */
+  public String getUpdateByKey(Table t)
+  {
+    // Start of UPDATE command. 
+    StringBuffer sb = new StringBuffer();
+    sb.append("update ");
+    sb.append(t.getName());
+    
+    // Column list. 
+    Column[] columns = t.getColumns();
+    int nonKeyCount = 0;
+    for (int i = 0; i < columns.length; i++)
+    {
+      if (! columns[i].isPrimaryKey())
+      {
+        if (nonKeyCount++ > 0)
+          sb.append(",");
+        else 
+          sb.append(" set "); 
+ 
+        sb.append(columns[i].getName());
+        sb.append(" = ?");
+      }
+    }
+    
+    // Where clause. 
+    sb.append(" where ");
+    sb.append(t.getPrimaryKey().getName()); 
+    sb.append(" = ?");    
+    
+    return sb.toString();
+  }
+  
   /** Returns a generic SELECT for all columns and rows. */
   public String getSelectAll(Table t)
   {

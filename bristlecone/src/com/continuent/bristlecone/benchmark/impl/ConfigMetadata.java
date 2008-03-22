@@ -79,7 +79,8 @@ public class ConfigMetadata
     addMetadataOrFail("actualIterations", "-1", true);
     addMetadataOrFail("actualAvgDuration", "0.0", true);
     addMetadataOrFail("actualAvgOpsSec", "0.0", true);
-    addMetadataOrFail("actualExceptions", "0", true);
+    addMetadataOrFail("actualSQLExceptions", "0", true);
+    addMetadataOrFail("actualOtherExceptions", "0", true);
     
     // Find setters for properties on Scenario class. 
     Iterator<String> metadataNames = propertyNames();

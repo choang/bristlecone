@@ -33,13 +33,13 @@ import com.continuent.bristlecone.benchmark.db.Table;
 /**
  * Implements a scenario that computes aggregates on rows that are joined 
  * using a cross-product between two tables.  This scenario is designed
- * to maximize stress on the database.  
+ * to maximize stress on the database by forcing CPU intensive computations. 
  * 
  * @author rhodges
  */
-public class QueryAggregatesScenario extends ScenarioBase
+public class ReadScalingAggregatesScenario extends ScenarioBase
 {
-  private static final Logger logger = Logger.getLogger(QueryAggregatesScenario.class);
+  private static final Logger logger = Logger.getLogger(ReadScalingAggregatesScenario.class);
   private static final String lineSeparator = System.getProperty("line.separator");
   
   protected int selectrows = 1;
@@ -77,13 +77,13 @@ public class QueryAggregatesScenario extends ScenarioBase
     pstmt.setInt(2, i2);
     
     // If we are in debug mode dump the SQL and arguments. 
-    if (logger.isDebugEnabled())
+    if (logger.isInfoEnabled())
     {
       StringBuffer sb = new StringBuffer();
       sb.append("SQL=").append(select);
       sb.append(lineSeparator).append("i1=").append(i1);
       sb.append(lineSeparator).append("i2=").append(i2);
-      logger.debug(sb.toString());
+      logger.info(sb.toString());
     }
     
     // Do the query and force cycling through results. 

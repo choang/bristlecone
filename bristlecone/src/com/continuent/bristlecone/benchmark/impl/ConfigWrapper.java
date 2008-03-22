@@ -112,9 +112,15 @@ public class ConfigWrapper
     configData.setProperty("actualAvgOpsSec", avgOpsSec);
   }
   
-  /** Set the actual number of exceptions during the run. */
-  public void setActualExceptions(long exceptions)
+  /** Set the actual number of SQL exceptions during the run. */
+  public void setActualSQLExceptions(long sqlExceptions)
   {
-    configData.setProperty("actualExceptions", exceptions);
+    configData.setProperty("actualSQLExceptions", sqlExceptions);
+  }
+
+  /** Set the actual number of non-SQL exceptions during the run. */
+  public void setActualOtherExceptions(long otherExceptions)
+  {
+    configData.setProperty("actualOtherExceptions", otherExceptions);
   }
 }

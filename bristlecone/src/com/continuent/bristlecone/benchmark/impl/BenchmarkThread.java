@@ -22,6 +22,8 @@
 
 package com.continuent.bristlecone.benchmark.impl;
 
+import java.sql.SQLException;
+
 import org.apache.log4j.Logger;
 
 import com.continuent.bristlecone.benchmark.BenchmarkException;
@@ -42,6 +44,7 @@ public class BenchmarkThread extends Thread
   // Properties set by test and harvested later. 
   protected long elapsed = 0;
   protected long iterationCount = 0;
+  protected long sqlExceptionCount = 0;
   protected Exception exception; 
   
   /**
@@ -68,6 +71,11 @@ public class BenchmarkThread extends Thread
   public long getIterationCount()
   {
     return iterationCount;
+  }
+  
+  public long getSqlExceptionCount()
+  {
+    return sqlExceptionCount;
   }
 
   /** Initialize the thread.  */
@@ -107,7 +115,17 @@ public class BenchmarkThread extends Thread
         {
           iterationCount++;
           logger.debug("Invoking next iteration, count=" + iterationCount);
-          scenario.iterate(iterationCount);
+          
+          try
+          {
+            scenario.iterate(iterationCount);
+          }
+          catch (SQLException e)
+          {
+            this.sqlExceptionCount++;
+            if (logger.isDebugEnabled())
+              logger.debug("Caught SQLException in scenario", e); 
+          }
         }
         logger.debug("Iteration count exceeded; terminating iterations");
       }
@@ -124,7 +142,16 @@ public class BenchmarkThread extends Thread
         {
           iterationCount++;
           logger.debug("Invoking next iteration, count=" + iterationCount);
-          scenario.iterate(iterationCount);
+          try
+          {
+            scenario.iterate(iterationCount);
+          }
+          catch (SQLException e)
+          {
+            this.sqlExceptionCount++;
+            if (logger.isDebugEnabled())
+              logger.debug("Caught SQLException in scenario", e); 
+          }
           end = System.currentTimeMillis();
         }
         logger.debug("Time limit exceeded; terminating iterations");

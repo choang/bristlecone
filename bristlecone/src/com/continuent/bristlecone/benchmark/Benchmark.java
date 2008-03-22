@@ -248,7 +248,9 @@ public class Benchmark
 
     // Start all threads and collect results when they are done.
     long actualIterations = 0;
-    int actualExceptions = 0;
+    long actualSQLExceptions = 0;
+    int actualOtherExceptions = 0;
+
     long start = System.currentTimeMillis();
     for (int i = 0; i < threadArray.length; i++)
     {
@@ -268,11 +270,12 @@ public class Benchmark
         logger.warn("Thread ended with exception", exception);
       }
 
-      // Add the iterationCount to the total.
+      // Add the various counts to the total. 
       actualIterations += pbt.getIterationCount();
+      actualSQLExceptions += pbt.getSqlExceptionCount();
       if (exception != null)
       {
-        actualExceptions++;
+        actualOtherExceptions++;
       }
     }
     logger.info("Threads completed execution");
@@ -292,7 +295,8 @@ public class Benchmark
     configWrapper.setActualDuration(actualDuration);
     configWrapper.setActualAvgDuration(actualAvgDuration);
     configWrapper.setActualAvgOpsSecond(actualAvgOpsSec);
-    configWrapper.setActualExceptions(actualExceptions);
+    configWrapper.setActualSQLExceptions(actualSQLExceptions);
+    configWrapper.setActualOtherExceptions(actualOtherExceptions);
     logger.info("Output: " + listOutputValues(metadata, bProperties));
           
     // Clean up the threads.

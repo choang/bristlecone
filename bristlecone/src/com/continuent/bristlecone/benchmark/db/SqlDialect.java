@@ -45,11 +45,17 @@ public interface SqlDialect
   /** Returns a CREATE TABLE statement for the given table. */
   public String getCreateTable(Table t);
   
+  /** Returns a CREATE INDEX statement for the given table and column. */
+  public String getCreateIndex(Table t, Column c);
+  
   /** Returns a DROP TABLE statement for the given table. */
   public String getDropTable(Table t);
   
   /** Returns an INSERT statement with parameters for non-autoincrement fields. */
   public String getInsert(Table t);
+  
+  /** Returns an UPDATE statement that updates a single record by key value. */
+  public String getUpdateByKey(Table t);
   
   /** Returns a DELETE statement that finds the record by its key. */
   public String getDeleteByKey(Table t); 
