@@ -24,6 +24,8 @@ package com.continuent.bristlecone.benchmark.test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -187,6 +189,43 @@ public class DbUtilitiesTest extends TestCase
     String createTable = dialect.getCreateTable(t);
     stmt.execute(createTable);
     
+    // Test index generation. 
+    String createIndex = dialect.getCreateIndex(t, t.getColumn("t_varchar"));
+    stmt.execute(createIndex);
+    
+    // Test table insert. 
+    String insert = dialect.getInsert(t);
+    PreparedStatement pstmt = conn.prepareStatement(insert);
+    pstmt.setInt(1, 1);
+    pstmt.setString(2, "data");
+    pstmt.execute();
+    
+    // Test table update. 
+    String update = dialect.getUpdateByKey(t);
+    pstmt = conn.prepareStatement(update);
+    pstmt.setString(1, "data2");
+    pstmt.setInt(2, 1);
+    pstmt.execute();
+    
+    // Test select. 
+    String select = dialect.getSelectByKey(t);
+    pstmt = conn.prepareStatement(select);
+    pstmt.setInt(1, 1);
+    ResultSet rs = pstmt.executeQuery();
+    boolean ok = false;
+    int count = 0;
+    while (rs.next())
+    {
+      count++;
+      if ("data2".equals(rs.getString(2)))
+      {
+        ok = true;
+      }
+    }
+    
+    assertEquals("Row count should be one", 1, count);
+    assertEquals("Found the expected value from update", true, ok);
+    
     // Select rows from the table using a select cross product. 
     String selectCrossProduct = dialect.getSelectCrossProduct(t);
     stmt.execute(selectCrossProduct);
@@ -200,6 +239,7 @@ public class DbUtilitiesTest extends TestCase
     stmt.execute(deleteTable);
     
     // Clean up. 
+    pstmt.close();
     stmt.close();
     conn.close();
   }
@@ -245,10 +285,11 @@ public class DbUtilitiesTest extends TestCase
   // Create table definition containing an integer key and a varchar column.  
   private Table simpleTable(String name)
   {
-    Column[] cols = new Column[] {
-        new Column("t_integer", Types.INTEGER, 0, 0, true, false), 
-        new Column("t_varchar", Types.VARCHAR, 10)
-    };
+    Column[] cols = new Column[2]; 
+    cols[0] = new Column("t_integer", Types.INTEGER, 0, 0, true, false); 
+    cols[1] = new Column("t_varchar", Types.VARCHAR, 10);
+    cols[1].setIndexed(true);
+
     Table t = new Table(name, cols);
     return t;
   }

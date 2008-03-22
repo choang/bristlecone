@@ -35,10 +35,12 @@ import junit.framework.TestCase;
 import com.continuent.bristlecone.benchmark.Benchmark;
 import com.continuent.bristlecone.benchmark.impl.ConfigMetadata;
 import com.continuent.bristlecone.benchmark.impl.PropertyManager;
-import com.continuent.bristlecone.benchmark.scenarios.InsertScenario;
-import com.continuent.bristlecone.benchmark.scenarios.QueryAggregatesScenario;
-import com.continuent.bristlecone.benchmark.scenarios.QueryLongScenario;
-import com.continuent.bristlecone.benchmark.scenarios.QueryScenario;
+import com.continuent.bristlecone.benchmark.scenarios.ReadScalingAggregatesScenario;
+import com.continuent.bristlecone.benchmark.scenarios.ReadScalingInvertedKeysScenario;
+import com.continuent.bristlecone.benchmark.scenarios.ReadSimpleLargeResultsScenario;
+import com.continuent.bristlecone.benchmark.scenarios.ReadSimpleScenario;
+import com.continuent.bristlecone.benchmark.scenarios.ReadWriteScenario;
+import com.continuent.bristlecone.benchmark.scenarios.WriteSimpleScenario;
 
 /**
  * Basic unit test to confirm that benchmarks work.  Test methods 
@@ -419,7 +421,7 @@ public class BenchmarkTest extends TestCase
    * Tests off-the-shelf insert scenario with parameters designed to generate
    * 3 lines of csv output. 
    */
-  public void testInsertScenario() throws Exception
+  public void testWriteSimpleScenario() throws Exception
   {
     // Set properties and run. 
     Properties props = new Properties(); 
@@ -436,14 +438,44 @@ public class BenchmarkTest extends TestCase
     props.setProperty("datawidth", "100");
     props.setProperty("datatype", "varchar");
     
-    this.runScenario("Default", InsertScenario.class, props, true, 3);
+    this.runScenario("Default", WriteSimpleScenario.class, props, true, 3);
+  }
+
+  /** 
+   * Tests off-the-shelf insert scenario with re-use of data and defining 
+   * replicaUrl for looking up inserted values.  This case replicates 
+   * common usage for testing master/slave replication. <p>
+   * 
+   * WARNING:  This case may not work if you don't run testWriteSimpleScenario 
+   * first, because it reuses data from the previous case.<p>
+   */
+  public void testWriteSimpleScenario2() throws Exception
+  {
+    // Set properties and run. 
+    Properties props = new Properties(); 
+    props.setProperty("bound", "duration");
+    props.setProperty("duration", "2");
+    props.setProperty("threads", "1|2");
+    
+    props.setProperty("url", url);
+    props.setProperty("user", user);
+    props.setProperty("password", password);
+    props.setProperty("replicaUrl", url);
+    props.setProperty("reusedata", "true");
+    
+    props.setProperty("tables", "2");
+    props.setProperty("datarows", "10");
+    props.setProperty("datawidth", "100");
+    props.setProperty("datatype", "varchar");
+    
+    this.runScenario("Default", WriteSimpleScenario.class, props, true, 3);
   }
 
   /** 
    * Tests off-the-shelf query scenario with parameters designed to generate
    * 9 lines of csv output (1 header row + 8 individual scenario runs).   
    */
-  public void testQueryScenario() throws Exception
+  public void testReadSimpleScenario() throws Exception
   {
     // Set properties and run. 
     Properties props = new Properties(); 
@@ -460,14 +492,14 @@ public class BenchmarkTest extends TestCase
     props.setProperty("datawidth", "10|100");
     props.setProperty("datatype", "varchar");
     
-    this.runScenario("Default", QueryScenario.class, props, true, 9);
+    this.runScenario("Default", ReadSimpleScenario.class, props, true, 9);
   }
 
   /** 
    * Tests off-the-shelf query long scenario with parameters designed to generate
    * 13 lines of csv output (1 header row + 12 individual scenario runs).   
    */
-  public void testQueryLongScenario() throws Exception
+  public void testReadSimpleLargeResultsScenario() throws Exception
   {
     // Set properties and run. 
     Properties props = new Properties(); 
@@ -484,19 +516,98 @@ public class BenchmarkTest extends TestCase
     props.setProperty("datawidth", "10");
     props.setProperty("datatype", "varchar");
     
-    // The QueryLongScenario adds a property for fetch size.  This can take
+    // The ReadSimpleLargeResultsScenario adds a property for fetch size.  This can take
     // negative values, which should be property converted to something 
     // acceptable to the implementation. 
     props.setProperty("fetchsize", "-1|0|100");
     
-    this.runScenario("Default", QueryLongScenario.class, props, true, 13);
+    this.runScenario("Default", ReadSimpleLargeResultsScenario.class, props, true, 13);
+  }
+
+  /** 
+   * Tests off-the-shelf read random key scenario.  Designed to generate
+   * 5 lines of csv output (1 header row + 4 individual scenario runs).   
+   */
+  public void testReadReadScalingInvertedKeysScenario() throws Exception
+  {
+    // Set properties and run. 
+    Properties props = new Properties(); 
+    props.setProperty("bound", "iterations");
+    props.setProperty("iterations", "3");
+    props.setProperty("threads", "1|2");
+    
+    props.setProperty("url", url);
+    props.setProperty("user", user);
+    props.setProperty("password", password);
+    
+    props.setProperty("tables", "2");
+    props.setProperty("datarows", "20|100");
+    props.setProperty("datawidth", "10");
+    props.setProperty("datatype", "varchar");
+    props.setProperty("step", "5");
+    
+    this.runScenario("Default", ReadScalingInvertedKeysScenario.class, props, true, 5);
+  }
+
+  /** 
+   * Tests complex read/writes, stressing various combinations of operations and 
+   * number of rows selected for reads.  Designed to generate
+   * 5 lines of csv output (1 header row + 4 individual scenario runs).   
+   */
+  public void testReadWriteScenario() throws Exception
+  {
+    // Set properties and run. 
+    Properties props = new Properties(); 
+    props.setProperty("bound", "iterations");
+    props.setProperty("iterations", "10");
+    props.setProperty("threads", "2");
+    
+    props.setProperty("url", url);
+    props.setProperty("user", user);
+    props.setProperty("password", password);
+    
+    props.setProperty("tables", "2");
+    props.setProperty("datarows", "500");
+    props.setProperty("datawidth", "10");
+    props.setProperty("datatype", "varchar");
+
+    props.setProperty("operations", "1|4");
+    props.setProperty("selectrows", "1|50");
+    
+    this.runScenario("Default", ReadWriteScenario.class, props, true, 5);
+  }
+
+  /** 
+   * Tests complex writes, stressing combinations of subselected rows on updates.
+   * Generates 3 lines of csv output (1 header row + 2 individual scenario runs).   
+   */
+  public void testWriteComplexScenario() throws Exception
+  {
+    // Set properties and run. 
+    Properties props = new Properties(); 
+    props.setProperty("bound", "iterations");
+    props.setProperty("iterations", "10");
+    props.setProperty("threads", "2");
+    
+    props.setProperty("url", url);
+    props.setProperty("user", user);
+    props.setProperty("password", password);
+    
+    props.setProperty("tables", "2");
+    props.setProperty("datarows", "500");
+    props.setProperty("datawidth", "10");
+    props.setProperty("datatype", "varchar");
+
+    props.setProperty("selectrows", "1|50");
+    
+    this.runScenario("Default", ReadWriteScenario.class, props, true, 3);
   }
 
   /** 
    * Tests off-the-shelf query aggregates scenario with parameters to generate
    * 5 lines of csv output (1 header row + 4 individual scenario runs).   
    */
-  public void testQueryAggregatesScenario() throws Exception
+  public void testReadScalingAggregatesScenario() throws Exception
   {
     // Set properties and run. 
     Properties props = new Properties(); 
@@ -513,7 +624,7 @@ public class BenchmarkTest extends TestCase
     props.setProperty("datawidth", "10|100");
     props.setProperty("datatype", "varchar");
     
-    this.runScenario("Default", QueryAggregatesScenario.class, props, true, 5);
+    this.runScenario("Default", ReadScalingAggregatesScenario.class, props, true, 5);
   }
 
   // Write a case header. 
