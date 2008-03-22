@@ -1,5 +1,3 @@
-# BENCHMARK_QUERY_LONG.PROPERTIES
-#
 # Describes a query benchmark that tests query performance using cross
 # product selects.  Cross product selects generate result sets that are 
 # N x N rows long where N is the number of rows in the table.  The 
@@ -16,10 +14,10 @@
 # test. 
 
 # Scenario name. 
-scenario=com.continuent.bristlecone.benchmark.scenarios.QueryLongScenario
+scenario=com.continuent.bristlecone.benchmark.scenarios.ReadSimpleLargeResultsScenario
 
 # Database connection information.  
-include=connection.properties
+include=conection_mysql.properties
 
 # Test duration and number of threads.  
 bound=duration
@@ -30,9 +28,9 @@ threads=5
 tables=1
 datatype=varchar
 datawidth=10
-datarows=100|200|400
+datarows=100
 
 # Fetchsize values.  -1 will force MySQL to use row-by-row streaming; 
 # Other implementations should suppress fetch size use completely with this
 # implementation. 
-fetchsize=-1|0|100
+fetchsize=1|10|100
