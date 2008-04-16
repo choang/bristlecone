@@ -32,6 +32,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -55,6 +56,7 @@ import org.jfree.util.UnitType;
  */
 public class GraphicalEvaluatorDisplay extends ApplicationFrame implements StatisticsListener
 {
+  private static final Logger logger = Logger.getLogger(GraphicalEvaluatorDisplay.class); 
   private static final long serialVersionUID =  1L;
 
   static class DemoPanel extends JPanel implements ActionListener
@@ -93,8 +95,15 @@ public class GraphicalEvaluatorDisplay extends ApplicationFrame implements Stati
                 int interval = (int)stats.getInterval();
                 while (interval > 0)
                 {
-                  demo.addRequestRate(stats.getQueries() / stats.getInterval());
-                  demo.addResponseTime((double)stats.getResponseTime() / stats.getQueries());
+                  try
+                  {
+                    demo.addRequestRate(stats.getQueries() / stats.getInterval());
+                    demo.addResponseTime((double)stats.getResponseTime() / stats.getQueries());
+                  }
+                  catch (Exception e)
+                  {
+                    logger.warn("Error while adding data to graph", e);
+                  }
                   if (--interval > 0)
                     Thread.sleep(1000);
                 }
