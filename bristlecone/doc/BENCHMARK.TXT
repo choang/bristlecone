@@ -1,7 +1,7 @@
                     INTRODUCTION TO BENCHMARK UTILITY
                                 R. Hodges
-                             31 January 2007
-                   Copyright (c) 2007 Continuent, Inc.
+                             15 April 2008
+                   Copyright (c) 2007-2008 Continuent, Inc.
 
 1 WHAT THE BENCHMARK UTILITY DOES
 
@@ -12,7 +12,7 @@ applications standard run parameters include the number of client
 threads, the number of tables, the numbers of rows in each table, the
 number of rows returned by queries, etc.  The results of a benchmark
 run are written into a .csv file, which can then be loaded into Excel
-for further analysis.
+for further analysis.  You can also get results in HTML as well. 
 
 Benchmark test runs are controlled by a properties file, which specifies
 parameters for the test.  Properties files allow specification of 
@@ -47,13 +47,8 @@ insert operations running against MySQL and uni/cluster for MySQL.
   # * Number of tables:     1 | 2 | 4
   # * Iterations:           1000
   #
-  # To invoke this test try the following command. 
-  #   $EVALUATOR_HOME/bin/benchmark.sh -props insertBenchmark.properties \
-  #     -csv out.csv 
-  
   # Scenario name. 
-  scenario=com.continuent.evaluator.benchmark.InsertScenario
-  operation=insert
+  scenario=com.continuent.bristlecone.benchmark.scenarios.WriteSimpleScenario
   
   # Specify separate connection files for mcluster/mysql. 
   include=mclusterConnection.properties|mysqlConnection.properties
@@ -71,27 +66,29 @@ insert operations running against MySQL and uni/cluster for MySQL.
   datawidth=100
   fetchrows=10
 
-The following property values are supported. 
+The following standard properties are implemented by Benchmark itself. 
+They are supported by any scenario. 
 
+  Name        Description
+  ----        -------------------------------------------------------------
   include     Name of file from which to include more properties
   scenario    Name of the class that implements the scenario
-  operation   A tag that can be used to describe this test
   driver      JDBC driver class, e.g, com.mysql.jdbc.Driver
+  threads     Number of threads to use; each one runs the scenario
+  bound       Method of bounding number of runs:  duration or iterations
+  iterations  Number of times to run each scenario (iterations bound only)
+  duration    Number of seconds to run each scenario (duration only)
+
+The following additional properties are provided by the ScenarioBase 
+class, which is the parent of all currently implemented scenarios. 
+
   url         JDBC URL, e.g., jdbc:mysql://coot/gi24
   user        Database login 
   password    Database password
-  threads     Number of threads to use; each one runs the scenario
-  tables      Number of tables to use
-  iteration   Number of times to repeat the scenario
+  tables      Number of test tables to use
   datarows    Number of rows to put in tables 
-  datatype    Type of data in the table: varchar | blob | text
+  datatype    Type of data in the test table: varchar | blob | text
   datawidth   Width of data in the table
-  fetchrows   Number of rows to fetch back in queries or other such operations
-  queryspeed  Speed of the query: fast | slow
-  insertops   Number of insert operations [StandardTransaction scenario only]
-  queryops    Number of query operations [StandardTransaction scenario only]
-  usetransactions Use transactions [StandardTransaction scenario only]
-  reuseconnections Reuse connections [StandardTransaction scenario only]
 
 The include property is special as it allows standard properties like
 database connection properties to be included from a second file.
@@ -131,26 +128,117 @@ You can run tests by running Java on the Benchmark class directly.
 Alternatively you can use the benchmark.sh script in the bin directory.
 Here is the invocation syntax. 
 
-  benchmark.sh [options] scenario_class
+  benchmark.sh [options] 
 
 where options are 
 
   -props propsfile  Scenario properties file (default=benchmark.properties
   -console          Log results on console
   -csv file         Log results to CSV output file
+  -html file        Log results to HTML output file
   -debug            Print extended information on errors
   -help             Print usage
 
 Here is a typical example of invocation. 
 
-  benchmark.sh -props insertBenchmark.properties -csv insert.csv 
+  benchmark.sh -props WriteSimple.properties -csv insert.csv -html insert.html
 
-This reads the scenario properties from file insertBenchmark.properties.
+This reads the scenario properties from file WriteSimple.properties.
 Output is written to file insert.csv; there is a row of output for each 
 individual thread in each test.  Headers for CSV files are printed 
 automatically. 
 
-6. INTERPRETING RESULTS
+6. STANDARD SCENARIOS
+
+Benchmark includes a number of standard scenarios.  They are described 
+below with additional properties listed if applicable.  For full
+information please consult the relevant Java class header comments. 
+
+6.1 com.continuent.bristlecone.benchmark.scenarios.DeadlockScenario
+
+Runs updates that are likely to provide deadlocks.  It can be used to
+measure deadlock / aborts likelihood.  
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  autocommit  If true, use autocommit.  This eliminates deadlocks. 
+  delayMillis Number of milliseconds to delay between updates
+  operations  Number of operations per transaction
+
+6.2 com.continuent.bristlecone.benchmark.scenarios.ReadScalingAggregatesScenario
+
+Runs a CPU-intensive query that computes an aggregate.  This query can simulate
+heavyweight reads. 
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  selectrows  Number of rows to select (more = more CPU time)
+
+6.3 com.continuent.bristlecone.benchmark.scenarios.ReadScalingInvertedKeysScenario
+
+Runs queries using a secondary "inverted" index that practically guarantees 
+sequential index values are on different disk pages.  The scenario is designed
+to stress the buffer cache by forcing large numbers of random pages into cache.
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  selectrows  Number of rows to select (more = more CPU time)
+  step        Number of rows to skip when defining index values (should be 
+              at least 50 or so to force each subsequent value onto a new 
+              page)
+
+This scenario is rather complex.  It is describe fully in the Javadoc. 
+
+6.4 com.continuent.bristlecone.benchmark.scenarios.ReadSimpleLargeResultsScenario
+
+Runs cross product queries (i.e., select * from x, y) to generate very large
+result sets.  The number of rows returned is the value of the datarows 
+property squared.  
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  fetchsize   Number of result rows to fetch (JDBC setFetchSize parameter)
+
+6.5 com.continuent.bristlecone.benchmark.scenarios.ReadSimpleScenario
+
+Runs very short queries designed to test read latency of middleware layers. 
+The number of rows returned is the value of the datarows property. 
+
+6.6 com.continuent.bristlecone.benchmark.scenarios.ReadWriteScenario
+
+Models a complex transaction wherein reads compute values that are 
+then inserted. 
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  autocommit  If true, use autocommit rather than transactions
+  operations  Number of operations per transaction 
+  selectRows  Number of rows to read
+
+6.7 com.continuent.bristlecone.benchmark.scenarios.WriteComplexScenario
+
+Performs updates that select varying numbers of rows when updating.  The 
+update itself is quite small but the number of rows read in the sub-select
+is large. 
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  selectRows  Number of rows to read
+
+6.8 com.continuent.bristlecone.benchmark.scenarios.WriteSimpleScenario
+
+Performs simple insert statements with autocommit (no transaction).  This is 
+quite useful for testing raw throughput numbers.  
+
+  Name        Description
+  ----        -------------------------------------------------------------
+  replicaUrl  A JDBC connection URL for a replica database
+
+The replicaUrl property allows you to set up tests of replication latency. 
+If specified, we check to see if the row has arrived on the other database. 
+
+
+7. INTERPRETING RESULTS
 
 The Benchmark utility writes output as comma-separated values (CSV),
 which is a format that can be easily loaded into Excel for analysis.
@@ -199,8 +287,8 @@ Sum of  ops_sec	 driver
 40	                               5690.255327	         10307.82151
 80	                               5597.51394	         10371.14912
 
-7. WRITING NEW SCENARIOS
+8. WRITING NEW SCENARIOS
 
 Benchmark code is located in package com.continuent.bristlecone.benchmark.  
 You can add new test scenarios quite easily by writing classes that implement
-the Scenario interface. 
+the Scenario interface.  Look at existing implementations for examples. 
