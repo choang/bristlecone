@@ -125,6 +125,8 @@
 			Custom stored procedures can do anything they want. The sybaseProcedure option 
 			handles configuring the scluster semantic information for the stored procedures. 
 			Custom stored procedures must set up uni/cluster semantic information as nessecary.
+		queryWeight:  Indicates the relative CPU cost of the read query when using SQL.  
+			The values are 'heavy', 'medium', and 'light'.  
 	-->
 <!ATTLIST ThreadGroup
 	deletes CDATA "0"
@@ -138,4 +140,5 @@
 	rampUpIncrement CDATA "5"
 	reconnectInterval CDATA "15"
 	queryFormat (sql | sybaseProcedure | custom) "sql"
+	queryWeight (heavy | medium | light) "heavy"
 >

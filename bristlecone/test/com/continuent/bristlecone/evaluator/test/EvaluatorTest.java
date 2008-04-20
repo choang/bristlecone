@@ -88,9 +88,28 @@ public class EvaluatorTest extends TestCase
     assertEquals(count, rows);
     assertFalse(rs.next());
   }
-  public void testHsqlSample() throws Exception
+
+  /** Tests HSQL with default heavyweight queries. */
+  public void testHsqlSample_Heavy() throws Exception
   {
-    Configuration  config = new Configuration("config/evaluator/hsql_sample.xml");
+    execHsqlTest(new Configuration("config/evaluator/hsql_sample.xml"));
+  }
+  
+  /** Tests HSQL with medium-weight queries. */
+  public void testHsqlSample_Medium() throws Exception
+  {
+    execHsqlTest(new Configuration("config/evaluator/hsql_sample_medium.xml"));
+  }
+  
+  /** Tests HSQL with default lightweight queries. */
+  public void testHsqlSample_Light() throws Exception
+  {
+    execHsqlTest(new Configuration("config/evaluator/hsql_sample_light.xml"));
+  }
+  
+  /** Runs HSQL test with a particular configuration file. */
+  private void execHsqlTest(Configuration config) throws Exception
+  {
     Evaluator eval = new Evaluator(config);
     long startTime = System.currentTimeMillis();
     eval.run();
@@ -123,7 +142,7 @@ public class EvaluatorTest extends TestCase
     }
     assertEquals(6, count);
   }
-  
+
   /**
    * Assertion: errors encountered by the EvaluatorThreads will
    * be returned in the failures list.
