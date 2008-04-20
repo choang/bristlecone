@@ -29,7 +29,6 @@ import java.util.Properties;
  * optional with implementations.  Clients may subclass and override methods
  * as desired.  
  * 
- * @see BenchmarkSql
  * @author rhodges
  */
 public class ScenarioAdapter implements Scenario

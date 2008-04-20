@@ -1601,8 +1601,6 @@ public class ManyThreads extends TestCase
   /**
    * Stop the threads and return a list of threads that had failures. Threads
    * that do not stop are assumed to be hung on a operation in the controller.
-   * 
-   * @return
    */
   public List stopThreads()
   {

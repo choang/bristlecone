@@ -55,8 +55,8 @@ public class PropertyManager
    * should be included. 
    * <li>property value cross products.  The pipe symbol within a property 
    * value creates a cross product of property files.  
+   * </ol>
    *   
-   * @param propFile A file containing properties
    */
   public Vector<Properties> propertiesCrossProduct(Properties props, File defaultDir, 
       Vector<String> splitPropertyNames)

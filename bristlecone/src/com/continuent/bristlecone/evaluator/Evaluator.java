@@ -111,9 +111,7 @@ public class Evaluator implements RowFactory, Runnable
 
   /**
    * The main routine for the Evaluator load testing tool. Reads a test
-   * configuration form the specified file and runs the test using those values.
-   * 
-   * @param args the path to a configuration file
+   * configuration from the specified file and runs the test using those values.
    */
   public static void main(String[] argv)
   {

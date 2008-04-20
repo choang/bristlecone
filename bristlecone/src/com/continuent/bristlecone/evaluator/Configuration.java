@@ -306,7 +306,6 @@ public class Configuration extends DefaultHandler
    * of the current element.
    * 
    * @param name The element type name.
-   * @param attributes The specified or defaulted attributes.
    * @exception org.xml.sax.SAXException Any SAX exception, possibly wrapping
    *              another exception.
    * @see org.xml.sax.ContentHandler#endElement
