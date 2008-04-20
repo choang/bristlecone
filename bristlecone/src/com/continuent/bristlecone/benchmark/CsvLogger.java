@@ -162,19 +162,25 @@ public class CsvLogger implements ResultLogger
   }
 
   // Print quoted property value with comma preceding after first name. 
-  private void printPropertyValue(String name, int index)
+  private void printPropertyValue(String value, int index)
   {
     if (index > 0)
       cvsOut.print(", ");
-    //cvsOut.print('"');
-    for (int i = 0; i < name.length(); i++)
+    if (value == null)
     {
-      char c = name.charAt(i);
-      if (c == '"')
-        cvsOut.print("\\\"");
-      else
-        cvsOut.print(c);
+      // Null values are possible due to cross products.  
+      // Fix for BRI-4. 
+      cvsOut.print("null");
     }
-    //cvsOut.print('"');
+    else
+    {
+      // Print actual values one character at a time.  We 
+      // may want to escale some characters at some point. 
+      for (int i = 0; i < value.length(); i++)
+      {
+        char c = value.charAt(i);
+        cvsOut.print(c);
+      }
+    }
   }
 }
