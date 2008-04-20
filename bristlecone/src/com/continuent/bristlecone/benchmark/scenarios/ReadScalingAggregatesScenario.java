@@ -77,13 +77,13 @@ public class ReadScalingAggregatesScenario extends ScenarioBase
     pstmt.setInt(2, i2);
     
     // If we are in debug mode dump the SQL and arguments. 
-    if (logger.isInfoEnabled())
+    if (logger.isDebugEnabled())
     {
       StringBuffer sb = new StringBuffer();
       sb.append("SQL=").append(select);
       sb.append(lineSeparator).append("i1=").append(i1);
       sb.append(lineSeparator).append("i2=").append(i2);
-      logger.info(sb.toString());
+      logger.debug(sb.toString());
     }
     
     // Do the query and force cycling through results. 
