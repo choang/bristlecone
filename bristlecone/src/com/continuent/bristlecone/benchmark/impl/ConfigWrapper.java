@@ -22,6 +22,8 @@
 
 package com.continuent.bristlecone.benchmark.impl;
 
+import java.util.Properties;
+
 
 /**
  * Wrapper class to provide typesafe access to benchmark configuration 
@@ -122,5 +124,11 @@ public class ConfigWrapper
   public void setActualOtherExceptions(long otherExceptions)
   {
     configData.setProperty("actualOtherExceptions", otherExceptions);
+  }
+  
+  /** Returns a Properties instance containing current underlying values. */
+  public Properties getProperties()
+  {
+    return configData.toProperties();
   }
 }

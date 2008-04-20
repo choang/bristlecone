@@ -297,7 +297,7 @@ public class Benchmark
     configWrapper.setActualAvgOpsSecond(actualAvgOpsSec);
     configWrapper.setActualSQLExceptions(actualSQLExceptions);
     configWrapper.setActualOtherExceptions(actualOtherExceptions);
-    logger.info("Output: " + listOutputValues(metadata, bProperties));
+    logger.info("Output: " + listOutputValues(metadata, configWrapper.getProperties()));
           
     // Clean up the threads.
     logger.debug("Invoking scenario cleanup() methods");

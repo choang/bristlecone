@@ -164,4 +164,19 @@ public class Config
   {
     synchronizedMap.put(name, new Double(value).toString());
   }
+  
+  /**
+   * Returns a Properties instance derived from this instance. 
+   */
+  public Properties toProperties()
+  {
+    Properties p = new Properties();
+    Iterator<String> propertyNames = this.propertyNames();
+    while (propertyNames.hasNext())
+    {
+      String name = propertyNames.next();
+      p.setProperty(name, getProperty(name));
+    }
+    return p;
+  }
 }
