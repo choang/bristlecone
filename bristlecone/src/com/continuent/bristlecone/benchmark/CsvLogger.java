@@ -50,6 +50,13 @@ public class CsvLogger implements ResultLogger
   {
     File csvFile = new File(outputFileName);
     logger.info("Writing CSV output to file: " + csvFile.toString());
+
+    if (csvFile.exists())
+    {
+      logger.info("Deleting previous file");
+      csvFile.delete();
+    }
+
     try
     {
       this.cvsOut = new PrintStream(new FileOutputStream(csvFile, true));

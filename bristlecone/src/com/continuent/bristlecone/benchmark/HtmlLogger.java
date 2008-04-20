@@ -73,6 +73,12 @@ public class HtmlLogger implements ResultLogger
   {
     File htmlFile = new File(outputFileName);
     logger.info("Writing HTML output to file: " + htmlFile.toString());
+    if (htmlFile.exists())
+    {
+      logger.info("Deleting previous file");
+      htmlFile.delete();
+    }
+
     try
     {
       this.htmlOut = new PrintStream(new FileOutputStream(htmlFile, true));
@@ -175,6 +181,7 @@ public class HtmlLogger implements ResultLogger
   {
     htmlOut.println("</table>");
     htmlOut.println("</body>");
+    htmlOut.println("</html>");
     htmlOut.close();
   }
 }
