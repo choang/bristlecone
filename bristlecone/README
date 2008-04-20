@@ -1,5 +1,5 @@
 README file for Bristlecone Version @VERSION@
-Copyright (c) Continuent 2006-2007
+Copyright (c) Continuent 2006-2008
 
 Bristlecone is a set of test tools that perform useful services for 
 measuring database and database cluster performance.   There are currently

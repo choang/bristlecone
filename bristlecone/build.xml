@@ -60,6 +60,9 @@
         </fileset>
     </path>
     <path id="testclasspath">
+        <fileset dir="${libdir}">
+            <include name="junit.jar" />
+        </fileset>
         <fileset dir="${build.bristlecone}/lib">
             <include name="*.jar" />
         </fileset>
@@ -88,7 +91,30 @@
 
     <!-- Compile the source -->
     <target name="compile" depends="init" description="Compile code">
-        <javac srcdir="${srcdir}" destdir="${build.classes}" target="${javac.target}" source="${javac.source}" classpathref="classpath" debug="${javac.debug}" depend="${javac.depend}" deprecation="${javac.deprecation}" optimize="${javac.optimize}" encoding="${javac.encoding}" />
+        <javac srcdir="${srcdir}" 
+            destdir="${build.classes}" 
+            target="${javac.target}" 
+            source="${javac.source}" 
+            classpathref="classpath" 
+            debug="${javac.debug}" 
+            depend="${javac.depend}" 
+            deprecation="${javac.deprecation}" 
+            optimize="${javac.optimize}" 
+            encoding="${javac.encoding}" />
+    </target>
+
+    <!-- Generate Javadoc. -->
+    <target name="javadoc" depends="build" description="Generate javadoc" >
+        <javadoc packagenames="com.continuent.*"
+            sourcepath="${srcdir}"
+            classpathref="classpath"
+            defaultexcludes="yes"
+            destdir="${build.bristlecone}/doc/javadoc"
+            author="true"
+            version="true"
+            use="true"
+            windowtitle="Bristlecone Java API">
+        </javadoc>
     </target>
 
     <!-- Create the bristlecone.jar file -->
@@ -187,7 +213,8 @@
         </copy>
         <copy todir="${build.bristlecone}/config/evaluator">
             <fileset dir="${configdir}/evaluator">
-                <include name="*sample.xml" />
+                <include name="README" />
+                <include name="*sample*.xml" />
             </fileset>
         </copy>
         <copy todir="${build.bristlecone}/config/benchmark">
@@ -279,7 +306,7 @@
     </target>
 
     <!-- Create the distribution files -->
-    <target name="dist" depends="src,build" 
+    <target name="dist" depends="src,build,javadoc" 
         description="Create distributable releases">
 
         <!-- Build binary files. -->
