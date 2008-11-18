@@ -69,12 +69,16 @@ public class DataGeneratorFactory
         return new DataGeneratorForLong(32767); 
       case java.sql.Types.VARCHAR:
         return new DataGeneratorForString(c.getLength(), 10);
-
-      case java.sql.Types.BIT: 
       case java.sql.Types.BOOLEAN:
+        return new DataGeneratorForBoolean();
       case java.sql.Types.DATE:
+        return new DataGeneratorForDate();
       case java.sql.Types.TIME:
+        return new DataGeneratorForTime();
       case java.sql.Types.TIMESTAMP:
+        return new DataGeneratorForTimestamp();
+      
+      case java.sql.Types.BIT:
       default:
         throw new IllegalArgumentException("Unsupported JDBC type value: " + c.getType());
     }
