@@ -43,6 +43,7 @@ public class SqlDialectFactory
     al.add(new SqlDialectForPCluster());
     al.add(new SqlDialectForMCluster());
     al.add(new SqlDialectForHSQLDB());
+    al.add(new SqlDialectForOracle());
     dialects = al;
   }
 

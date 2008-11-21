@@ -30,7 +30,8 @@ package com.continuent.bristlecone.benchmark.db;
  */
 public class DataGeneratorForDouble implements DataGenerator
 {
-  private static final double max = Double.MAX_VALUE;
+  private static final double max = Float.MAX_VALUE;
+  //max from float so that this works better with oracle
  
   /** Create a new instance. */
   DataGeneratorForDouble()
