@@ -23,15 +23,16 @@
 package com.continuent.bristlecone.benchmark.db;
 
 /**
- * Implements a definition of a single table with columns. 
+ * Implements a definition of a single table with columns.
  * 
  * @author rhodges
  */
 public class Table
 {
-  private final String name;
+  private final String   name;
   private final Column[] columns;
-  
+  private String         databaseEngine = null;
+
   public Table(String name, Column[] columns)
   {
     this.name = name;
@@ -43,10 +44,10 @@ public class Table
   {
     return columns;
   }
-  
-  /** 
-   * Returns a specific column using the name as index or null if no s
-   * such name can be found. 
+
+  /**
+   * Returns a specific column using the name as index or null if no s such name
+   * can be found.
    */
   public Column getColumn(String name)
   {
@@ -63,7 +64,7 @@ public class Table
   {
     return name;
   }
-  
+
   /** Returns the primary key column if there is one. */
   public Column getPrimaryKey()
   {
@@ -73,5 +74,17 @@ public class Table
         return columns[i];
     }
     return null;
+  }
+
+  /** Sets name of database engine. */
+  public void setDatabaseEngine(String databaseEngine)
+  {
+    this.databaseEngine = databaseEngine;
+  }
+
+  /** Return the database engine name if it is set, or null if not. */
+  public String getDatabaseEngine()
+  {
+    return databaseEngine;
   }
 }

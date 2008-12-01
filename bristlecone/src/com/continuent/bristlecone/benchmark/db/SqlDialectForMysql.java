@@ -23,7 +23,7 @@
 package com.continuent.bristlecone.benchmark.db;
 
 /**
- * MySQL DBMS dialect information. 
+ * MySQL DBMS dialect information.
  * 
  * @author rhodges
  */
@@ -40,10 +40,22 @@ public class SqlDialectForMysql extends AbstractSqlDialect
   {
     return (url.startsWith("jdbc:mysql"));
   }
-  
-  /** 
+
+  /**
+   * Implements create table that supports defining database engine.
+   */
+  public String getCreateTable(Table t)
+  {
+    String sql = super.getCreateTable(t);
+    if (t.getDatabaseEngine() != null)
+      sql += " ENGINE= " + t.getDatabaseEngine();
+
+    return sql;
+  }
+
+  /**
    * Transforms negative fetch sizes to Integer.MIN_VALUE, which prompts
-   * row-by-row streaming of result sets. 
+   * row-by-row streaming of result sets.
    */
   public int implementationConvertFetchSize(int fetchSize)
   {
@@ -58,11 +70,11 @@ public class SqlDialectForMysql extends AbstractSqlDialect
   {
     switch (type)
     {
-      case java.sql.Types.BLOB: 
+      case java.sql.Types.BLOB :
         return "longblob";
-      case java.sql.Types.CLOB:
+      case java.sql.Types.CLOB :
         return "longtext";
-      default: 
+      default :
         return super.implementationTypeName(type);
     }
   }
