@@ -54,7 +54,7 @@ public class DataGeneratorForBlob implements DataGenerator
     }
     
     byte[] generatedValues = new byte[length];
-    for (int i = 0; i < repeat; i++)
+    for (int i = 0; i < length; i++)
     {
       int index = i % base.length;
       generatedValues[i] = base[index];

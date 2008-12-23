@@ -29,7 +29,7 @@ package com.continuent.bristlecone.benchmark.db;
  */
 public class Table
 {
-  private final String   name;
+  private String         name;
   private final Column[] columns;
   private String         databaseEngine = null;
 
@@ -63,6 +63,12 @@ public class Table
   public String getName()
   {
     return name;
+  }
+
+  /** Sets the table name. */
+  public void setName(String name)
+  {
+    this.name = name;
   }
 
   /** Returns the primary key column if there is one. */
