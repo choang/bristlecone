@@ -57,8 +57,14 @@ public interface SqlDialect
   /** Returns an UPDATE statement that updates a single record by key value. */
   public String getUpdateByKey(Table t);
   
+  /** Returns an UPDATE statement that updates a single record by key value. Where key is in defined column. */
+  public String getUpdateByKey(Table t, Column keyColumn);
+  
   /** Returns a DELETE statement that finds the record by its key. */
   public String getDeleteByKey(Table t); 
+  
+  /** Returns a DELETE statement that finds the record by its key. Where key is in defined column. */
+  public String getDeleteByKey(Table t, Column keyColumn);
   
   /** Returns a DELETE / TRUNCATE statement that deletes all records in the table. */
   public String getDeleteAll(Table t);

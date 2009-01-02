@@ -135,6 +135,12 @@ public abstract class AbstractSqlDialect implements SqlDialect
     
     return "delete from " + t.getName() + " where " + pkeyCol.getName() + " = ?";
   }
+  
+  /** Like getDeleteByKey(Table t) but allows defining which column is used as key */
+  public String getDeleteByKey(Table t, Column keyColumn)
+  {
+    return "delete from " + t.getName() + " where " + keyColumn.getName() + " = ?";
+  }
 
   /** Provides a generic DROP TABLE that works for all DBMS. */
   public String getDropTable(Table t)
@@ -182,7 +188,12 @@ public abstract class AbstractSqlDialect implements SqlDialect
   }
 
   /** Returns an UPDATE statement that updates a single record by key value. */
-  public String getUpdateByKey(Table t)
+  public String getUpdateByKey(Table t){
+    return getUpdateByKey(t, t.getPrimaryKey());
+  }
+  
+  /** Like getUpdateByKey(Table t) but allows defining which column is used as key */
+  public String getUpdateByKey(Table t, Column keyColumn)
   {
     // Start of UPDATE command. 
     StringBuffer sb = new StringBuffer();
@@ -208,7 +219,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
     
     // Where clause. 
     sb.append(" where ");
-    sb.append(t.getPrimaryKey().getName()); 
+    sb.append(keyColumn.getName()); 
     sb.append(" = ?");    
     
     return sb.toString();
