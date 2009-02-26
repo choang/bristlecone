@@ -24,7 +24,7 @@ package com.continuent.bristlecone.benchmark.db;
 
 import java.sql.Types;
 
-import sun.rmi.runtime.GetThreadPoolAction;
+//import sun.rmi.runtime.GetThreadPoolAction;
 
 public class SqlDialectForOracle extends AbstractSqlDialect
 {

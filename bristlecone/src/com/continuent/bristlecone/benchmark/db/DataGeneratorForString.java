@@ -31,8 +31,11 @@ package com.continuent.bristlecone.benchmark.db;
 public class DataGeneratorForString implements DataGenerator
 {
   private static String values = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  /* These specials could be expanded but for now just use "normal" ones */
+  private static String special = "~!@#$%^&*()_+`-={}[]|:;<>,.?/\'\\\"";
   private int length; 
   private int repeat;
+  private boolean useSpecial = true; /* For now, always true, placed here for expansion */
  
   /** Create a new instance with an upper bound. */
   DataGeneratorForString(int length, int repeat)
@@ -50,8 +53,15 @@ public class DataGeneratorForString implements DataGenerator
     char[] base = new char[repeat];
     for (int i = 0; i < repeat; i++)
     {
-      int index = (int) (Math.random() * values.length());
-      base[i] = values.charAt(index);
+      /* 20% of the time, if useSpecial is enabled, insert special character */
+      if (useSpecial && Math.random() < 0.2)
+      {
+        int index = (int) (Math.random() * special.length());
+        base[i] = special.charAt(index);
+      } else {
+        int index = (int) (Math.random() * values.length());
+        base[i] = values.charAt(index);
+      }
     }
     
     char[] generatedValues = new char[length];
