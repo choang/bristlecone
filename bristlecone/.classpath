@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib-ext/postgres/postgresql-8.2-505.jdbc3.jar"/>
 	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-3.1.14-bin.jar"/>
@@ -9,9 +11,9 @@
 	<classpathentry kind="lib" path="xml"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.6.jar"/>
-	<classpathentry kind="lib" path="lib/jcommon-1.0.10.jar"/>
 	<classpathentry kind="lib" path="lib-ext/hsqldb.jar"/>
 	<classpathentry kind="lib" path="config"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sql-router"/>
+	<classpathentry kind="lib" path="C:/Users/Edward/Desktop/Veditam/Veditam Development/sql-router/build/jars/tungsten-sqlrouter.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>

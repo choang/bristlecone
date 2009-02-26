@@ -12,6 +12,7 @@
 	  Database
 	 ****************** -->
 <!ELEMENT Database EMPTY>
+<!ELEMENT DataStore EMPTY>
 
 <!--
 	The database tag identifies the target database for testing. It can 
@@ -38,7 +39,17 @@
 	timestampType CDATA "timestamp"
 >
 
-<!ELEMENT EvaluatorConfiguration (Database,TableGroup+)>
+<!ATTLIST DataStore
+        name   CDATA #REQUIRED
+	driver CDATA #REQUIRED
+	password CDATA #REQUIRED
+	url CDATA #REQUIRED
+	user CDATA #REQUIRED
+        isAutoCommit CDATA "true"
+	timestampType CDATA "timestamp"
+>
+
+<!ELEMENT EvaluatorConfiguration ((Database? | DataStore*), TableGroup+)>
 <!--
 	This is root element of the XML document. It contains a Database 
 	element and one or more TableGroup elements. 
@@ -88,12 +99,13 @@
 	size CDATA "100"
 	initializeDDL (true | false) "true"
 	truncateTable CDATA "truncate table "
+        dataStore CDATA "default"
 >
 <!ELEMENT ThreadGroup EMPTY>
 <!--
 	The ThreadGroup tag defines a set of client threads that will generate
 	requests against the target database. 
-	
+
 		Name: This the prefix for the client names. The names will be generated 
 			by adding a number suffix.
 		threadCount: This is the number of clients in this group.
@@ -129,6 +141,7 @@
 			The values are 'heavy', 'medium', and 'light'.  
 	-->
 <!ATTLIST ThreadGroup
+	dataStore CDATA "default"
 	deletes CDATA "0"
 	inserts CDATA "0"
 	name CDATA #REQUIRED

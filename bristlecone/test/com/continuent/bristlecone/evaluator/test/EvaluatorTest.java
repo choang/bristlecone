@@ -164,7 +164,7 @@ public class EvaluatorTest extends TestCase
     t.start();
     conn = eval.getConnection();
     Statement s = conn.createStatement();
-    TableGroup tg = (TableGroup)config.getTableGroups().next();
+    TableGroup tg = (TableGroup)config.getTableGroups().get(0);
     s.execute("drop table " + tg.getBase1TableName());
     t.join(10000);
     assertFalse(t.isAlive());
@@ -175,7 +175,7 @@ public class EvaluatorTest extends TestCase
   public void testNoInitializeDDL() throws Exception
   {
     Configuration config = new Configuration("config/evaluator/hsql_sample.xml");
-    TableGroup tg = (TableGroup)config.getTableGroups().next();
+    TableGroup tg = (TableGroup)config.getTableGroups().get(0);
     tg.setInitializeDDL(false);
     tg.setTruncateTable("delete from ");
     Evaluator eval = new Evaluator(config);
@@ -187,7 +187,7 @@ public class EvaluatorTest extends TestCase
     Configuration  config = new Configuration("config/evaluator/hsql_sample.xml");
     config.setTestDuration(300);
 
-    TableGroup tg = (TableGroup)config.getTableGroups().next();
+    TableGroup tg = (TableGroup)config.getTableGroups().get(0);
     ThreadConfiguration tc = (ThreadConfiguration)tg.getThreads().get(0);
     // make sure all the threads start immediately
     tc.setRampUpIncrement(0);
@@ -229,7 +229,7 @@ public class EvaluatorTest extends TestCase
       Configuration config = new Configuration("config/evaluator/hsql_sample.xml");
       
       config.setXmlFile(xml.getPath());
-      TableGroup tg = (TableGroup)config.getTableGroups().next();
+      TableGroup tg = (TableGroup)config.getTableGroups().get(0);
       ThreadConfiguration tc = (ThreadConfiguration)tg.getThreads().get(0);
      
       tc.setUpdatePercentage(9);

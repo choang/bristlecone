@@ -306,7 +306,7 @@
     </target>
 
     <!-- Create the distribution files -->
-    <target name="dist" depends="src,build,javadoc" 
+    <target name="dist" depends="src,build" 
         description="Create distributable releases">
 
         <!-- Build binary files. -->

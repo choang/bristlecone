@@ -27,238 +27,271 @@ import java.util.Random;
 
 public class ThreadConfiguration
 {
-  int                deletePercentage;
-  int                updatePercentage;
-  int                insertPercentage;
-  int                count;
-  /**
-   * Collects execution statistics for this group. Every 
-   * method that manipulates this structure must be synchronized.
-   */
-  Statistics         stats = new Statistics();
+    int                deletePercentage;
+    int                updatePercentage;
+    int                insertPercentage;
+    int                count;
 
-  private String     name;
-  private int        readSize;
-  private TableGroup tableGroup;
-  private int        thinkTime;
-  private int rampUpInterval;
-  private int rampUpIncrement;
-  private int reconnectInterval;
-  private String queryFormat;
-  private boolean procsCreated;
+    /**
+     * Collects execution statistics for this group. Every method that
+     * manipulates this structure must be synchronized.
+     */
+    Statistics         stats     = new Statistics();
 
-  public ThreadConfiguration(TableGroup tableGroup)
-  {
-    this.tableGroup = tableGroup;
-  }
+    private String     dataStore = null;
+    private String     name;
+    private int        readSize;
+    private TableGroup tableGroup;
+    private int        thinkTime;
+    private int        rampUpInterval;
+    private int        rampUpIncrement;
+    private int        reconnectInterval;
+    private String     queryFormat;
+    private boolean    procsCreated;
 
-  public int getCount()
-  {
-    return count;
-  }
-
-  public void setCount(int count)
-  {
-    this.count = count;
-  }
-
-  public int getDeletePercentage()
-  {
-    return deletePercentage;
-  }
-
-  public void setDeletePercentage(int deletePercentage)
-  {
-    this.deletePercentage = deletePercentage;
-  }
-
-  public int getInsertPercentage()
-  {
-    return insertPercentage;
-  }
-
-  public void setInsertPercentage(int insertPercentage)
-  {
-    this.insertPercentage = insertPercentage;
-  }
-
-  public int getUpdatePercentage()
-  {
-    return updatePercentage;
-  }
-
-  public void setUpdatePercentage(int updatePercentage)
-  {
-    this.updatePercentage = updatePercentage;
-  }
-
-  public synchronized boolean isDeleteRequired(Random rand)
-  {
-    boolean ret = deletePercentage > rand.nextInt(100);
-
-    if (ret)
+    public ThreadConfiguration(TableGroup tableGroup)
     {
-      stats.addDelete();
-    }
-    return ret;
-  }
-
-  public synchronized boolean isUpdateRequired(Random rand)
-  {
-    boolean ret = updatePercentage > rand.nextInt(100);
-    if (ret)
-    {
-      stats.addUpdate();
+        this.tableGroup = tableGroup;
     }
 
-    return ret;
-  }
-
-  public synchronized boolean isInsertRequired(Random rand)
-  {
-    boolean ret = insertPercentage > rand.nextInt(100);
-    if (ret)
+    public int getCount()
     {
-      stats.addInsert();
+        return count;
     }
 
-    return ret;
-  }
+    public void setCount(int count)
+    {
+        this.count = count;
+    }
 
-  public synchronized void addRowsRead(int rowsRead, long duration)
-  {
-    stats.addRowsRead(rowsRead);
-    stats.addResponseTime(duration);
-    stats.addQuery();
-  }
+    public int getDeletePercentage()
+    {
+        return deletePercentage;
+    }
 
-  public synchronized Statistics getStatistics()
-  {
-    return new Statistics(stats);
-  }
-  public void setName(String name)
-  {
-    this.name = name;
-  }
+    public void setDeletePercentage(int deletePercentage)
+    {
+        this.deletePercentage = deletePercentage;
+    }
 
-  public String getName()
-  {
-    return name;
-  }
+    public int getInsertPercentage()
+    {
+        return insertPercentage;
+    }
 
-  public void setReadSize(int i)
-  {
-    this.readSize = i;
-  }
+    public void setInsertPercentage(int insertPercentage)
+    {
+        this.insertPercentage = insertPercentage;
+    }
 
-  public int getReadSize()
-  {
-    return readSize;
-  }
+    public int getUpdatePercentage()
+    {
+        return updatePercentage;
+    }
 
-  public int getSmallKey()
-  {
-    return tableGroup.getSmallKey();
-  }
+    public void setUpdatePercentage(int updatePercentage)
+    {
+        this.updatePercentage = updatePercentage;
+    }
 
-  public int getBigKey(Connection conn) throws EvaluatorException
-  {
-    return tableGroup.getBigkey(conn);
-  }
+    public synchronized boolean isDeleteRequired(Random rand)
+    {
+        boolean ret = deletePercentage > rand.nextInt(100);
 
-  public String getBase1TableName()
-  {
-    return tableGroup.getBase1TableName();
-  }
+        if (ret)
+        {
+            stats.addDelete();
+        }
+        return ret;
+    }
 
-  public String getBase2TableName()
-  {
-    return tableGroup.getBase2TableName();
-  }
+    public synchronized boolean isUpdateRequired(Random rand)
+    {
+        boolean ret = updatePercentage > rand.nextInt(100);
+        if (ret)
+        {
+            stats.addUpdate();
+        }
 
-  public String getJoinedTableName()
-  {
-    return tableGroup.getJoinedTableName();
-  }
+        return ret;
+    }
 
-  public int getThinkTime()
-  {
-    return thinkTime;
-  }
+    public synchronized boolean isInsertRequired(Random rand)
+    {
+        boolean ret = insertPercentage > rand.nextInt(100);
+        if (ret)
+        {
+            stats.addInsert();
+        }
 
-  public void setThinkTime(int thinkTime)
-  {
-    this.thinkTime = thinkTime;
-  }
+        return ret;
+    }
 
-  public int getValueRange()
-  {
-    return tableGroup.getValueRange();
-  }
+    public synchronized void addRowsRead(int rowsRead, long duration)
+    {
+        stats.addRowsRead(rowsRead);
+        stats.addResponseTime(duration);
+        stats.addQuery();
+    }
 
-  public int getReadRange()
-  {
-    return (int)(Math.floor(Math.sqrt(readSize) * 10));
-  }
+    public synchronized Statistics getStatistics()
+    {
+        return new Statistics(stats);
+    }
 
-  public int getRampUpInterval()
-  {
-    return rampUpInterval;
-  }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
-  public void setRampUpInterval(int rampUpInterval)
-  {
-    this.rampUpInterval = rampUpInterval;
-  }
+    public String getName()
+    {
+        return name;
+    }
 
-  public int getRampUpIncrement()
-  {
-    return rampUpIncrement;
-  }
+    public void setReadSize(int i)
+    {
+        this.readSize = i;
+    }
 
-  public void setRampUpIncrement(int rampUpIncrement)
-  {
-    this.rampUpIncrement = rampUpIncrement;
-  }
+    public int getReadSize()
+    {
+        return readSize;
+    }
 
-  public synchronized void threadStarted()
-  {
-    stats.addThread();
-  }
+    public int getSmallKey()
+    {
+        return tableGroup.getSmallKey();
+    }
 
-  public int getReconnectInterval()
-  {
-    return reconnectInterval;
-  }
+    public int getBigKey(Connection conn) throws EvaluatorException
+    {
+        return tableGroup.getBigkey(conn);
+    }
 
-  public void setReconnectInterval(int reconnectInterval)
-  {
-    this.reconnectInterval = reconnectInterval;
-  }
+    public String getBase1TableName()
+    {
+        return tableGroup.getBase1TableName();
+    }
 
-  public String getQueryFormat()
-  {
-    return queryFormat;
-  }
+    public String getBase2TableName()
+    {
+        return tableGroup.getBase2TableName();
+    }
 
-  public void setQueryFormat(String queryFormat)
-  {
-    this.queryFormat = queryFormat;
-  }
+    public String getJoinedTableName()
+    {
+        return tableGroup.getJoinedTableName();
+    }
 
-  public boolean isProcsCreated()
-  {
-    return procsCreated;
-  }
+    public int getThinkTime()
+    {
+        return thinkTime;
+    }
 
-  public void setProcsCreated(boolean procsCreated)
-  {
-    this.procsCreated = procsCreated;
-  }
+    public void setThinkTime(int thinkTime)
+    {
+        this.thinkTime = thinkTime;
+    }
 
-  public TableGroup getTableGroup()
-  {
-    return tableGroup;
-  }
+    public int getValueRange()
+    {
+        return tableGroup.getValueRange();
+    }
+
+    public int getReadRange()
+    {
+        return (int) (Math.floor(Math.sqrt(readSize) * 10));
+    }
+
+    public int getRampUpInterval()
+    {
+        return rampUpInterval;
+    }
+
+    public void setRampUpInterval(int rampUpInterval)
+    {
+        this.rampUpInterval = rampUpInterval;
+    }
+
+    public int getRampUpIncrement()
+    {
+        return rampUpIncrement;
+    }
+
+    public void setRampUpIncrement(int rampUpIncrement)
+    {
+        this.rampUpIncrement = rampUpIncrement;
+    }
+
+    public synchronized void threadStarted()
+    {
+        stats.addThread();
+    }
+
+    public int getReconnectInterval()
+    {
+        return reconnectInterval;
+    }
+
+    public void setReconnectInterval(int reconnectInterval)
+    {
+        this.reconnectInterval = reconnectInterval;
+    }
+
+    public String getQueryFormat()
+    {
+        return queryFormat;
+    }
+
+    public void setQueryFormat(String queryFormat)
+    {
+        this.queryFormat = queryFormat;
+    }
+
+    public boolean isProcsCreated()
+    {
+        return procsCreated;
+    }
+
+    public void setProcsCreated(boolean procsCreated)
+    {
+        this.procsCreated = procsCreated;
+    }
+
+    public TableGroup getTableGroup()
+    {
+        return tableGroup;
+    }
+
+    /**
+     * Returns the dataStore value.
+     * 
+     * @return Returns the dataStore.
+     */
+    public String getDataStore()
+    {
+        return dataStore;
+    }
+
+    /**
+     * Sets the dataStore value.
+     * 
+     * @param dataStore The dataStore to set.
+     */
+    public void setDataStore(String dataStore)
+    {
+        this.dataStore = dataStore;
+    }
+
+    /**
+     * Sets the tableGroup value.
+     * 
+     * @param tableGroup The tableGroup to set.
+     */
+    public void setTableGroup(TableGroup tableGroup)
+    {
+        this.tableGroup = tableGroup;
+    }
 
 }

@@ -123,7 +123,7 @@ public class ConfigurationTest extends TestCase
     assertEquals("com.continuent.pcluster.driver.Driver", test.getDriver());
     assertEquals("user", test.getUser());
     assertEquals("pw", test.getPassword());
-    TableGroup tg = (TableGroup)test.getTableGroups().next();
+    TableGroup tg = (TableGroup)test.getTableGroups().get(0);
     ThreadConfiguration td = (ThreadConfiguration)tg.getThreads().get(0);
     assertEquals("tg1", tg.getTableName());
     assertEquals(111, tg.getTableSize());

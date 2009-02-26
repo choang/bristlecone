@@ -26,123 +26,145 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class TableGroup implements Runnable
 {
-  private int    tableSize;
-  private String tableName;
+    private int                       tableSize;
+    private String                    tableName;
 
-  private List<ThreadConfiguration> threads = new ArrayList<ThreadConfiguration>();
-  private int    smallKey;
-  private int    bigkey;
-  private String joinedTableName;
-  private String base1TableName;
-  private String base2TableName;
-  private RowFactory rowFactory;
-  private boolean initializeDDL;
-  private String truncateTable;  
+    private List<ThreadConfiguration> threads   = new ArrayList<ThreadConfiguration>();
 
-  public TableGroup(String tableName, int size)
-  {
-    this.tableName = tableName;
-    this.joinedTableName = tableName + "3";
-    this.base1TableName = tableName + "1";
-    this.base2TableName = tableName + "2";
-    this.tableSize = size;
-    this.smallKey = size - 1;
-    this.bigkey = size * 1000;
-  }
+    private String                    dataStoreName;
+    private int                       smallKey;
+    private int                       bigkey;
+    private String                    joinedTableName;
+    private String                    base1TableName;
+    private String                    base2TableName;
+    private RowFactory                rowFactory;
+    private boolean                   initializeDDL;
+    private String                    truncateTable;
 
-  public String getTableName()
-  {
-    return tableName;
-  }
-
-  public int getTableSize()
-  {
-    return tableSize;
-  }
-
-  public void run()
-  {
-    // TODO Auto-generated method stub
-
-  }
-
-  public void addThreadGroup(ThreadConfiguration tc)
-  {
-    threads.add(tc);
-  }
-
-  public List getThreads()
-  {
-    return threads;
-  }
-
-  public void setThreads(List<ThreadConfiguration> threads)
-  {
-    this.threads = threads;
-  }
-
-  public synchronized int getSmallKey()
-  {
-    return smallKey;
-  }
-
-  public synchronized int getBigkey(Connection conn)  throws EvaluatorException
-  {
-    bigkey += 1000;
-    if (bigkey >= tableSize * 1000)
+    public TableGroup(String tableName, int size)
     {
-      smallKey++;
-      rowFactory.addRow(this, smallKey, conn);
-      bigkey = 0;
+        this.tableName = tableName;
+        this.joinedTableName = tableName + "3";
+        this.base1TableName = tableName + "1";
+        this.base2TableName = tableName + "2";
+        this.tableSize = size;
+        this.smallKey = size - 1;
+        this.bigkey = size * 1000;
     }
-    return bigkey;
-  }
 
-  public String getJoinedTableName()
-  {
-    return joinedTableName;
-  }
+    public String getTableName()
+    {
+        return tableName;
+    }
 
-  public String getBase1TableName()
-  {
-    return base1TableName;
-  }
+    public int getTableSize()
+    {
+        return tableSize;
+    }
 
-  public String getBase2TableName()
-  {
-    return base2TableName;
-  }
+    public void run()
+    {
+        // TODO Auto-generated method stub
 
-  public int getValueRange()
-  {
-    return 10 * getTableSize();
-  }
+    }
 
-  public void setRowFactory(RowFactory rowFactory)
-  {
-    this.rowFactory = rowFactory;
-  }
+    public void addThreadGroup(ThreadConfiguration tc)
+    {
+        threads.add(tc);
+    }
 
-  public boolean isInitializeDDL()
-  {
-    return initializeDDL;
-  }
+    public List getThreads()
+    {
+        return threads;
+    }
 
-  public void setInitializeDDL(boolean initializeDDL)
-  {
-    this.initializeDDL = initializeDDL;
-  }
+    public void setThreads(List<ThreadConfiguration> threads)
+    {
+        this.threads = threads;
+    }
 
-  public String getTruncateTable()
-  {
-    return truncateTable;
-  }
+    public synchronized int getSmallKey()
+    {
+        return smallKey;
+    }
 
-  public void setTruncateTable(String truncateTable)
-  {
-    this.truncateTable = truncateTable;
-  }
+    public synchronized int getBigkey(Connection conn)
+            throws EvaluatorException
+    {
+        bigkey += 1000;
+        if (bigkey >= tableSize * 1000)
+        {
+            smallKey++;
+            rowFactory.addRow(this, smallKey, conn);
+            bigkey = 0;
+        }
+        return bigkey;
+    }
+
+    public String getJoinedTableName()
+    {
+        return joinedTableName;
+    }
+
+    public String getBase1TableName()
+    {
+        return base1TableName;
+    }
+
+    public String getBase2TableName()
+    {
+        return base2TableName;
+    }
+
+    public int getValueRange()
+    {
+        return 10 * getTableSize();
+    }
+
+    public void setRowFactory(RowFactory rowFactory)
+    {
+        this.rowFactory = rowFactory;
+    }
+
+    public boolean isInitializeDDL()
+    {
+        return initializeDDL;
+    }
+
+    public void setInitializeDDL(boolean initializeDDL)
+    {
+        this.initializeDDL = initializeDDL;
+    }
+
+    public String getTruncateTable()
+    {
+        return truncateTable;
+    }
+
+    public void setTruncateTable(String truncateTable)
+    {
+        this.truncateTable = truncateTable;
+    }
+
+    /**
+     * Returns the dataStoreName value.
+     * 
+     * @return Returns the dataStoreName.
+     */
+    public String getDataStoreName()
+    {
+        return dataStoreName;
+    }
+
+    /**
+     * Sets the dataStoreName value.
+     * 
+     * @param dataStoreName The dataStoreName to set.
+     */
+    public void setDataStoreName(String dataStoreName)
+    {
+        this.dataStoreName = dataStoreName;
+    }
 }
