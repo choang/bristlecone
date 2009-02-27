@@ -24,6 +24,7 @@ package com.continuent.bristlecone.evaluator;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.BlockingQueue;
@@ -41,8 +42,11 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.time.Millisecond;
+import org.jfree.data.time.MovingAverage;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
@@ -66,28 +70,34 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
 
     static class DemoPanel extends JPanel implements ActionListener
     {
-        private static final long        serialVersionUID      = 1L;
+        private static final long      serialVersionUID = 1L;
 
         /** The number of subplots. */
-        public static final int          SUBPLOT_COUNT         = 2;
+        public static final int        SUBPLOT_COUNT    = 2;
 
-        public static final int          READ_ACTIVITY         = 0;
+        public static final int        READ_ACTIVITY    = 0;
 
-        public static final int          WRITE_ACTIVITY        = 1;
+        public static final int        WRITE_ACTIVITY   = 1;
+        
+        public static final int MOVING_AVG_PERIODS = 20000;
+        public static final int MOVING_AVG_SKIP = 0;
+        
 
         /** The datasets. */
-        private TimeSeriesCollection[]   datasets;
+        private TimeSeriesCollection[] datasets;
 
-       // private static final int         MOVING_AVERAGE_WINDOW = 10;
+        // private static final int MOVING_AVERAGE_WINDOW = 10;
 
-       // private MovingAverageAccumulator readsMovingAverage    = new MovingAverageAccumulator(
-        //                                                               MOVING_AVERAGE_WINDOW);
+        // private MovingAverageAccumulator readsMovingAverage = new
+        // MovingAverageAccumulator(
+        // MOVING_AVERAGE_WINDOW);
 
-        //private MovingAverageAccumulator writesMovingAverage   = new MovingAverageAccumulator(
-        //                                                               MOVING_AVERAGE_WINDOW);
+        // private MovingAverageAccumulator writesMovingAverage = new
+        // MovingAverageAccumulator(
+        // MOVING_AVERAGE_WINDOW);
 
         /** The most recent value added to series 1. */
-        private double[]                 lastValue             = new double[2];
+        private double[]               lastValue        = new double[2];
 
         public class GetEvaluatorData implements Runnable
         {
@@ -165,8 +175,9 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
             TimeSeries series1 = new TimeSeries("Reads/sec", Millisecond.class);
             this.lastValue[READ_ACTIVITY] = 0.0;
             this.datasets[READ_ACTIVITY] = new TimeSeriesCollection(series1);
-            //TimeSeries readMovingAvg = MovingAverage.createMovingAverage(series1, "AVG", 40, 39);
-           // this.datasets[READ_ACTIVITY].addSeries(readMovingAvg);
+            TimeSeries readMovingAvg = MovingAverage.createMovingAverage(
+                    series1, "Avg. Reads", MOVING_AVG_PERIODS, MOVING_AVG_SKIP);
+            this.datasets[READ_ACTIVITY].addSeries(readMovingAvg);
             NumberAxis rangeAxis1 = new NumberAxis("Read Activity");
             rangeAxis1.setLabelFont(new Font("Dialog", Font.PLAIN, 14));
             rangeAxis1.setAutoRangeIncludesZero(true);
@@ -174,7 +185,17 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
             rangeAxis1.setAutoRange(true);
 
             XYPlot readActivityPlot = new XYPlot(this.datasets[READ_ACTIVITY],
-                    null, rangeAxis1, new StandardXYItemRenderer());
+                    null, rangeAxis1, new XYLineAndShapeRenderer());
+
+            XYItemRenderer renderer = readActivityPlot.getRenderer();
+            renderer.setSeriesPaint(0, Color.cyan);
+            renderer.setSeriesPaint(1, Color.blue);
+            if (renderer instanceof XYLineAndShapeRenderer)
+            {
+                XYLineAndShapeRenderer rr = (XYLineAndShapeRenderer) renderer;
+                rr.setBaseShapesVisible(false);
+                rr.setBaseShapesFilled(false);
+            }
 
             readActivityPlot.setBackgroundPaint(Color.lightGray);
             readActivityPlot.setDomainGridlinePaint(Color.white);
@@ -189,6 +210,9 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
             this.lastValue[WRITE_ACTIVITY] = 0.0;
             TimeSeries series2 = new TimeSeries("Writes/sec", Millisecond.class);
             this.datasets[WRITE_ACTIVITY] = new TimeSeriesCollection(series2);
+            TimeSeries writeMovingAvg = MovingAverage.createMovingAverage(
+                    series2, "Avg. Writes", MOVING_AVG_PERIODS, MOVING_AVG_SKIP);
+            this.datasets[WRITE_ACTIVITY].addSeries(writeMovingAvg);
 
             NumberAxis rangeAxis2 = new NumberAxis("Write Activity");
             rangeAxis2.setAutoRangeIncludesZero(true);
@@ -198,7 +222,18 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
 
             XYPlot writeActivityPlot = new XYPlot(
                     this.datasets[WRITE_ACTIVITY], null, rangeAxis2,
-                    new StandardXYItemRenderer());
+                    new XYLineAndShapeRenderer());
+
+            renderer = writeActivityPlot.getRenderer();
+            renderer.setSeriesPaint(0, Color.darkGray);
+            renderer.setSeriesPaint(1, Color.magenta);
+            if (renderer instanceof XYLineAndShapeRenderer)
+            {
+                XYLineAndShapeRenderer rr = (XYLineAndShapeRenderer) renderer;
+                rr.setBaseShapesVisible(false);
+                rr.setBaseShapesFilled(false);
+            }
+
             writeActivityPlot.setBackgroundPaint(Color.lightGray);
             writeActivityPlot.setDomainGridlinePaint(Color.white);
             writeActivityPlot.setRangeGridlinePaint(Color.white);
@@ -218,10 +253,10 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
             combinedChart.setBackgroundPaint(Color.white);
 
             ValueAxis axis = writeActivityPlot.getDomainAxis();
-            axis.setFixedAutoRange(1000.0 * 60 * 10); // 10 minutes
+            axis.setFixedAutoRange(1000.0 * 60 * 5); // 10 minutes
 
             axis = readActivityPlot.getDomainAxis();
-            axis.setFixedAutoRange(1000.0 * 60 * 10); // 10 minutes
+            axis.setFixedAutoRange(1000.0 * 60 * 5); // 10 minutes
 
             ChartPanel combinedChartPanel = new ChartPanel(combinedChart);
             combinedChartPanel
@@ -252,57 +287,72 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
 
             this.lastValue[READ_ACTIVITY] = value;
             TimeSeries readSeries = this.datasets[READ_ACTIVITY].getSeries(0);
-           // TimeSeries readMovingAvg = MovingAverage.createMovingAverage(readSeries, "AVG", 40, 39);
+            TimeSeries readMovingAvg = MovingAverage.createMovingAverage(
+                    readSeries, "Avg. Reads", MOVING_AVG_PERIODS, MOVING_AVG_SKIP);
             this.datasets[READ_ACTIVITY].getSeries(0).add(new Millisecond(),
                     this.lastValue[READ_ACTIVITY]);
-           // this.datasets[READ_ACTIVITY].removeSeries(1);
-            //this.datasets[READ_ACTIVITY].addSeries(readMovingAvg);
+            if (this.datasets[READ_ACTIVITY].getSeriesCount() > 1)
+            {
+                this.datasets[READ_ACTIVITY].removeSeries(1);
+            }
+            this.datasets[READ_ACTIVITY].addSeries(readMovingAvg);
 
         }
 
         public void addWriteActivityRate(double value)
         {
             this.lastValue[WRITE_ACTIVITY] = value;
+            TimeSeries writeSeries = this.datasets[WRITE_ACTIVITY].getSeries(0);
+            TimeSeries writeMovingAvg = MovingAverage.createMovingAverage(
+                    writeSeries, "Avg. Writes", MOVING_AVG_PERIODS, MOVING_AVG_SKIP);
             this.datasets[WRITE_ACTIVITY].getSeries(0).add(new Millisecond(),
                     this.lastValue[WRITE_ACTIVITY]);
+            
+            if (this.datasets[WRITE_ACTIVITY].getSeriesCount() > 1)
+            {
+                this.datasets[WRITE_ACTIVITY].removeSeries(1);
+            }
+            this.datasets[WRITE_ACTIVITY].addSeries(writeMovingAvg);
+
         }
 
         public void actionPerformed(ActionEvent e)
         {
+            return;
 
-            if (e.getActionCommand().endsWith(String.valueOf(0)))
-            {
-                Millisecond item = new Millisecond();
-                System.out.println("Item = " + item.toString());
-                this.lastValue[READ_ACTIVITY] = this.lastValue[READ_ACTIVITY]
-                        * (0.90 + 0.2 * Math.random());
-                this.datasets[READ_ACTIVITY].getSeries(0).add(
-                        new Millisecond(), this.lastValue[READ_ACTIVITY]);
-            }
-
-            if (e.getActionCommand().endsWith(String.valueOf(1)))
-            {
-                Millisecond now = new Millisecond();
-                System.out.println("Now = " + now.toString());
-                this.lastValue[WRITE_ACTIVITY] = this.lastValue[WRITE_ACTIVITY]
-                        * (0.90 + 0.2 * Math.random());
-                this.datasets[WRITE_ACTIVITY].getSeries(0).add(
-                        new Millisecond(), this.lastValue[WRITE_ACTIVITY]);
-            }
-
-            if (e.getActionCommand().equals("ADD_ALL"))
-            {
-                Millisecond now = new Millisecond();
-                System.out.println("Now = " + now.toString());
-
-                for (int i = 0; i < SUBPLOT_COUNT; i++)
-                {
-                    this.lastValue[i] = this.lastValue[i]
-                            * (0.90 + 0.2 * Math.random());
-                    this.datasets[i].getSeries(0).add(new Millisecond(),
-                            this.lastValue[i]);
-                }
-            }
+//            if (e.getActionCommand().endsWith(String.valueOf(0)))
+//            {
+//                Millisecond item = new Millisecond();
+//                System.out.println("Item = " + item.toString());
+//                this.lastValue[READ_ACTIVITY] = this.lastValue[READ_ACTIVITY]
+//                        * (0.90 + 0.2 * Math.random());
+//                this.datasets[READ_ACTIVITY].getSeries(0).add(
+//                        new Millisecond(), this.lastValue[READ_ACTIVITY]);
+//            }
+//
+//            if (e.getActionCommand().endsWith(String.valueOf(1)))
+//            {
+//                Millisecond now = new Millisecond();
+//                System.out.println("Now = " + now.toString());
+//                this.lastValue[WRITE_ACTIVITY] = this.lastValue[WRITE_ACTIVITY]
+//                        * (0.90 + 0.2 * Math.random());
+//                this.datasets[WRITE_ACTIVITY].getSeries(0).add(
+//                        new Millisecond(), this.lastValue[WRITE_ACTIVITY]);
+//            }
+//
+//            if (e.getActionCommand().equals("ADD_ALL"))
+//            {
+//                Millisecond now = new Millisecond();
+//                System.out.println("Now = " + now.toString());
+//
+//                for (int i = 0; i < SUBPLOT_COUNT; i++)
+//                {
+//                    this.lastValue[i] = this.lastValue[i]
+//                            * (0.90 + 0.2 * Math.random());
+//                    this.datasets[i].getSeries(0).add(new Millisecond(),
+//                            this.lastValue[i]);
+//                }
+//            }
 
         }
     }

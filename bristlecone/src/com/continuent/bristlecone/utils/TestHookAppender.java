@@ -83,14 +83,14 @@ public class TestHookAppender extends AppenderSkeleton
 
         String message = this.layout.format(event);
 
-        if (event.getLevel() == Priority.ERROR)
-        {
-            errors.add(message);
-            if (exitOnError == true)
-            {
-                System.exit(1);
-            }
-        }
+//        if (event.getLevel() == Priority.ERROR)
+//        {
+//            errors.add(message);
+//            if (exitOnError == true)
+//            {
+//                System.exit(1);
+//            }
+//        }
     }
 
     /**
