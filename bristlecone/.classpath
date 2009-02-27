@@ -14,6 +14,5 @@
 	<classpathentry kind="lib" path="lib-ext/hsqldb.jar"/>
 	<classpathentry kind="lib" path="config"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sql-router"/>
-	<classpathentry kind="lib" path="C:/Users/Edward/Desktop/Veditam/Veditam Development/sql-router/build/jars/tungsten-sqlrouter.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
