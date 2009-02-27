@@ -107,8 +107,6 @@ public class Evaluator implements RowFactory, Runnable
      * Statistics to be used for the coarser grained status printing
      */
     private Statistics                        currentStatusStats  = new Statistics();
-
-    private CircularList<Statistics> accumulators = new CircularList<Statistics>(2);
     
     // private static String varChar255 =
     // "012345678901234567890123456789012345678901234567890" +
