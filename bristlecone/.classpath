@@ -13,6 +13,5 @@
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="lib" path="lib-ext/hsqldb.jar"/>
 	<classpathentry kind="lib" path="config"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sql-router"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
