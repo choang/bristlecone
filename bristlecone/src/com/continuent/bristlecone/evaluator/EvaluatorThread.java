@@ -75,20 +75,17 @@ public class EvaluatorThread extends Thread
     private void reconnect() throws EvaluatorException
     {
         this.select = null;
-    
+
         try
         {
-            //sleep(rand.nextInt(5000 * 2));
+
             conn.close();
         }
         catch (SQLException e)
         {
             // ignore
         }
-       // catch(InterruptedException i)
-       // {
-            //
-        //}
+
         connect();
 
     }
@@ -285,7 +282,8 @@ public class EvaluatorThread extends Thread
     private void connect() throws EvaluatorException
     {
 
-        logger.debug("thread id=" + id + ", connecting to datastore=" + conf.getDataStore());
+        logger.debug("thread id=" + id + ", connecting to datastore="
+                + conf.getDataStore());
         // Yes, folks, it's ugly, but it works....
         conn = eval.getConnection(eval.getConfiguration().getDataStore(
                 conf.getDataStore()));
@@ -509,7 +507,7 @@ public class EvaluatorThread extends Thread
         int i = processResults(select);
         rowsRead += i;
         conf.addRowsRead(i, System.currentTimeMillis() - queryStart);
-       
+
     }
 
     private int processResults(PreparedStatement s) throws SQLException

@@ -86,16 +86,6 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
         /** The datasets. */
         private TimeSeriesCollection[] datasets;
 
-        // private static final int MOVING_AVERAGE_WINDOW = 10;
-
-        // private MovingAverageAccumulator readsMovingAverage = new
-        // MovingAverageAccumulator(
-        // MOVING_AVERAGE_WINDOW);
-
-        // private MovingAverageAccumulator writesMovingAverage = new
-        // MovingAverageAccumulator(
-        // MOVING_AVERAGE_WINDOW);
-
         /** The most recent value added to series 1. */
         private double[]               lastValue        = new double[2];
 
@@ -318,6 +308,9 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
 
         public void actionPerformed(ActionEvent e)
         {
+            logger.info("############################# PANIC: SHOULD NOT GET HERE. EXITING ####################");
+            logger.info(Thread.currentThread().getStackTrace());
+            System.exit(1);
             return;
 
 //            if (e.getActionCommand().endsWith(String.valueOf(0)))

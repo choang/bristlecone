@@ -58,6 +58,7 @@ public class Evaluator implements RowFactory, Runnable
     protected Configuration                   conf;
 
     protected ArrayList<Thread>               threads               = new ArrayList<Thread>();
+    protected ArrayList<ThreadConfiguration>  threadGroups          = new ArrayList<ThreadConfiguration>();
     private int                               threadsAlive          = -1;
 
     private LinkedHashMap<String, Statistics> statsList             = new LinkedHashMap<String, Statistics>();
@@ -82,7 +83,6 @@ public class Evaluator implements RowFactory, Runnable
      */
     private static final int                  SAMPLES_TO_ACCUMULATE = 1;
     
-    private static final int WINDOW_SIZE = 10;
 
     /**
      * The current count of samples accumulated
@@ -94,17 +94,13 @@ public class Evaluator implements RowFactory, Runnable
      */
     private Statistics[]                      statisticsAccumulator = new Statistics[SAMPLES_TO_ACCUMULATE];
 
-    private int                               timeSinceLastStatus   = 0;
+   
 
     /**
      * The number of seconds, if set, between each logging of the statistics
      */
     private int                               statusInterval        = 0;
 
-    /**
-     * Statistics to be used for the coarser grained status printing
-     */
-    private Statistics                        currentStatusStats  = new Statistics();
     
     // private static String varChar255 =
     // "012345678901234567890123456789012345678901234567890" +
@@ -231,9 +227,9 @@ public class Evaluator implements RowFactory, Runnable
             // Start the graphical evaluator display if desired.
             if (graph)
             {
-                // GraphicalEvaluatorDisplay graphDisplay = new
-                // GraphicalEvaluatorDisplay(
-                // "Continuent Cluster Monitor");
+                //GraphicalEvaluatorDisplay graphDisplay = new
+                //GraphicalEvaluatorDisplay(
+                //"Continuent Cluster Monitor");
                 ReadsVersusWritesDisplay graphDisplay = new ReadsVersusWritesDisplay(
                         "Tungsten Enterprise Cluster Monitor");
                 graphDisplay.pack();
@@ -320,6 +316,9 @@ public class Evaluator implements RowFactory, Runnable
             {
                 ThreadConfiguration threadGroup = (ThreadConfiguration) threadsIterator
                         .next();
+                
+                threadGroups.add(threadGroup);
+                
                 /*
                  * When ramp up is configured, the test duration may not be long
                  * enough to start all the threads. In this case we don't
@@ -362,7 +361,7 @@ public class Evaluator implements RowFactory, Runnable
             t.start();
         }
         readyToStart = true;
-        logger.info("Starting test run");
+        logger.info("############################ Starting test run ############################");
         int runTime = conf.getTestDuration() * 1000;
 
         // Interval to be used to log statistics. Graphical stats
@@ -631,7 +630,7 @@ public class Evaluator implements RowFactory, Runnable
             currentSampleCount = 0;
             
             average.setInterval( ((float)(SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM))/1000);
-            printStatistics(average, "AVERAGES:" + label + ":", ((float)(SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM))/1000);
+            printStatistics(average, label, ((float)(SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM))/1000);
             
             synchronized (listeners)
             {
@@ -665,7 +664,7 @@ public class Evaluator implements RowFactory, Runnable
     private void printStatistics(Statistics stats, String label, float interval)
     {
         statsList.put(label, stats);
-        logger.info(label + ": " + ", interval=" + interval + " secs, " + stats.getQueries() + " queries, "
+        logger.info("interval=" + interval + " secs, " + stats.getQueries() + " queries, "
                 + stats.getQueries() / interval + " queries/second, "
                 + threadsAlive + "/" + stats.getThreads() + " threads, "
                 + stats.getAverageResponseTime() + " response time, "
@@ -677,17 +676,14 @@ public class Evaluator implements RowFactory, Runnable
     private Statistics collectStatistics()
     {
         Statistics result = new Statistics();
-        for (TableGroup tg : conf.getTableGroups())
+
+        for (ThreadConfiguration conf : threadGroups)
         {
-            for (Iterator threadsIterator = tg.getThreads().iterator(); threadsIterator
-                    .hasNext();)
+            synchronized(conf)
             {
-                ThreadConfiguration c = (ThreadConfiguration) threadsIterator
-                        .next();
-                Statistics stats = c.getStatistics();
+                Statistics stats = conf.getStatistics();
                 result.add(stats);
             }
-
         }
         return result;
     }
@@ -956,8 +952,9 @@ public class Evaluator implements RowFactory, Runnable
         {
             throw new EvaluatorException("No default database was configured");
         }
+        
+        return null;
 
-        return getConnection(ds);
     }
 
     public Connection getConnection(DataStore ds) throws EvaluatorException
