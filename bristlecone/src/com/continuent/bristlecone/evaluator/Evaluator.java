@@ -953,8 +953,7 @@ public class Evaluator implements RowFactory, Runnable
             throw new EvaluatorException("No default database was configured");
         }
         
-        return null;
-
+        return getConnection(ds);
     }
 
     public Connection getConnection(DataStore ds) throws EvaluatorException

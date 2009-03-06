@@ -137,7 +137,7 @@ public class EvaluatorTest extends TestCase
       assertEquals(0, s.getInserts());
       if (count < 6)
       {
-        assertEquals(2, (int)s.getInterval());
+        assertEquals(1, (int)s.getInterval());
       }
     }
     assertEquals(6, count);
