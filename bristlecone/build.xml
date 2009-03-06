@@ -104,7 +104,7 @@
     </target>
 
     <!-- Generate Javadoc. -->
-    <target name="javadoc" depends="build" description="Generate javadoc" >
+    <target name="javadoc" depends="dist" description="Generate javadoc" >
         <javadoc packagenames="com.continuent.*"
             sourcepath="${srcdir}"
             classpathref="classpath"
@@ -144,7 +144,7 @@
     </target>
 
     <!-- Compile the test programs -->
-    <target name="compile-test" depends="build,init-test">
+    <target name="compile-test" depends="dist,init-test">
         <javac srcdir="${testsrc}" destdir="${build.test}" target="${javac.target}" source="${javac.source}" classpathref="testclasspath" debug="${javac.debug}" depend="${javac.depend}" deprecation="${javac.deprecation}" optimize="${javac.optimize}" encoding="${javac.encoding}" />
     </target>
 
@@ -190,20 +190,28 @@
     </target>
 
     <!-- Build evaluator -->
-    <target name="build" depends="init-build,jar" 
+    <target name="dist" depends="init-build,jar" 
         description="Build everything or refresh existing build">
         <copy todir="${build.bristlecone}/lib" file="${build.jar}/bristlecone.jar">
         </copy>
         <copy todir="${build.bristlecone}/lib">
             <fileset dir="${libdir}">
-                <include name="log4j.jar"/>
-                <include name="jfreechart-1.0.6.jar"/>
-                <include name="jcommon-1.0.10.jar"/>
+                <include name="*.jar"/>
             </fileset>
         </copy>
         <copy todir="${build.bristlecone}/lib-ext">
             <fileset dir="${libextdir}">
-                <include name="hsqldb.jar" />
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+        <copy todir="${build.bristlecone}/lib-ext">
+            <fileset dir="${libextdir}/mysql">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+        <copy todir="${build.bristlecone}/lib-ext">
+            <fileset dir="${libextdir}/postgres">
+                <include name="*.jar" />
             </fileset>
         </copy>
         <copy todir="${build.bristlecone}/config">
@@ -306,7 +314,7 @@
     </target>
 
     <!-- Create the distribution files -->
-    <target name="dist" depends="src,build" 
+    <target name="releases" depends="src,dist" 
         description="Create distributable releases">
 
         <!-- Build binary files. -->
@@ -339,6 +347,6 @@
     </target>
 
     <!-- Do full build and test -->
-    <target name="all" depends="clean,build,test" 
+    <target name="all" depends="clean,dist,test" 
         description="Clean, build, and test everything"/>
 </project>

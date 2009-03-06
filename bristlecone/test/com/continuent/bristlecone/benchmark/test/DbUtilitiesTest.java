@@ -22,6 +22,8 @@
 
 package com.continuent.bristlecone.benchmark.test;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,6 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -49,11 +52,34 @@ import com.continuent.bristlecone.benchmark.db.TableSetHelper;
  */
 public class DbUtilitiesTest extends TestCase
 {
-
+  String driver;
+  String url; 
+  String login;
+  String password;
+  
   // Does nothing for now
   protected void setUp() throws Exception
   {
-    super.setUp();
+      // Set test.properties file name.
+      String testPropertiesName = System.getProperty("test.properties");
+      if (testPropertiesName == null)
+          testPropertiesName = "test.properties";
+
+      // Load properties file.
+      Properties props = new Properties();
+      File f = new File(testPropertiesName);
+      if (f.canRead())
+      {
+          FileInputStream fis = new FileInputStream(f);
+          props.load(fis);
+          fis.close();
+      }
+
+      // Set values used for test.
+      driver = props.getProperty("driver", "org.hsqldb.jdbcDriver");
+      url = props.getProperty("url", "jdbc:hsqldb:file:build/testdb/testdb;shutdown=true");
+      login = props.getProperty("login", "sa");
+      password = props.getProperty("password", null);
   }
 
   protected void tearDown() throws Exception
@@ -100,10 +126,9 @@ public class DbUtilitiesTest extends TestCase
   public void testSqlDialect1() throws Exception
   {
     // Get data for test. 
-    String url = "jdbc:hsqldb:file:build/testdb/testdb;shutdown=true";
     Table t = allTypesTable("testSqlDialect");
     SqlDialect dialect = SqlDialectFactory.getInstance().getDialect(url);
-    Connection conn = getHsqlConnection(url);
+    Connection conn = getConnection();
     
     assertNotNull("Checking table", t);
     assertNotNull("Checking dialect", dialect); 
@@ -156,10 +181,9 @@ public class DbUtilitiesTest extends TestCase
   public void testSqlDialect2() throws Exception
   {
     // Get data for test. 
-    String url = "jdbc:hsqldb:file:build/testdb/testdb;shutdown=true";
     Table t = simpleTable("testSqlDialect2");
     SqlDialect dialect = SqlDialectFactory.getInstance().getDialect(url);
-    Connection conn = getHsqlConnection(url);
+    Connection conn = getConnection();
     
     assertNotNull("Checking table", t);
     assertNotNull("Checking dialect", dialect); 
@@ -222,17 +246,20 @@ public class DbUtilitiesTest extends TestCase
         ok = true;
       }
     }
+    rs.close();
     
     assertEquals("Row count should be one", 1, count);
     assertEquals("Found the expected value from update", true, ok);
     
     // Select rows from the table using a select cross product. 
     String selectCrossProduct = dialect.getSelectCrossProduct(t);
-    stmt.execute(selectCrossProduct);
+    rs = stmt.executeQuery(selectCrossProduct);
+    rs.close();
     
     // Select count(*) from the table using a select cross product. 
     String selectCrossProductCount = dialect.getSelectCrossProductCount(t);
-    stmt.execute(selectCrossProductCount);
+    rs = stmt.executeQuery(selectCrossProductCount);
+    rs.close();
     
     // Drop the table. 
     String deleteTable = dialect.getDropTable(t);
@@ -250,9 +277,8 @@ public class DbUtilitiesTest extends TestCase
   public void testDataGeneration1() throws Exception
   {
     // Get data for test. 
-    String url = "jdbc:hsqldb:file:build/testdb/testdb;shutdown=true";
     TableSet ts = allTypesTableSet("testDG1_", 10, 100);
-    TableSetHelper tsHelper = new TableSetHelper(url, "sa", "");
+    TableSetHelper tsHelper = new TableSetHelper(url, login, password);
     
     assertNotNull("Checking table", ts);
 
@@ -309,12 +335,12 @@ public class DbUtilitiesTest extends TestCase
     return new TableSet(prefix, count, rows, cols);
   }
   
-  // Returns an HSQLDB connection instance. 
-  private Connection getHsqlConnection(String url) throws Exception
+  // Returns a JDBC connection instance. 
+  private Connection getConnection() throws Exception
   {
     Connection c;
-    Class.forName("org.hsqldb.jdbcDriver");
-    c = DriverManager.getConnection(url, "sa", null);
+    Class.forName(driver);
+    c = DriverManager.getConnection(url, login, password);
     return c;
   }
 }

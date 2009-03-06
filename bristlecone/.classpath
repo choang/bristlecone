@@ -4,7 +4,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib-ext/postgres/postgresql-8.2-505.jdbc3.jar"/>
-	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-3.1.14-bin.jar"/>
+	<classpathentry kind="lib" path="lib-ext/derby.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="lib" path="lib-ext/hsqldb.jar"/>
 	<classpathentry kind="lib" path="config"/>
+	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.5-bin.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>

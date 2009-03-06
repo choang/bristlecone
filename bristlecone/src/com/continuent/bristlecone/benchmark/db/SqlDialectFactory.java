@@ -44,6 +44,7 @@ public class SqlDialectFactory
     al.add(new SqlDialectForMCluster());
     al.add(new SqlDialectForHSQLDB());
     al.add(new SqlDialectForOracle());
+    al.add(new SqlDialectForDerby());
     dialects = al;
   }
 
