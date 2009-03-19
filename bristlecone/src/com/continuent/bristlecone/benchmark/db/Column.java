@@ -22,6 +22,8 @@
 
 package com.continuent.bristlecone.benchmark.db;
 
+import com.continuent.bristlecone.utils.ToStringHelper;
+
 /**
  * Definition of a SQL column. 
  * 
@@ -151,5 +153,10 @@ public class Column
   public void setIndexed(boolean indexed)
   {
     this.indexed = indexed;
+  }
+  
+  @Override public String toString()
+  {
+      return ToStringHelper.toString(this);
   }
 }

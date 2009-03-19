@@ -25,6 +25,8 @@ package com.continuent.bristlecone.benchmark.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.continuent.bristlecone.utils.ToStringHelper;
+
 
 /**
  * Describes the content of a set of tables, which have the same schema
@@ -130,5 +132,10 @@ public class TableSet
       }
     }
     return dataGenerators; 
+  }
+  
+  @Override public String toString()
+  {
+      return ToStringHelper.toString(this);
   }
 }

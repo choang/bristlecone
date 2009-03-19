@@ -22,6 +22,8 @@
 
 package com.continuent.bristlecone.benchmark.db;
 
+import com.continuent.bristlecone.utils.ToStringHelper;
+
 /**
  * Implements a definition of a single table with columns.
  * 
@@ -92,5 +94,10 @@ public class Table
   public String getDatabaseEngine()
   {
     return databaseEngine;
+  }
+  
+  @Override public String toString()
+  {
+      return ToStringHelper.toString(this);
   }
 }
