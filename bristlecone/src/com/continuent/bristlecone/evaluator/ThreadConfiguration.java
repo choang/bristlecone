@@ -38,7 +38,7 @@ public class ThreadConfiguration
      */
     Statistics         stats     = new Statistics();
 
-    private String     dataStore = null;
+    private String     dataSource = null;
     private String     name;
     private int        readSize;
     private TableGroup tableGroup;
@@ -265,23 +265,23 @@ public class ThreadConfiguration
     }
 
     /**
-     * Returns the dataStore value.
+     * Returns the dataSource value.
      * 
-     * @return Returns the dataStore.
+     * @return Returns the dataSource.
      */
-    public String getDataStore()
+    public String getDataSource()
     {
-        return dataStore;
+        return dataSource;
     }
 
     /**
-     * Sets the dataStore value.
+     * Sets the dataSource value.
      * 
-     * @param dataStore The dataStore to set.
+     * @param dataSource The dataSource to set.
      */
-    public void setDataStore(String dataStore)
+    public void setDataSource(String DataSource)
     {
-        this.dataStore = dataStore;
+        this.dataSource = DataSource;
     }
 
     /**

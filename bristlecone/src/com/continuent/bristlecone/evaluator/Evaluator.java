@@ -731,11 +731,11 @@ public class Evaluator implements RowFactory, Runnable
             throws EvaluatorException
     {
 
-        DataStore ds = conf.getDataStore(tableGroup.getDataStoreName());
+        DataSource ds = conf.getDataSource(tableGroup.getDataSourceName());
 
         if (ds == null)
         {
-            ds = conf.getDataStore("default");
+            ds = conf.getDataSource("default");
         }
 
         if (ds == null)
@@ -947,7 +947,7 @@ public class Evaluator implements RowFactory, Runnable
 
     public Connection getConnection() throws EvaluatorException
     {
-        DataStore ds = conf.getDataStore("default");
+        DataSource ds = conf.getDataSource("default");
         if (ds == null)
         {
             throw new EvaluatorException("No default database was configured");
@@ -956,12 +956,12 @@ public class Evaluator implements RowFactory, Runnable
         return getConnection(ds);
     }
 
-    public Connection getConnection(DataStore ds) throws EvaluatorException
+    public Connection getConnection(DataSource ds) throws EvaluatorException
     {
         Connection conn = null;
         try
         {
-            logger.debug("DataStore=" + ds.getName() + ", getConnection() to: "
+            logger.debug("DataSource=" + ds.getName() + ", getConnection() to: "
                     + ds.getUrl());
             conn = DriverManager.getConnection(ds.getUrl(), ds.getUser(), ds
                     .getPassword());

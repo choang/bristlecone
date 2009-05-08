@@ -49,14 +49,14 @@ public class Configuration extends DefaultHandler
     private String                 url;
     private String                 driver;
     private List<TableGroup>       tables     = new ArrayList<TableGroup>();
-    private Map<String, DataStore> dataStores = new HashMap<String, DataStore>();
+    private Map<String, DataSource> dataSources = new HashMap<String, DataSource>();
     private XMLReader              parser;
     private String                 configName;
     private int                    testDuration;
     private String                 password;
     private String                 user;
     private TableGroup             currentTableGroup;
-    private DataStore              currentDataStore;
+    private DataSource              currentDataSource;
     private boolean                autoCommit;
     private String                 xmlFile;
     private int                    statusInterval;
@@ -378,69 +378,69 @@ public class Configuration extends DefaultHandler
             this.user = attributes.getValue("user");
             this.password = attributes.getValue("password");
             this.timestampType = attributes.getValue("timestampType");
-            currentDataStore = new DataStore("default");
-            currentDataStore.setDriver(attributes.getValue("driver"));
-            currentDataStore.setUrl(attributes.getValue("url"));
-            currentDataStore.setUser(attributes.getValue("user"));
-            currentDataStore.setPassword(attributes.getValue("password"));
-            currentDataStore.setTimestampType(attributes
+            currentDataSource = new DataSource("default");
+            currentDataSource.setDriver(attributes.getValue("driver"));
+            currentDataSource.setUrl(attributes.getValue("url"));
+            currentDataSource.setUser(attributes.getValue("user"));
+            currentDataSource.setPassword(attributes.getValue("password"));
+            currentDataSource.setTimestampType(attributes
                     .getValue("timestampType"));
             String isAutoCommit = attributes.getValue("isAutoCommit");
             if (isAutoCommit == null)
             {
-                currentDataStore.setAutoCommit(true);
+                currentDataSource.setAutoCommit(true);
             }
             else
             {
-                currentDataStore.setAutoCommit(new Boolean(isAutoCommit)
+                currentDataSource.setAutoCommit(new Boolean(isAutoCommit)
                         .booleanValue());
             }
 
-            dataStores.put("default", currentDataStore);
+            dataSources.put("default", currentDataSource);
 
         }
-        else if (name.equals("DataStore"))
+        else if (name.equals("DataSource"))
         {
-            String dataStoreName = attributes.getValue("name");
-            currentDataStore = new DataStore(dataStoreName);
-            currentDataStore.setDriver(attributes.getValue("driver"));
-            currentDataStore.setUrl(attributes.getValue("url"));
-            currentDataStore.setUser(attributes.getValue("user"));
-            currentDataStore.setPassword(attributes.getValue("password"));
-            currentDataStore.setTimestampType(attributes
+            String dataSourceName = attributes.getValue("name");
+            currentDataSource = new DataSource(dataSourceName);
+            currentDataSource.setDriver(attributes.getValue("driver"));
+            currentDataSource.setUrl(attributes.getValue("url"));
+            currentDataSource.setUser(attributes.getValue("user"));
+            currentDataSource.setPassword(attributes.getValue("password"));
+            currentDataSource.setTimestampType(attributes
                     .getValue("timestampType"));
             String isAutoCommit = attributes.getValue("isAutoCommit");
             if (isAutoCommit == null)
             {
-                currentDataStore.setAutoCommit(true);
+                currentDataSource.setAutoCommit(true);
             }
             else
             {
-                currentDataStore.setAutoCommit(new Boolean(isAutoCommit)
+                currentDataSource.setAutoCommit(new Boolean(isAutoCommit)
                         .booleanValue());
             }
 
-            dataStores.put(dataStoreName, currentDataStore);
+            dataSources.put(dataSourceName, currentDataSource);
         }
         else if (name.equals("TableGroup"))
         {
             String tableName = attributes.getValue("name");
             int size = getNumber(attributes, "size");
-            String dataStoreName = attributes.getValue("dataStore");
-            if (dataStoreName == null)
+            String dataSourceName = attributes.getValue("dataSource");
+            if (dataSourceName == null)
             {
-                if (currentDataStore != null)
+                if (currentDataSource != null)
                 {
-                    dataStoreName = currentDataStore.getName();
+                    dataSourceName = currentDataSource.getName();
                 }
                 else
                 {
-                    dataStoreName = "default";
+                    dataSourceName = "default";
                 }
             }
 
             currentTableGroup = new TableGroup(tableName, size);
-            currentTableGroup.setDataStoreName(dataStoreName);
+            currentTableGroup.setDataSourceName(dataSourceName);
             currentTableGroup.setInitializeDDL(Boolean.valueOf(
                     attributes.getValue("initializeDDL")).booleanValue());
             currentTableGroup.setTruncateTable(attributes
@@ -451,20 +451,20 @@ public class Configuration extends DefaultHandler
         else if (name.equals("ThreadGroup"))
         {
             ThreadConfiguration tc = new ThreadConfiguration(currentTableGroup);
-            String dataStoreName = attributes.getValue("dataStore");
-            if (dataStoreName == null)
+            String dataSourceName = attributes.getValue("dataSource");
+            if (dataSourceName == null)
             {
-                if (currentDataStore != null)
+                if (currentDataSource != null)
                 {
-                    dataStoreName = currentDataStore.getName();
+                    dataSourceName = currentDataSource.getName();
                 }
                 else
                 {
-                    dataStoreName = "default";
+                    dataSourceName = "default";
                 }
             }
             
-            tc.setDataStore(dataStoreName);
+            tc.setDataSource(dataSourceName);
             tc.setCount(getNumber(attributes, "threadCount"));
             tc.setName(attributes.getValue("name"));
             tc.setUpdatePercentage(getNumber(attributes, "updates"));
@@ -645,34 +645,34 @@ public class Configuration extends DefaultHandler
         this.testDuration = testDuration;
     }
 
-    public DataStore getDataStore(String name)
+    public DataSource getDataSource(String name)
     {
-        if (dataStores != null)
+        if (dataSources != null)
         {
-            return dataStores.get(name);
+            return dataSources.get(name);
         }
 
         return null;
     }
 
     /**
-     * Returns the dataStores value.
+     * Returns the dataSources value.
      * 
-     * @return Returns the dataStores.
+     * @return Returns the dataSources.
      */
-    public Map<String, DataStore> getDataStores()
+    public Map<String, DataSource> getDataSources()
     {
-        return dataStores;
+        return dataSources;
     }
 
     /**
-     * Sets the dataStores value.
+     * Sets the dataSources value.
      * 
-     * @param dataStores The dataStores to set.
+     * @param dataSources The dataSources to set.
      */
-    public void setDataStores(Map<String, DataStore> dataStores)
+    public void setDataSources(Map<String, DataSource> dataSources)
     {
-        this.dataStores = dataStores;
+        this.dataSources = dataSources;
     }
 
 }

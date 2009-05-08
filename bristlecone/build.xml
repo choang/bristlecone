@@ -194,15 +194,24 @@
         description="Build everything or refresh existing build">
         <copy todir="${build.bristlecone}/lib" file="${build.jar}/bristlecone.jar">
         </copy>
-        <copy todir="${build.bristlecone}/lib">
+        <copy todir="${build.bristlecone}/lib" verbose="true">
             <fileset dir="${libdir}">
                 <include name="*.jar"/>
             </fileset>
+        	<fileset dir="${project.commons}/build/jars">
+        	     <include name="*.jar"/>
+        	</fileset>
+        	<fileset dir="${project.fsm}/build/jars">
+        	      <include name="*.jar"/>
+        	</fileset>
         </copy>
-        <copy todir="${build.bristlecone}/lib-ext">
+        <copy todir="${build.bristlecone}/lib-ext" verbose="true">
             <fileset dir="${libextdir}">
                 <include name="*.jar" />
             </fileset>
+        	<fileset dir="${project.sql-router}/build/jars">
+        	     <include name="*.jar"/>
+        	</fileset>
         </copy>
         <copy todir="${build.bristlecone}/lib-ext">
             <fileset dir="${libextdir}/mysql">

@@ -33,7 +33,7 @@ public class TableGroup implements Runnable
 
     private List<ThreadConfiguration> threads   = new ArrayList<ThreadConfiguration>();
 
-    private String                    dataStoreName;
+    private String                    dataSourceName;
     private int                       smallKey;
     private int                       bigkey;
     private String                    joinedTableName;
@@ -149,22 +149,22 @@ public class TableGroup implements Runnable
     }
 
     /**
-     * Returns the dataStoreName value.
+     * Returns the dataSourceName value.
      * 
-     * @return Returns the dataStoreName.
+     * @return Returns the dataSourceName.
      */
-    public String getDataStoreName()
+    public String getDataSourceName()
     {
-        return dataStoreName;
+        return dataSourceName;
     }
 
     /**
-     * Sets the dataStoreName value.
+     * Sets the dataSourceName value.
      * 
-     * @param dataStoreName The dataStoreName to set.
+     * @param dataSourceName The dataSourceName to set.
      */
-    public void setDataStoreName(String dataStoreName)
+    public void setDataSourceName(String DataSourceName)
     {
-        this.dataStoreName = dataStoreName;
+        this.dataSourceName = DataSourceName;
     }
 }

@@ -282,11 +282,11 @@ public class EvaluatorThread extends Thread
     private void connect() throws EvaluatorException
     {
 
-        logger.debug("thread id=" + id + ", connecting to datastore="
-                + conf.getDataStore());
+        logger.debug("thread id=" + id + ", connecting to dataSource="
+                + conf.getDataSource());
         // Yes, folks, it's ugly, but it works....
-        conn = eval.getConnection(eval.getConfiguration().getDataStore(
-                conf.getDataStore()));
+        conn = eval.getConnection(eval.getConfiguration().getDataSource(
+                conf.getDataSource()));
 
         try
         {

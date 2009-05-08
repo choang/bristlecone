@@ -12,7 +12,7 @@
 	  Database
 	 ****************** -->
 <!ELEMENT Database EMPTY>
-<!ELEMENT DataStore EMPTY>
+<!ELEMENT DataSource EMPTY>
 
 <!--
 	The database tag identifies the target database for testing. It can 
@@ -39,7 +39,7 @@
 	timestampType CDATA "timestamp"
 >
 
-<!ATTLIST DataStore
+<!ATTLIST DataSource
         name   CDATA #REQUIRED
 	driver CDATA #REQUIRED
 	password CDATA #REQUIRED
@@ -49,7 +49,7 @@
 	timestampType CDATA "timestamp"
 >
 
-<!ELEMENT EvaluatorConfiguration ((Database? | DataStore*), TableGroup+)>
+<!ELEMENT EvaluatorConfiguration ((Database? | DataSource*), TableGroup+)>
 <!--
 	This is root element of the XML document. It contains a Database 
 	element and one or more TableGroup elements. 
@@ -99,7 +99,7 @@
 	size CDATA "100"
 	initializeDDL (true | false) "true"
 	truncateTable CDATA "truncate table "
-        dataStore CDATA "default"
+        dataSource CDATA "default"
 >
 <!ELEMENT ThreadGroup EMPTY>
 <!--
@@ -141,7 +141,7 @@
 			The values are 'heavy', 'medium', and 'light'.  
 	-->
 <!ATTLIST ThreadGroup
-	dataStore CDATA "default"
+	dataSource CDATA "default"
 	deletes CDATA "0"
 	inserts CDATA "0"
 	name CDATA #REQUIRED
