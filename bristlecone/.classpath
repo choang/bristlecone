@@ -13,8 +13,8 @@
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="lib" path="lib-ext/hsqldb.jar"/>
 	<classpathentry kind="lib" path="config"/>
-	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.5-bin.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commons"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/fsm"/>
+	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.6-bin.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
