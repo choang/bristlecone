@@ -22,10 +22,6 @@
 
 package com.continuent.bristlecone.evaluator;
 
-import java.util.*;
-
-import org.xml.sax.*;
-
 public class DataSource
 {
     private String name;
