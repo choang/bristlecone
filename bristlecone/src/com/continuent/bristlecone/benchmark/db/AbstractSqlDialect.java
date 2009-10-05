@@ -259,6 +259,20 @@ public abstract class AbstractSqlDialect implements SqlDialect
     return "select * from " + t.getName();
   }
 
+  /** Returns a generic SELECT for all columns and rows in a sorted, deterministic way. */
+  public String getSelectAllSorted(Table t)
+  {
+    int columnCount = t.getColumns().length;
+    String SQL = "select * from " + t.getName() + " order by ";
+    
+    for (int col = 1; col <= columnCount; col++)
+    {
+        if (col > 1) SQL += ", ";
+        SQL += col;
+    }
+    return SQL;
+  }
+
   /**
    * Return all rows of the cross product select of the table on itself. This
    * scans and returns N x N rows where N is the table row count.

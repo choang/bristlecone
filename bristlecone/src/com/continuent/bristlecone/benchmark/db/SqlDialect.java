@@ -88,6 +88,9 @@ public interface SqlDialect
   /** Returns a SELECT statement to fetch all rows and all columns. */
   public String getSelectAll(Table t);
 
+  /** Returns a SELECT statement to fetch all rows and all columns in a sorted, deterministic way. */
+  public String getSelectAllSorted(Table t);
+
   /**
    * Return all rows of the cross product select of the table on itself. This
    * scans and returns N x N rows where N is the table row count.
