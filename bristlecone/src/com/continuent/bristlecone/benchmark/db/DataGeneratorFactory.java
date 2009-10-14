@@ -64,7 +64,9 @@ public class DataGeneratorFactory
       case java.sql.Types.FLOAT:
         return new DataGeneratorForFloat();
       case java.sql.Types.INTEGER:
-        return new DataGeneratorForLong(Integer.MAX_VALUE);
+          return new DataGeneratorForLong(Integer.MAX_VALUE);
+      case java.sql.Types.DECIMAL:
+          return new DataGeneratorForDecimal(c.getLength(), c.getPrecision());
       case java.sql.Types.SMALLINT:
         return new DataGeneratorForLong(32767); 
       case java.sql.Types.VARCHAR:
