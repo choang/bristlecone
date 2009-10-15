@@ -262,13 +262,21 @@ public abstract class AbstractSqlDialect implements SqlDialect
   /** Returns a generic SELECT for all columns and rows in a sorted, deterministic way. */
   public String getSelectAllSorted(Table t)
   {
-    int columnCount = t.getColumns().length;
+    Column cols[] = t.getColumns();
+    int ncols = cols.length;
+    int i = 0;
+    int usedColumns = 0;
     String SQL = "select * from " + t.getName() + " order by ";
     
-    for (int col = 1; col <= columnCount; col++)
+    for (i = 0; i < ncols; i++)
     {
-        if (col > 1) SQL += ", ";
-        SQL += col;
+        Column col = cols[i];
+        /* do not sort blobs or clobs */
+        if (col.getType() == java.sql.Types.BLOB ||
+            col.getType() == java.sql.Types.CLOB) continue;
+        usedColumns++;
+        if (usedColumns > 1) SQL += ", ";
+        SQL += (i + 1);
     }
     return SQL;
   }
