@@ -14,7 +14,7 @@
 		user="tungsten" 
 		password="secret"/>	
 
-	<TableGroup name="ta" size="1000" dataSource="s2" initializeDDL="false">
+	<TableGroup name="ta" size="400" dataSource="s2" initializeDDL="false">
 		<ThreadGroup name="B" dataSource="s2" threadCount="10" thinkTime="10"
 			readSize="5"
 			rampUpInterval="5" rampUpIncrement="20" reconnectInterval="1" />
