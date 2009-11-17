@@ -22,6 +22,9 @@
 
 package com.continuent.bristlecone.benchmark.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.continuent.bristlecone.utils.ToStringHelper;
 
 /**
@@ -31,34 +34,29 @@ import com.continuent.bristlecone.utils.ToStringHelper;
  */
 public class Table
 {
-  private String         name;
-  private final Column[] columns;
-  private String         databaseEngine = null;
+  private String       name;
+  private List<Column> columns        = new ArrayList<Column>();
+  private String       databaseEngine = null;
 
+  /** Creates an anonymous table definition. */
+  public Table()
+  {
+  }
+
+  /** Creates a table with name only. Columns must be added. */
+  public Table(String name)
+  {
+    this.name = name;
+  }
+
+  /** Creates a table with name and columns. */
   public Table(String name, Column[] columns)
   {
     this.name = name;
-    this.columns = columns;
-  }
-
-  /** Returns the table column definitions. */
-  public Column[] getColumns()
-  {
-    return columns;
-  }
-
-  /**
-   * Returns a specific column using the name as index or null if no s such name
-   * can be found.
-   */
-  public Column getColumn(String name)
-  {
-    for (int i = 0; i < columns.length; i++)
+    for (Column col : columns)
     {
-      if (name.equals(columns[i].getName()))
-        return columns[i];
+      this.columns.add(col);
     }
-    return null;
   }
 
   /** Returns the table name. */
@@ -73,15 +71,55 @@ public class Table
     this.name = name;
   }
 
+  /** Adds a column to the end of the column list. */
+  public void addColumn(Column col)
+  {
+    columns.add(col);
+  }
+
+  /** Returns the table column definitions. */
+  public Column[] getColumns()
+  {
+    return columns.toArray(new Column[columns.size()]);
+  }
+
+  /**
+   * Returns a specific column using the name as index or null if no s such name
+   * can be found.
+   */
+  public Column getColumn(String name)
+  {
+    for (Column col : columns)
+    {
+      if (name.equals(col.getName()))
+        return col;
+    }
+    return null;
+  }
+
   /** Returns the primary key column if there is one. */
   public Column getPrimaryKey()
   {
-    for (int i = 0; i < columns.length; i++)
+    for (Column col : columns)
     {
-      if (columns[i].isPrimaryKey())
-        return columns[i];
+      if (col.isPrimaryKey())
+        return col;
     }
     return null;
+  }
+
+  /** Sets the primary key if the column exists. */
+  public boolean setPrimaryKey(String name)
+  {
+    for (Column col : columns)
+    {
+      if (name.equals(col.getName()))
+      {
+        col.setPrimaryKey(true);
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Sets name of database engine. */
@@ -95,9 +133,10 @@ public class Table
   {
     return databaseEngine;
   }
-  
-  @Override public String toString()
+
+  @Override
+  public String toString()
   {
-      return ToStringHelper.toString(this);
+    return ToStringHelper.toString(this);
   }
 }
