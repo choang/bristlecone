@@ -53,6 +53,8 @@ public class DataGeneratorFactory
   {
     switch (c.getType())
     {
+      case java.sql.Types.BIT: 
+        return new DataGeneratorForBit(c.getLength());
       case java.sql.Types.BLOB: 
         return new DataGeneratorForBlob(c.getLength(), 10);
       case java.sql.Types.CHAR:
@@ -80,7 +82,6 @@ public class DataGeneratorFactory
       case java.sql.Types.TIMESTAMP:
         return new DataGeneratorForTimestamp();
       
-      case java.sql.Types.BIT:
       default:
         throw new IllegalArgumentException("Unsupported JDBC type value: " + c.getType());
     }
