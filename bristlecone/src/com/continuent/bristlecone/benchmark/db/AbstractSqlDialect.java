@@ -446,7 +446,6 @@ public abstract class AbstractSqlDialect implements SqlDialect
   {
     switch (type)
     {
-      case java.sql.Types.BIT :
       case java.sql.Types.BLOB :
       case java.sql.Types.BOOLEAN :
       case java.sql.Types.CLOB :
@@ -458,7 +457,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case java.sql.Types.TIME :
       case java.sql.Types.TIMESTAMP :
         return false;
-
+        
+      case java.sql.Types.BIT :
       case java.sql.Types.CHAR :
       case java.sql.Types.DECIMAL :
       case java.sql.Types.VARCHAR :
