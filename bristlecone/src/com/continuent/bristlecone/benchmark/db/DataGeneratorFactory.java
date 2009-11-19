@@ -79,6 +79,7 @@ public class DataGeneratorFactory
         return new DataGeneratorForDate();
       case java.sql.Types.TIME:
         return new DataGeneratorForTime();
+      case AdditionalTypes.TIMESTAMPLOCAL :
       case java.sql.Types.TIMESTAMP:
         return new DataGeneratorForTimestamp();
       
