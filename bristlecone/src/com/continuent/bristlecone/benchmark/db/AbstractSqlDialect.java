@@ -266,8 +266,9 @@ public abstract class AbstractSqlDialect implements SqlDialect
     int ncols = cols.length;
     int i = 0;
     int usedColumns = 0;
-    String SQL = "select * from " + t.getName() + " order by ";
+    String SQL = "select * from " + t.getName();
     
+    String orderBy = "";
     for (i = 0; i < ncols; i++)
     {
         Column col = cols[i];
@@ -275,10 +276,10 @@ public abstract class AbstractSqlDialect implements SqlDialect
         if (col.getType() == java.sql.Types.BLOB ||
             col.getType() == java.sql.Types.CLOB) continue;
         usedColumns++;
-        if (usedColumns > 1) SQL += ", ";
-        SQL += (i + 1);
+        if (usedColumns > 1) orderBy += ", ";
+        orderBy += (i + 1);
     }
-    return SQL;
+    return SQL + (orderBy.length() > 0? " order by " + orderBy:"");
   }
 
   /**
