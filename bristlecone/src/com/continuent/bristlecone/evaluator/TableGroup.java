@@ -163,8 +163,8 @@ public class TableGroup implements Runnable
      * 
      * @param dataSourceName The dataSourceName to set.
      */
-    public void setDataSourceName(String DataSourceName)
+    public void setDataSourceName(String dataSourceName)
     {
-        this.dataSourceName = DataSourceName;
+        this.dataSourceName = dataSourceName;
     }
 }

@@ -28,7 +28,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -56,7 +60,7 @@ public class Configuration extends DefaultHandler
     private String                 password;
     private String                 user;
     private TableGroup             currentTableGroup;
-    private DataSource              currentDataSource;
+    private DataSource             currentDataSource;
     private boolean                autoCommit;
     private String                 xmlFile;
     private int                    statusInterval;
@@ -570,8 +574,6 @@ public class Configuration extends DefaultHandler
      * @param publicId The public identifer, or null if none is available.
      * @param systemId The system identifier provided in the XML document.
      * @return The new input source, or null to require the default behaviour.
-     * @exception java.io.IOException If there is an error setting up the new
-     *                input source.
      * @exception org.xml.sax.SAXException Any SAX exception, possibly wrapping
      *                another exception.
      * @see org.xml.sax.EntityResolver#resolveEntity
@@ -673,6 +675,16 @@ public class Configuration extends DefaultHandler
     public void setDataSources(Map<String, DataSource> dataSources)
     {
         this.dataSources = dataSources;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public void setUser(String user)
+    {
+        this.user = user;
     }
 
 }

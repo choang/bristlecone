@@ -268,7 +268,7 @@ public class ReadsVersusWritesDisplay extends ApplicationFrame
         /**
          * Handles a click on the button by adding new (random) data.
          * 
-         * @param e the action event.
+         * @param value the data to add
          */
         public void addReadActivityRate(double value)
         {

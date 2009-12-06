@@ -279,9 +279,9 @@ public class ThreadConfiguration
      * 
      * @param dataSource The dataSource to set.
      */
-    public void setDataSource(String DataSource)
+    public void setDataSource(String dataSource)
     {
-        this.dataSource = DataSource;
+        this.dataSource = dataSource;
     }
 
     /**

@@ -35,11 +35,15 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.jfree.ui.RefineryUtilities;
+
+import com.continuent.tungsten.commons.config.TungstenProperties;
 
 /**
  * @author <a href="mailto:ralph.hannus@continuent.com">Ralph Hannus</a>
@@ -82,7 +86,6 @@ public class Evaluator implements RowFactory, Runnable
      * The number of samples to accumulate for averaging
      */
     private static final int                  SAMPLES_TO_ACCUMULATE = 1;
-    
 
     /**
      * The current count of samples accumulated
@@ -94,14 +97,11 @@ public class Evaluator implements RowFactory, Runnable
      */
     private Statistics[]                      statisticsAccumulator = new Statistics[SAMPLES_TO_ACCUMULATE];
 
-   
-
     /**
      * The number of seconds, if set, between each logging of the statistics
      */
     private int                               statusInterval        = 0;
 
-    
     // private static String varChar255 =
     // "012345678901234567890123456789012345678901234567890" +
     // "012345678901234567890123456789012345678901234567890" +
@@ -122,6 +122,15 @@ public class Evaluator implements RowFactory, Runnable
     public Iterator getStats()
     {
         return statsList.values().iterator();
+    }
+
+    public TungstenProperties showStatistics()
+    {
+        Statistics stats = collectStatistics();
+        TungstenProperties props = new TungstenProperties();
+        props.extractProperties(stats, true);
+
+        return props;
     }
 
     public Configuration getConfiguration()
@@ -227,15 +236,15 @@ public class Evaluator implements RowFactory, Runnable
             // Start the graphical evaluator display if desired.
             if (graph)
             {
-                //GraphicalEvaluatorDisplay graphDisplay = new
-                //GraphicalEvaluatorDisplay(
-                //"Continuent Cluster Monitor");
+                // GraphicalEvaluatorDisplay graphDisplay = new
+                // GraphicalEvaluatorDisplay(
+                // "Continuent Cluster Monitor");
                 ReadsVersusWritesDisplay graphDisplay = new ReadsVersusWritesDisplay(
                         "Tungsten Enterprise Cluster Monitor");
                 graphDisplay.pack();
                 RefineryUtilities.centerFrameOnScreen(graphDisplay);
                 graphDisplay.setVisible(true);
-                eval.addStatisticsListner(graphDisplay);
+                eval.addStatisticsListener(graphDisplay);
 
             }
 
@@ -267,8 +276,6 @@ public class Evaluator implements RowFactory, Runnable
 
     /**
      * Runs one iteration of the evaluator.
-     * 
-     * @throws EvaluatorException whenever an error occurs
      */
     public void run()
     {
@@ -316,9 +323,9 @@ public class Evaluator implements RowFactory, Runnable
             {
                 ThreadConfiguration threadGroup = (ThreadConfiguration) threadsIterator
                         .next();
-                
+
                 threadGroups.add(threadGroup);
-                
+
                 /*
                  * When ramp up is configured, the test duration may not be long
                  * enough to start all the threads. In this case we don't
@@ -361,7 +368,8 @@ public class Evaluator implements RowFactory, Runnable
             t.start();
         }
         readyToStart = true;
-        logger.info("############################ Starting test run ############################");
+        logger
+                .info("############################ Starting test run ############################");
         int runTime = conf.getTestDuration() * 1000;
 
         // Interval to be used to log statistics. Graphical stats
@@ -592,32 +600,34 @@ public class Evaluator implements RowFactory, Runnable
             }
         }
         logger.info("Test run complete");
+        System.exit(0);
     }
 
     private void logStatistics(int interval)
-    {   
+    {
         Statistics stats = collectStatistics();
 
         Statistics delta = stats.diff(previousStats);
         DateFormat f = DateFormat.getDateTimeInstance();
         String label = f.format(new Date());
 
-      
-        // TODO: There's a bug here, but I can't see it right now, and the other stuff works.
+        // TODO: There's a bug here, but I can't see it right now, and the other
+        // stuff works.
         // So this can be addressed later.
-//        currentStatusStats.add(delta);
-//       
-//        if (timeSinceLastStatus < statusInterval)
-//        {
-//            timeSinceLastStatus += interval;
-//        }
-//        else
-//        {
-//            printStatistics(currentStatusStats, "PERIODIC STATUS:" + label + ":", timeSinceLastStatus/1000);
-//            currentStatusStats.clear();
-//            timeSinceLastStatus = 0;
-//           
-//        }
+        // currentStatusStats.add(delta);
+        //       
+        // if (timeSinceLastStatus < statusInterval)
+        // {
+        // timeSinceLastStatus += interval;
+        // }
+        // else
+        // {
+        // printStatistics(currentStatusStats, "PERIODIC STATUS:" + label + ":",
+        // timeSinceLastStatus/1000);
+        // currentStatusStats.clear();
+        // timeSinceLastStatus = 0;
+        //           
+        // }
 
         // If we don't have enough samples yet, just collect it...
         if (currentSampleCount < SAMPLES_TO_ACCUMULATE)
@@ -628,10 +638,12 @@ public class Evaluator implements RowFactory, Runnable
         {
             Statistics average = getStatsAverages(SAMPLES_TO_ACCUMULATE);
             currentSampleCount = 0;
-            
-            average.setInterval( ((float)(SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM))/1000);
-            printStatistics(average, label, ((float)(SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM))/1000);
-            
+
+            average
+                    .setInterval(((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
+            printStatistics(average, label,
+                    ((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
+
             synchronized (listeners)
             {
                 for (Iterator iter = listeners.iterator(); iter.hasNext();)
@@ -664,13 +676,13 @@ public class Evaluator implements RowFactory, Runnable
     private void printStatistics(Statistics stats, String label, float interval)
     {
         statsList.put(label, stats);
-        logger.info("interval=" + interval + " secs, " + stats.getQueries() + " queries, "
-                + stats.getQueries() / interval + " queries/second, "
-                + threadsAlive + "/" + stats.getThreads() + " threads, "
-                + stats.getAverageResponseTime() + " response time, "
-                + stats.getRowsRead() + " rows read,  " + stats.getUpdates()
-                + " updates, " + stats.getDeletes() + " deletes, "
-                + stats.getInserts() + " inserts");
+        logger.info("interval=" + interval + " secs, " + stats.getQueries()
+                + " queries, " + stats.getQueries() / interval
+                + " queries/second, " + threadsAlive + "/" + stats.getThreads()
+                + " threads, " + stats.getAverageResponseTime()
+                + " response time, " + stats.getRowsRead() + " rows read,  "
+                + stats.getUpdates() + " updates, " + stats.getDeletes()
+                + " deletes, " + stats.getInserts() + " inserts");
     }
 
     private Statistics collectStatistics()
@@ -679,7 +691,7 @@ public class Evaluator implements RowFactory, Runnable
 
         for (ThreadConfiguration conf : threadGroups)
         {
-            synchronized(conf)
+            synchronized (conf)
             {
                 Statistics stats = conf.getStatistics();
                 result.add(stats);
@@ -952,7 +964,7 @@ public class Evaluator implements RowFactory, Runnable
         {
             throw new EvaluatorException("No default database was configured");
         }
-        
+
         return getConnection(ds);
     }
 
@@ -961,8 +973,8 @@ public class Evaluator implements RowFactory, Runnable
         Connection conn = null;
         try
         {
-            logger.debug("DataSource=" + ds.getName() + ", getConnection() to: "
-                    + ds.getUrl());
+            logger.debug("DataSource=" + ds.getName()
+                    + ", getConnection() to: " + ds.getUrl());
             conn = DriverManager.getConnection(ds.getUrl(), ds.getUser(), ds
                     .getPassword());
             conn.setAutoCommit(ds.isAutoCommit());
@@ -1020,11 +1032,22 @@ public class Evaluator implements RowFactory, Runnable
         return result;
     }
 
-    public void addStatisticsListner(StatisticsListener listener)
+    public void addStatisticsListener(StatisticsListener listener)
     {
         synchronized (listeners)
         {
             listeners.add(listener);
         }
     }
+
+    public boolean isGraph()
+    {
+        return graph;
+    }
+
+    public void setGraph(boolean graph)
+    {
+        this.graph = graph;
+    }
+
 }

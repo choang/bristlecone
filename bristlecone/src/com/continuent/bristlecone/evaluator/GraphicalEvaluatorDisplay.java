@@ -205,11 +205,6 @@ public class GraphicalEvaluatorDisplay extends ApplicationFrame implements Stati
       System.out.println("after starting data acquisition");
     }
 
-    /**
-     * Handles a click on the button by adding new (random) data.
-     * 
-     * @param e the action event.
-     */
     public void addRequestRate(double value)
     {
       this.lastValue[0] = value;

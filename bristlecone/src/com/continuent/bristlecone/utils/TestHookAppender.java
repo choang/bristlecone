@@ -22,10 +22,12 @@
 
 package com.continuent.bristlecone.utils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Vector;
 
-import org.apache.log4j.*;
-import org.apache.log4j.spi.*;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.spi.ErrorCode;
+import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * This appender works much like log4j's Socket Appender. The main difference is
@@ -94,7 +96,7 @@ public class TestHookAppender extends AppenderSkeleton
     }
 
     /**
-     * @return
+     * @return tru if there is an error, otherwise false.
      */
     public boolean hasError()
     {
@@ -102,7 +104,7 @@ public class TestHookAppender extends AppenderSkeleton
     }
 
     /**
-     * @return
+     * @return the collection of errors
      */
     public Collection<String> getErrors()
     {

@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -43,8 +45,6 @@ import com.continuent.bristlecone.evaluator.EvaluatorThread;
 import com.continuent.bristlecone.evaluator.Statistics;
 import com.continuent.bristlecone.evaluator.TableGroup;
 import com.continuent.bristlecone.evaluator.ThreadConfiguration;
-
-import junit.framework.TestCase;
 
 public class EvaluatorTest extends TestCase
 {

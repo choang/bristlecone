@@ -34,33 +34,38 @@ import org.apache.log4j.Logger;
 
 public class EvaluatorThread extends Thread
 {
-    private static Logger logger  = Logger.getLogger(EvaluatorThread.class);
-    protected Evaluator   eval;
+    private static Logger    logger          = Logger
+                                                     .getLogger(EvaluatorThread.class);
+    protected Evaluator      eval;
 
-    private int           count;
-    private int           rowsRead;
-    private int           updates;
-    private int           inserts;
-    private int           deletes;
+    private int              count;
+    private int              rowsRead;
+    private int              updates;
+    private int              inserts;
+    private int              deletes;
 
-    private String        id;
-    Connection            conn;
-    ThreadConfiguration   conf;
-    PreparedStatement     select  = null;
-    PreparedStatement     delete  = null;
-    PreparedStatement     update  = null;
-    PreparedStatement     insert  = null;
-    PreparedStatement     current = null;
+    private String           id;
+    Connection               conn;
+    ThreadConfiguration      conf;
+    PreparedStatement        select          = null;
+    PreparedStatement        delete          = null;
+    PreparedStatement        update          = null;
+    PreparedStatement        insert          = null;
+    PreparedStatement        current         = null;
 
-    private Random        rand;
+    private Random           rand;
 
-    private int           sleepBeforeStart;
+    private int              sleepBeforeStart;
 
-    private boolean       started;
+    private boolean          started;
 
-    private int           deleted;
+    private int              deleted;
 
-    private int           updated;
+    private int              updated;
+
+    private static final int FOREVER = -1;
+    private static final int MAX_RETRY_COUNT = FOREVER;
+    private static final int SECONDS_BETWEEN_RETRY = 10;
 
     public EvaluatorThread(Evaluator eval, ThreadConfiguration threadGroup,
             String id) throws EvaluatorException
@@ -78,7 +83,6 @@ public class EvaluatorThread extends Thread
 
         try
         {
-
             conn.close();
         }
         catch (SQLException e)
@@ -284,9 +288,28 @@ public class EvaluatorThread extends Thread
 
         logger.debug("thread id=" + id + ", connecting to dataSource="
                 + conf.getDataSource());
-        // Yes, folks, it's ugly, but it works....
-        conn = eval.getConnection(eval.getConfiguration().getDataSource(
-                conf.getDataSource()));
+
+        int retryCount = 0;
+
+        /*
+         * We'll try to get a connection up to MAX_RETRY times,
+         * with a small sleep in between.
+         */
+        do
+        {
+            try
+            {
+                conn = eval.getConnection(eval.getConfiguration()
+                        .getDataSource(conf.getDataSource()));
+                break;
+            }
+            catch (EvaluatorException e)
+            {
+                 _sleep(SECONDS_BETWEEN_RETRY * 1000);
+                 logger.info(String.format("THREAD %s: Connect retry %d", id, retryCount + 1));
+            }
+        }
+        while (retryCount++ < MAX_RETRY_COUNT || MAX_RETRY_COUNT == FOREVER);
 
         try
         {
@@ -558,6 +581,18 @@ public class EvaluatorThread extends Thread
     public boolean isStarted()
     {
         return started;
+    }
+    
+    private void _sleep(int milliseconds)
+    {
+        try
+        {
+            Thread.sleep(milliseconds);
+        }
+        catch(InterruptedException i)
+        {
+            //
+        }
     }
 
 }

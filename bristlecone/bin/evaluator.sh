@@ -24,6 +24,10 @@ if [ -d "$CLUSTER_HOME" ]; then
         CLUSTER_HOME_ARGS="-Dcluster.home=$clusterHomeDir"
 fi
 
+CP=$CP:$CLUSTER_HOME/conf
+CP=$CP:$BHOME/config
+
+
 BRISTLECONE_JVMDEBUG_PORT=54001
 # uncomment to debug
 # JVM_OPTIONS="${JVM_OPTIONS} -enableassertions -Xdebug -Xnoagent -Djava.compiler=none -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$BRISTLECONE_JVMDEBUG_PORT"
