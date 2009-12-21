@@ -457,6 +457,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case java.sql.Types.FLOAT :
       case java.sql.Types.INTEGER :
       case java.sql.Types.SMALLINT :
+      case java.sql.Types.BIGINT :
       case java.sql.Types.TIME :
       case java.sql.Types.TIMESTAMP :
       case AdditionalTypes.TIMESTAMPLOCAL :
@@ -491,6 +492,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case java.sql.Types.FLOAT :
       case java.sql.Types.INTEGER :
       case java.sql.Types.SMALLINT :
+      case java.sql.Types.BIGINT :
       case java.sql.Types.TIME :
       case java.sql.Types.TIMESTAMP :
       case java.sql.Types.VARCHAR :

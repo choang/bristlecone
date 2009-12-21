@@ -74,6 +74,8 @@ public class SqlDialectForMysql extends AbstractSqlDialect
         return "longblob";
       case java.sql.Types.CLOB :
         return "longtext";
+      case java.sql.Types.BIGINT :
+        return "bigint";
       default :
         return super.implementationTypeName(type);
     }

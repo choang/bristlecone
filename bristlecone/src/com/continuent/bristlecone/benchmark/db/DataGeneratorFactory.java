@@ -71,6 +71,8 @@ public class DataGeneratorFactory
           return new DataGeneratorForDecimal(c.getLength(), c.getPrecision());
       case java.sql.Types.SMALLINT:
         return new DataGeneratorForLong(32767); 
+      case java.sql.Types.BIGINT:
+        return new DataGeneratorForLong(Long.MAX_VALUE); 
       case java.sql.Types.VARCHAR:
         return new DataGeneratorForString(c.getLength(), 10);
       case java.sql.Types.BOOLEAN:

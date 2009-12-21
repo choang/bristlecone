@@ -30,12 +30,12 @@ package com.continuent.bristlecone.benchmark.db;
  */
 public class DataGeneratorForLong implements DataGenerator
 {
-  private double max; 
+  private long max; 
  
   /** Create a new instance with an upper bound. */
   DataGeneratorForLong(long maxValue)
   {
-    this.max = (double) maxValue;
+    this.max = maxValue;
   }
   
   /** Generate next value up to the boundary value. */
