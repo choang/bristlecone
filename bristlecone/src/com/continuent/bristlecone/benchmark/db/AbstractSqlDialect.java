@@ -426,6 +426,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
         return "float";
       case java.sql.Types.INTEGER :
         return "integer";
+      case java.sql.Types.TINYINT :
+        return "tinyint";
       case java.sql.Types.SMALLINT :
         return "smallint";
       case java.sql.Types.TIME :
@@ -436,6 +438,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
         return "varchar";
       case AdditionalTypes.TIMESTAMPLOCAL:
         return "timestamp with local time zone";
+      case AdditionalTypes.MEDIUMINT :
+        return "mediumint";
       default :
         throw new IllegalArgumentException("Unsupported JDBC type value: "
             + type);
@@ -456,11 +460,18 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case java.sql.Types.DOUBLE :
       case java.sql.Types.FLOAT :
       case java.sql.Types.INTEGER :
+      case java.sql.Types.TINYINT :
       case java.sql.Types.SMALLINT :
       case java.sql.Types.BIGINT :
       case java.sql.Types.TIME :
       case java.sql.Types.TIMESTAMP :
       case AdditionalTypes.TIMESTAMPLOCAL :
+      case AdditionalTypes.UTINYINT :
+      case AdditionalTypes.USMALLINT :
+      case AdditionalTypes.UMEDIUMINT :
+      case AdditionalTypes.UINT :
+      case AdditionalTypes.UBIGINT :
+      case AdditionalTypes.MEDIUMINT :
         return false;
         
       case java.sql.Types.BIT :
@@ -491,12 +502,19 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case java.sql.Types.DOUBLE :
       case java.sql.Types.FLOAT :
       case java.sql.Types.INTEGER :
+      case java.sql.Types.TINYINT :
       case java.sql.Types.SMALLINT :
       case java.sql.Types.BIGINT :
       case java.sql.Types.TIME :
       case java.sql.Types.TIMESTAMP :
       case java.sql.Types.VARCHAR :
       case AdditionalTypes.TIMESTAMPLOCAL :
+      case AdditionalTypes.UTINYINT :
+      case AdditionalTypes.USMALLINT :
+      case AdditionalTypes.UMEDIUMINT :
+      case AdditionalTypes.UINT :
+      case AdditionalTypes.UBIGINT :
+      case AdditionalTypes.MEDIUMINT :
         return false;
 
       case java.sql.Types.DECIMAL :

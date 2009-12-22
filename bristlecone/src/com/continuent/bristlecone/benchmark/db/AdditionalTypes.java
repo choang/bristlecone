@@ -45,6 +45,18 @@ public class AdditionalTypes
      */
     public final static int TIMESTAMPLOCAL     =  1500; // TIMESTAMP WITH LOCAL TIME ZONE
 
+    /**
+     *  Unsigned MySQL types
+     */
+    public final static int UTINYINT    =  1510; // UNSIGNED TINYINT   0-255
+    public final static int USMALLINT   =  1511; // UNSIGNED SMALLINT  0-65535
+    public final static int UMEDIUMINT  =  1512; // UNSIGNED MEDIUMINT 0-16777215
+    public final static int UINT        =  1513; // UNSIGNED INT       0-4294967295
+    public final static int UBIGINT     =  1514; // UNSIGNED BIGINT    0-18446744073709551615
+
+    public final static int MEDIUMINT   =  1515; // MySQL's "mediumint" col type
+
+
     // Prevent instantiation
     private AdditionalTypes() {}
 }

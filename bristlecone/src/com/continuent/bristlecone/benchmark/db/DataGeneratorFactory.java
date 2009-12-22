@@ -69,10 +69,24 @@ public class DataGeneratorFactory
           return new DataGeneratorForLong(Integer.MAX_VALUE);
       case java.sql.Types.DECIMAL:
           return new DataGeneratorForDecimal(c.getLength(), c.getPrecision());
+      case java.sql.Types.TINYINT:
+        return new DataGeneratorForLong(127); 
       case java.sql.Types.SMALLINT:
         return new DataGeneratorForLong(32767); 
+      case AdditionalTypes.MEDIUMINT:
+        return new DataGeneratorForLong(8388607); 
       case java.sql.Types.BIGINT:
         return new DataGeneratorForLong(Long.MAX_VALUE); 
+      case AdditionalTypes.UTINYINT:
+        return new DataGeneratorForUBigInt("255"); 
+      case AdditionalTypes.USMALLINT:
+        return new DataGeneratorForUBigInt("65535"); 
+      case AdditionalTypes.UMEDIUMINT:
+        return new DataGeneratorForUBigInt("16777215"); 
+      case AdditionalTypes.UINT:
+        return new DataGeneratorForUBigInt("4294967295"); 
+      case AdditionalTypes.UBIGINT:
+        return new DataGeneratorForUBigInt("18446744073709551615"); 
       case java.sql.Types.VARCHAR:
         return new DataGeneratorForString(c.getLength(), 10);
       case java.sql.Types.BOOLEAN:

@@ -63,8 +63,18 @@ public class SqlDialectForOracle extends AbstractSqlDialect
     {
       case Types.TIME :
         return "date";
+      case java.sql.Types.TINYINT :
+      case java.sql.Types.BIGINT :
+      case AdditionalTypes.UTINYINT :
+      case AdditionalTypes.USMALLINT :
+      case AdditionalTypes.UMEDIUMINT :
+      case AdditionalTypes.UINT :
+      case AdditionalTypes.UBIGINT :
+      case AdditionalTypes.MEDIUMINT :
+        return "number";
+      default :
+        return super.implementationTypeName(type);
     }
-    return super.implementationTypeName(type);
   }
 
   @Override

@@ -76,6 +76,18 @@ public class SqlDialectForMysql extends AbstractSqlDialect
         return "longtext";
       case java.sql.Types.BIGINT :
         return "bigint";
+      case AdditionalTypes.UTINYINT :
+        return "tinyint unsigned";
+      case AdditionalTypes.USMALLINT :
+        return "smallint unsigned";
+      case AdditionalTypes.UMEDIUMINT :
+        return "mediumint unsigned";
+      case AdditionalTypes.UINT :
+        return "int unsigned";
+      case AdditionalTypes.UBIGINT :
+        return "bigint unsigned";
+      case AdditionalTypes.MEDIUMINT :
+        return "mediumint";
       default :
         return super.implementationTypeName(type);
     }
