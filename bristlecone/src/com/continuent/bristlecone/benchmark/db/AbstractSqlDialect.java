@@ -21,6 +21,8 @@
  */
 
 package com.continuent.bristlecone.benchmark.db;
+import com.continuent.bristlecone.benchmark.db.AdditionalTypes;
+
 
 /**
  * Superclass for SqlDialect implementations that takes care of most select
@@ -274,7 +276,9 @@ public abstract class AbstractSqlDialect implements SqlDialect
         Column col = cols[i];
         /* do not sort blobs or clobs */
         if (col.getType() == java.sql.Types.BLOB ||
-            col.getType() == java.sql.Types.CLOB) continue;
+                col.getType() == java.sql.Types.CLOB ||
+                col.getType() == AdditionalTypes.XML
+            ) continue;
         usedColumns++;
         if (usedColumns > 1) orderBy += ", ";
         orderBy += (i + 1);
@@ -439,7 +443,9 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.TIMESTAMPLOCAL:
         return "timestamp with local time zone";
       case AdditionalTypes.MEDIUMINT :
-        return "mediumint";
+          return "mediumint";
+      case AdditionalTypes.XML :
+          return "xmltype";
       default :
         throw new IllegalArgumentException("Unsupported JDBC type value: "
             + type);
@@ -471,7 +477,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.UMEDIUMINT :
       case AdditionalTypes.UINT :
       case AdditionalTypes.UBIGINT :
-      case AdditionalTypes.MEDIUMINT :
+      case AdditionalTypes.MEDIUMINT :      
+      case AdditionalTypes.XML :
         return false;
         
       case java.sql.Types.BIT :
@@ -515,6 +522,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.UINT :
       case AdditionalTypes.UBIGINT :
       case AdditionalTypes.MEDIUMINT :
+      case AdditionalTypes.XML :
         return false;
 
       case java.sql.Types.DECIMAL :

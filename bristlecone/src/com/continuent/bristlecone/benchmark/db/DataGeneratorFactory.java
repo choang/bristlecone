@@ -60,7 +60,9 @@ public class DataGeneratorFactory
       case java.sql.Types.CHAR:
         return new DataGeneratorForString(c.getLength(), 10);
       case java.sql.Types.CLOB:
-        return new DataGeneratorForString(c.getLength(), 10);
+          return new DataGeneratorForString(c.getLength(), 10);
+      case AdditionalTypes.XML:
+          return new DataGeneratorForXML(c.getLength(), 10);
       case java.sql.Types.DOUBLE:
         return new DataGeneratorForDouble();
       case java.sql.Types.FLOAT:

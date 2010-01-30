@@ -44,6 +44,7 @@ public class AdditionalTypes
      *  Oracle specific types.
      */
     public final static int TIMESTAMPLOCAL     =  1500; // TIMESTAMP WITH LOCAL TIME ZONE
+    public final static int XML                =  1501; // Oracle's XML column
 
     /**
      *  Unsigned MySQL types

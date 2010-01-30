@@ -71,7 +71,9 @@ public class SqlDialectForOracle extends AbstractSqlDialect
       case AdditionalTypes.UINT :
       case AdditionalTypes.UBIGINT :
       case AdditionalTypes.MEDIUMINT :
-        return "number";
+          return "number";
+      case AdditionalTypes.XML :
+          return "xmltype";
       default :
         return super.implementationTypeName(type);
     }
@@ -82,6 +84,53 @@ public class SqlDialectForOracle extends AbstractSqlDialect
   {
     return "";
   }
+
+  /** Returns a generic SELECT for all columns and rows in a sorted, deterministic way.
+   * This is over ridden in Oracle since Oracle needs special introducer for XML columns
+   */
+  @Override
+  public String getSelectAllSorted(Table t)
+  {
+    Column cols[] = t.getColumns();
+    int ncols = cols.length;
+    int i = 0;
+    int usedColumns = 0;
+    String SQL = "select ";
+    
+    for (i = 0; i < ncols; i++)
+    {
+        Column col = cols[i];
+        if (i > 0) SQL += ", ";
+        if (col.getType() == AdditionalTypes.XML) 
+        {
+            /* When column is NULL we want to return NULL since getclobval() does not work on NULL */
+            /* decode(samplecol, null, null, xmltype.getclobval(samplecol)) */
+            //SQL += "decode(" + col.getName() + ", NULL, NULL, xmltype.getclobval(" + col.getName() + "))";
+            SQL += "xmltype.getclobval(" + col.getName() + ")";
+        } else {
+            SQL += col.getName();
+        }
+    }
+    
+    SQL += " from " + t.getName();
+    
+    String orderBy = "";
+    for (i = 0; i < ncols; i++)
+    {
+        Column col = cols[i];
+        /* do not sort blobs or clobs */
+        if (col.getType() == java.sql.Types.BLOB ||
+                col.getType() == java.sql.Types.CLOB ||
+                col.getType() == AdditionalTypes.XML
+            ) continue;
+        usedColumns++;
+        if (usedColumns > 1) orderBy += ", ";
+        orderBy += (i + 1);
+    }
+    return SQL + (orderBy.length() > 0 ? " order by " + orderBy:"");
+  }
+
+
 
   @Override
   public String getInsert(Table t)
@@ -102,7 +151,13 @@ public class SqlDialectForOracle extends AbstractSqlDialect
       if (!columns[i].isAutoIncrement())
       {
         sb.append(columns[i].getName());
-        parameterList.append("?");
+        /* Only way to insert into XML type is using XMLTYPE() introducer */
+        if (columns[i].getType() == AdditionalTypes.XML)
+        {
+            parameterList.append("XMLTYPE(nvl(?, '<ifnullsworked></ifnullsworked>'))");           
+        } else {
+            parameterList.append("?");
+        }
         if (i < columns.length - 1)
         {
           sb.append(", ");
