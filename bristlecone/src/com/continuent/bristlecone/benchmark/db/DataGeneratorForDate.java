@@ -22,7 +22,6 @@
 
 package com.continuent.bristlecone.benchmark.db;
 
-import com.continuent.bristlecone.benchmark.db.DataGenerator;
 import java.sql.Date;
 
 /**
@@ -32,13 +31,32 @@ import java.sql.Date;
  */
 public class DataGeneratorForDate implements DataGenerator
 {
-  /** Generate next date. */
-  public Object generate()
-  {
-    long sign = 1;
-    if (Math.random() < 0.5)
-      sign = -1;
-    long timeValue = sign * (long) (Math.random() * System.currentTimeMillis());
-    return new Date(timeValue);
-  }
+
+    private long max;
+
+    DataGeneratorForDate()
+    {
+        long maxVal = (8099 - 1970);
+        maxVal *= 365L;
+        maxVal *= 24L;
+        maxVal *= 3600L;
+        maxVal *= 1000L;
+        this.max = maxVal;
+    }
+
+    /** Create a new instance with an upper bound. */
+    DataGeneratorForDate(long maxValue)
+    {
+        this.max = maxValue;
+    }
+
+    /** Generate next date. */
+    public Object generate()
+    {
+        long sign = (Math.random() >= 0.5) ? -1 : 1;
+        long absvalue = (long) (Math.random() * max);
+
+        long dateValue = sign * absvalue;
+        return new Date(dateValue);
+    }
 }
