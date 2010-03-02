@@ -259,5 +259,11 @@ public class SqlDialectForOracle extends AbstractSqlDialect
   {
     return "DROP TRIGGER " + triggerName;
   }
+  
+  public String implementationSpecificSuffix(Column c)
+  {    
+      return super.implementationSpecifcSuffix(c);     
+  }
+
 
 }

@@ -56,6 +56,7 @@ public class AdditionalTypes
     public final static int UBIGINT     =  1514; // UNSIGNED BIGINT    0-18446744073709551615
 
     public final static int MEDIUMINT   =  1515; // MySQL's "mediumint" col type
+    public final static int ENUM        =  1516; // MySQL's enum col type
 
 
     // Prevent instantiation

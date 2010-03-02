@@ -116,4 +116,10 @@ public class SqlDialectForPostgreSQL extends AbstractSqlDialect
         return super.implementationTypeName(type);
     }
   }
+  
+  public String implementationSpecificSuffix(Column c)
+  {    
+      return super.implementationSpecifcSuffix(c);     
+  }
+
 }

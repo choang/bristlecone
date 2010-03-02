@@ -106,6 +106,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
       }
       sb.append(")");
     }
+    
+    sb.append(implementationSpecificSuffix(col));
 
     // Auto-increment indicator.
     if (col.isAutoIncrement())
@@ -446,6 +448,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
           return "mediumint";
       case AdditionalTypes.XML :
           return "xmltype";
+      case AdditionalTypes.ENUM :
+          return "enum";
       default :
         throw new IllegalArgumentException("Unsupported JDBC type value: "
             + type);
@@ -479,6 +483,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.UBIGINT :
       case AdditionalTypes.MEDIUMINT :      
       case AdditionalTypes.XML :
+      case AdditionalTypes.ENUM :
         return false;
         
       case java.sql.Types.BIT :
@@ -523,6 +528,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.UBIGINT :
       case AdditionalTypes.MEDIUMINT :
       case AdditionalTypes.XML :
+      case AdditionalTypes.ENUM :
         return false;
 
       case java.sql.Types.DECIMAL :
@@ -543,5 +549,10 @@ public abstract class AbstractSqlDialect implements SqlDialect
       return 0;
     else
       return fetchSize;
+  }
+  
+  public String implementationSpecifcSuffix(Column c)
+  {
+      return "";
   }
 }

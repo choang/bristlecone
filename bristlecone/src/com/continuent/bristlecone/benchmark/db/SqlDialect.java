@@ -151,6 +151,11 @@ public interface SqlDialect
    * Translates java.sql.Type values to implementation-specific names.
    */
   public String implementationTypeName(int type);
+  
+  /**
+   * If the column needs any implementatoin specific suffix, return it here
+   */
+  public String implementationSpecificSuffix(Column c);
 
   /**
    * Returns true if this type requires a length specification.

@@ -92,4 +92,19 @@ public class SqlDialectForMysql extends AbstractSqlDialect
         return super.implementationTypeName(type);
     }
   }
+  
+  public String implementationSpecificSuffix(Column c)
+  {
+      String retval = "(";
+      
+      if (c.getType() != AdditionalTypes.ENUM) return super.implementationSpecifcSuffix(c);
+      
+      for (int i = 0; i < c.getLength();i++)
+      {
+          if (i != 0) retval += ", ";
+          retval += "'enum" + i + "'";
+      }
+      retval += ")";
+      return retval;
+  }
 }

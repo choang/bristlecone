@@ -62,4 +62,9 @@ public class SqlDialectForHSQLDB extends AbstractSqlDialect
         return super.implementationTypeName(type);
     }
   }
+  public String implementationSpecificSuffix(Column c)
+  {    
+      return super.implementationSpecifcSuffix(c);     
+  }
+
 }
