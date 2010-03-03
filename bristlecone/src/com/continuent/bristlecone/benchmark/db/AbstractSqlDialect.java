@@ -450,6 +450,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
           return "xmltype";
       case AdditionalTypes.ENUM :
           return "enum";
+      case AdditionalTypes.SET :
+          return "set";
       default :
         throw new IllegalArgumentException("Unsupported JDBC type value: "
             + type);
@@ -484,6 +486,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.MEDIUMINT :      
       case AdditionalTypes.XML :
       case AdditionalTypes.ENUM :
+      case AdditionalTypes.SET :
         return false;
         
       case java.sql.Types.BIT :
@@ -529,6 +532,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.MEDIUMINT :
       case AdditionalTypes.XML :
       case AdditionalTypes.ENUM :
+      case AdditionalTypes.SET :
         return false;
 
       case java.sql.Types.DECIMAL :

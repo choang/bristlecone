@@ -98,7 +98,9 @@ public class DataGeneratorFactory
       case java.sql.Types.TIME:
         return new DataGeneratorForTime();
       case AdditionalTypes.ENUM :
-        return new DataGeneratorForEnum(c.getLength());
+          return new DataGeneratorForEnum(c.getLength());
+      case AdditionalTypes.SET :
+          return new DataGeneratorForSet(c.getLength());
       case AdditionalTypes.TIMESTAMPLOCAL :
       case java.sql.Types.TIMESTAMP:
         return new DataGeneratorForTimestamp();

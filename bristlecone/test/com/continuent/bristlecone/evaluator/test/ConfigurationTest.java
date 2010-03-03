@@ -40,9 +40,9 @@ import com.continuent.bristlecone.evaluator.XMLWriter;
 public class ConfigurationTest extends TestCase
 {
   File      testFile;
-  HashMap   evalAtts = new HashMap();
-  HashMap   dbAtts   = new HashMap();
-  ArrayList tbls     = new ArrayList();
+  HashMap<String, Object>   evalAtts = new HashMap<String, Object>();
+  HashMap<String, Object>   dbAtts   = new HashMap<String, Object>();
+  ArrayList<HashMap<String, Object>> tbls     = new ArrayList<HashMap<String, Object>>();
 
   protected void setUp() throws Exception
   {
@@ -59,11 +59,11 @@ public class ConfigurationTest extends TestCase
     dbAtts.put("user", "user");
     dbAtts.put("password", "pw");
 
-    HashMap tblAtts = new HashMap();
+    HashMap<String, Object> tblAtts = new HashMap<String, Object>();
     tblAtts.put("name", "tg1");
     tblAtts.put("size", "111");
-    ArrayList threads = new ArrayList();
-    HashMap tdAtts = new HashMap();
+    ArrayList<HashMap<String, String>> threads = new ArrayList<HashMap<String, String>>();
+    HashMap<String, String> tdAtts = new HashMap<String, String>();
     tdAtts.put("name", "td1");
     tdAtts.put("readSize", "1");
     tdAtts.put("deletes", "1");
@@ -141,7 +141,7 @@ public class ConfigurationTest extends TestCase
   {
     try
     {
-      tbls = new ArrayList();
+      tbls = new ArrayList<HashMap<String, Object>>();
       Configuration test = new Configuration(createXml());
       fail("Created configuration from bad xml file " + test.getName());
     }
@@ -155,7 +155,7 @@ public class ConfigurationTest extends TestCase
   {
     try
     {
-      HashMap tbl = (HashMap)tbls.get(0);
+      HashMap<String, Object> tbl = tbls.get(0);
       tbl.put("size", "NotANumber");
       Configuration test = new Configuration(createXml());
       fail("Created configuration from bad xml file " + test.getName());
@@ -182,16 +182,16 @@ public class ConfigurationTest extends TestCase
   
   public void testDefaultConfig() throws Exception
   {
-    evalAtts = new HashMap();
+    evalAtts = new HashMap<String, Object>();
     evalAtts.put("name", getName());
-    tbls = new ArrayList();
-    HashMap tbl = new HashMap();
+    tbls = new ArrayList<HashMap<String, Object>>();
+    HashMap<String, Object> tbl = new HashMap<String, Object>();
     tbls.add(tbl);
     tbl.put("name", "tableGroup");
 
-    List tds = new ArrayList();
+    List<HashMap<String, String>> tds = new ArrayList<HashMap<String, String>>();
     tbl.put("threads", tds);
-    HashMap td = new HashMap();
+    HashMap<String, String> td = new HashMap<String, String>();
     tds.add(td);
     td.put("name", "threadGroup");
     File f = createXml();
@@ -202,7 +202,8 @@ public class ConfigurationTest extends TestCase
     assertEquals(test.getStatusInterval(), 2);
   }
 
-  private void addAttribute(XMLWriter w, String id, HashMap values)
+
+  private void addAttribute(XMLWriter w, String id, HashMap<String, Object> values)
   {
     String v = (String) values.get(id);
     if (v != null)
@@ -228,17 +229,18 @@ public class ConfigurationTest extends TestCase
     addAttribute(w, "user", dbAtts);
     addAttribute(w, "password", dbAtts);
     w.endTag(); // Database
-    for (Iterator tbli = tbls.iterator(); tbli.hasNext();)
+    for (Iterator<HashMap<String, Object>> tbli = tbls.iterator(); tbli.hasNext();)
     {
       w.startTag("TableGroup");
-      HashMap tbl = (HashMap) tbli.next();
+      HashMap<String, Object> tbl = (HashMap<String, Object>) tbli.next();
       addAttribute(w, "name", tbl);
       addAttribute(w, "size", tbl);
-      List l = (List) tbl.get("threads");
-      for (Iterator tdi = l.iterator(); tdi.hasNext();)
+      @SuppressWarnings("unchecked")
+      List<HashMap<String, Object>> l = (List<HashMap<String, Object>>) tbl.get("threads");
+      for (Iterator<HashMap<String, Object>> tdi = l.iterator(); tdi.hasNext();)
       {
         w.startTag("ThreadGroup");
-        HashMap td = (HashMap) tdi.next();
+        HashMap<String, Object> td = (HashMap<String, Object>) tdi.next();
         addAttribute(w, "name", td);
         addAttribute(w, "readSize", td);
         addAttribute(w, "deletes", td);
