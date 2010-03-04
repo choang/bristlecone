@@ -452,6 +452,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
           return "enum";
       case AdditionalTypes.SET :
           return "set";
+      case AdditionalTypes.YEAR :
+          return "year";
       default :
         throw new IllegalArgumentException("Unsupported JDBC type value: "
             + type);
@@ -487,6 +489,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.XML :
       case AdditionalTypes.ENUM :
       case AdditionalTypes.SET :
+      case AdditionalTypes.YEAR :
         return false;
         
       case java.sql.Types.BIT :
@@ -533,6 +536,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.XML :
       case AdditionalTypes.ENUM :
       case AdditionalTypes.SET :
+      case AdditionalTypes.YEAR :
         return false;
 
       case java.sql.Types.DECIMAL :

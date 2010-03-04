@@ -58,6 +58,7 @@ public class AdditionalTypes
     public final static int MEDIUMINT   =  1515; // MySQL's "mediumint" col type
     public final static int ENUM        =  1516; // MySQL's enum col type
     public final static int SET         =  1517; // MySQL's set col type
+    public final static int YEAR        =  1518; // MySQL's year col type
 
 
     // Prevent instantiation
