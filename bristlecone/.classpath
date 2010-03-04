@@ -19,5 +19,9 @@
 	<classpathentry kind="lib" path="/sql-router/build/jars/tungsten-sqlrouter-0.6.jar" sourcepath="/sql-router/src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commons"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/fsm"/>
+	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.6-bin.jar"/>
+	<classpathentry kind="lib" path="lib/ApacheJMeter_core.jar"/>
+	<classpathentry kind="lib" path="lib/ApacheJMeter_java.jar"/>
+	<classpathentry kind="lib" path="lib/logkit-1.2.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
