@@ -31,7 +31,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="databaseURL" elementType="Argument">
                 <stringProp name="Argument.name">databaseURL</stringProp>
-                <stringProp name="Argument.value">jdbc:mysql://happy:3306/tpcb?user=realuser&amp;password=realpass</stringProp>
+                <stringProp name="Argument.value">jdbc:mysql://localhost:3306/tpcb?user=realuser&amp;password=realpass</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="numberOfBranches" elementType="Argument">
@@ -89,7 +89,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="databaseURL" elementType="Argument">
                 <stringProp name="Argument.name">databaseURL</stringProp>
-                <stringProp name="Argument.value">jdbc:mysql://happy:3306/tpcb?user=realuser&amp;password=realpass</stringProp>
+                <stringProp name="Argument.value">jdbc:mysql://localhost:3306/tpcb?user=realuser&amp;password=realpass</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="numberOfBranches" elementType="Argument">
