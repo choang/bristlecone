@@ -33,16 +33,15 @@ import org.apache.log.Logger;
 import com.continuent.bristlecone.benchmark.db.SqlDialect;
 import com.continuent.bristlecone.benchmark.db.SqlDialectFactory;
 
-
-
 /**
- * Manages connection to the database.
+ * Manages connection to the database.  This class currently does little more than the
+ * underlying Java class - Connection.
  */
 public class DatabaseConnection {
 	private Connection connection;
 	private String dbUri;
     private Logger logger = null;
-    private SqlDialect             dialect;
+    private SqlDialect dialect;
 	
 	enum ConnectionType {MYSQL, ORACLE};
 	

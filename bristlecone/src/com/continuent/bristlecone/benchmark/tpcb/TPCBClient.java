@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2010 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
- * Initial developer(s): Robert Hodges and Ralph Hannus.
+ * Initial developer(s): Scott Martin.
  * Contributor(s):
  */
 
@@ -37,6 +37,23 @@ import com.continuent.bristlecone.benchmark.db.SqlDialect;
 import com.continuent.bristlecone.benchmark.db.Table;
 
 
+/**
+ * 
+ * This class defines a TPCBClient
+ * 
+ * This class implements the three primary functions needed by the JMeter load generator
+ * 
+ *  setupTest
+ *  runTest
+ *  teardownTest
+ *  getDefaultParameters
+ *  
+ *  This class implements the TPCB benchmark to be driven from JMeter.
+ *  How to use this class within JMeter is better described in the associated README.
+ * 
+ * @author <a href="mailto:scott.martin@continuent.com">Scott Martin</a>
+ * @version 1.0
+ */
 public class TPCBClient 
     extends AbstractJavaSamplerClient 
     implements Serializable
@@ -74,6 +91,7 @@ public class TPCBClient
     {
         SampleResult result = new SampleResult();
         
+        /* Gather sample start and end times for Jmeter to consume */
         result.sampleStart();
         try
         {
@@ -106,7 +124,7 @@ public class TPCBClient
             String arg = (String)i.next();  
             String value = context.getParameter(arg);
 
-            //logger.info(whoAmI() + " " + arg + " = " + value);
+            //logger.info(arg + " = " + value);
             
             if (arg.equals("databaseURL")) {databaseURL = value; continue;}
             if (arg.equals("numberOfBranches")) {numberOfBranches = Integer.parseInt(value); continue;}
@@ -116,16 +134,15 @@ public class TPCBClient
             if (arg.equals("updateTeller")) {updateTeller = Boolean.parseBoolean(value); continue;}
             if (arg.equals("updateAccount")) {updateAccount = Boolean.parseBoolean(value); continue;}
             if (arg.equals("insertHistory")) {insertHistory = Boolean.parseBoolean(value); continue;}
+            if (arg.equals("createTables")) {createTables = Boolean.parseBoolean(value); continue;}
             if (arg.equals("queryPCT")) {queryPCT = Integer.parseInt(value); continue;}
 
-            logger.info(whoAmI() + "Warning: Unrecognized parameter = " + arg);
+            //logger.info("Warning: Unrecognized parameter = " + arg);
 
         }
         
         configuration = new Configuration(numberOfBranches, tellersPerBranch, accountsPerBranch);      
-        
         connection = new DatabaseConnection(logger, databaseURL);
-        
         connection.connect();
         
         try 
@@ -161,7 +178,7 @@ public class TPCBClient
     public Arguments getDefaultParameters() 
     {
         Arguments args = new Arguments();
-        args.addArgument("databaseURL", "jdbc:mysql://happy:3306/tpcb?user=realuser&password=realpass");
+        args.addArgument("databaseURL", "jdbc:mysql://localhost:3306/tpcb?user=realuser&password=realpass");
         args.addArgument("numberOfBranches", "10");
         args.addArgument("tellersPerBranch", "10");
         args.addArgument("accountsPerBranch", "10000");
@@ -169,25 +186,11 @@ public class TPCBClient
         args.addArgument("updateTeller", "true");
         args.addArgument("updateAccount", "true");
         args.addArgument("insertHistory", "true");
+        args.addArgument("createTables", "false");
         args.addArgument("queryPCT", "0");
         return args;      
     }
-    
-    /**
-     * Generate a String identifier of this test for debugging
-     * purposes.
-     * 
-     * @return  a String identifier for this test instance
-     */
-    private String whoAmI()
-    {
-        StringBuffer sb = new StringBuffer();
-        sb.append(Thread.currentThread().toString());
-        sb.append("@");
-        sb.append(Integer.toHexString(hashCode()));
-        return sb.toString();
-    }
-    
+        
     private void prepareStatements()
     {
         String SQL;
@@ -211,6 +214,14 @@ public class TPCBClient
         }
     }
     
+    /**
+     * 
+     * Execute one unit of work.  This modified TPCB benchmark allows for a certain percentage of the
+     * units of work to be a query instead of a normal TPCB transaction (three updates, plus insert).
+     * The insert into the history table is also optional since an object growing in an unbounded way
+     * can be a nuisance when performance testing is all that is of interest.
+     *
+     */
     private void executeOneTransaction()
     {
         int amount = 10;
@@ -221,32 +232,27 @@ public class TPCBClient
         String filler = "0123456789";
         boolean performQuery = false;
         
+        // select random account, then compute teller and branch associated with the account.
         accountID = (int)(Math.random() * (double)(configuration.getNumberOfBranches() * 
                 configuration.getAccountsPerBranch()));
         tellerID = accountID * configuration.getTellersPerBranch() / configuration.getAccountsPerBranch();
         branchID = accountID / configuration.getAccountsPerBranch();
         amount = (int)(Math.random() * (double)(debitRange * 2)) - debitRange;
-           
-        /*
-        logger.info("bno = " + branchID + " tno = " + tellerID + " ano = " + 
-                accountID + " amount = " + amount);
-        */
-        
+                   
         try {
             if (Math.random()  * 100 <= queryPCT) performQuery = true;
             else performQuery = false;
+            
             if (performQuery)
             {
+                //logger.info("QUERY: ano = " + accountID);
                 numberOfQueries++;
-                logger.info("QUERY: ano = " + accountID);
-
                 accountQuery.setInt(1, accountID);
                 accountQuery.execute();                
             } else {
+                //logger.info("TPCB: bno = " + branchID + " tno = " + tellerID + " ano = " + 
+                //        accountID + " amount = " + amount);
                 numberOfTPCBs++;
-                logger.info("TPCB: bno = " + branchID + " tno = " + tellerID + " ano = " + 
-                        accountID + " amount = " + amount);
-
                 branchUpdate.setInt(1, amount);
                 branchUpdate.setInt(2, branchID);
                 tellerUpdate.setInt(1, amount);
@@ -279,13 +285,17 @@ public class TPCBClient
         return configuration;
     }
     
+    /**
+     * 
+     * create and populate the 4 TPCB tables (branch, teller, account, history).
+     * 
+     * @throws SQLException
+     */
     private void createAndPopulate() throws SQLException
     {
-        String filler100 = createFiller(100);
-        //String filler50 = createFiller(50);
-        
+        String filler100 = createFiller(100);        
 
-        System.out.println("Creating and populating tables.");
+        logger.info("Creating and populating tables.");
         SqlDialect dialect = connection.getDialect();
         
         createTable(configuration.getAccountTable());
@@ -296,7 +306,7 @@ public class TPCBClient
         /* branch table */
         /* create table branch (branch_id int, branch_balance int, filler varchar(100)); */
         String insert = dialect.getInsert(configuration.getBranchTable());
-        System.out.println("insert into table with " + insert);     
+        logger.info("insert into table with " + insert);     
         PreparedStatement insertStatement = connection.prepareStatement(insert);    
         for (int i = 0; i < configuration.getNumberOfBranches(); i++)
         {
@@ -309,7 +319,7 @@ public class TPCBClient
         /* teller table */
         /* create table teller (teller_id int, branch_id int, teller_balance int, filler varchar(100)); */
         insert = dialect.getInsert(configuration.getTellerTable());
-        System.out.println("insert into table with " + insert);     
+        logger.info("insert into table with " + insert);     
         insertStatement = connection.prepareStatement(insert);  
         for (int i = 0; i < configuration.getNumberOfTellers(); i++)
         {
@@ -323,7 +333,7 @@ public class TPCBClient
         /* account table */
         /* create table account (account_id int, branch_id int, account_balance int, filler varchar(100)); */
         insert = dialect.getInsert(configuration.getAccountTable());
-        System.out.println("insert into table with " + insert);     
+        logger.info("insert into table with " + insert);     
         insertStatement = connection.prepareStatement(insert);  
         for (int i = 0; i < configuration.getNumberOfAccounts(); i++)
         {
@@ -364,6 +374,5 @@ public class TPCBClient
         System.out.println("Creating table with " + createTable);
         connection.execute(createTable);        
     }
-
 
 }

@@ -55,7 +55,7 @@ public class Configuration {
 	
 	/**
 	 * Create the bristlecone Table definitions for the TPCB tables.  The data tables
-	 * themselves are not create in the RDBMS - only the java representation of them is.
+	 * themselves are not created in the RDBMS - only the java representation of them is.
 	 * The somewhat cumbersome names of the columns where taken directly from the TPCB
 	 * specification found at http://www.tpc.org/tpcb/spec/tpcb_current.pdf
 	 */
