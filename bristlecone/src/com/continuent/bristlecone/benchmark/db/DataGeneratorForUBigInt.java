@@ -33,51 +33,63 @@ import java.lang.Long;
  */
 public class DataGeneratorForUBigInt implements DataGenerator
 {
-  private BigInteger max; 
-  private boolean testFullRange = true; // Set this to false to cut range in half
- 
-  /** Create a new instance with an upper bound. */
-  DataGeneratorForUBigInt()
-  {
-    this.max = new BigInteger("18446744073709551615");
-  }
-  
-  /** Create a new instance with an upper bound. */
-  DataGeneratorForUBigInt(String s)
-  {
-    this.max = new BigInteger(s);
-    if (!this.testFullRange)
+    private BigInteger max;
+    // The range of the unsigned types is being cut in half since it is
+    // known that we are unable to replicate unsigned types with the
+    // high bit on.  It is more useful to have a test case that is
+    // expected to pass than one that is expected to fail.
+    private boolean    testFullRange = false; // Set this to false to cut range in half
+
+    /** Create a new instance with an upper bound. */
+    DataGeneratorForUBigInt()
     {
-      BigInteger two = new BigInteger("2");
-      this.max = this.max.divide(two);
+        this.max = new BigInteger("18446744073709551615");
     }
-  }
-  
-  /** Generate next value up to the boundary value. 
-   * As the class BigInteger does not have the ability to multiply
-   * a BigInteger times a fractional value, we will do the fractional
-   * math using longs.  This routine will not generate every BigInteger
-   * between this.max and 0, only long.MAX_VALUE distinct representatives
-   * equally spaced in the BigInteger address space.
-   */
-  public Object generate()
-  {
-    BigInteger retval;
 
-    Long totalRepresentativeValues  = 9223372036854775807L;
-    Long currentRepresentativeValue =
-      (long)(Math.random() * totalRepresentativeValues.longValue());  
+    /** Create a new instance with an upper bound. */
+    DataGeneratorForUBigInt(String s)
+    {
+        this.max = new BigInteger(s);
+        if (!this.testFullRange)
+        {
+            BigInteger one = new BigInteger("1");
+            BigInteger two = new BigInteger("2");
+            
+            /* if the max is odd, add one to it before dividing by two
+             * as it was not clear to me how BigInteger.divide() handled rounding.
+             */
+            if (this.max.remainder(two).compareTo(one) == 0)
+                this.max = this.max.add(one);
+            
+            this.max = this.max.divide(two);
+        }
+    }
 
-    BigInteger currentRepresentativeValueBig =
-      new BigInteger(currentRepresentativeValue.toString());
-    BigInteger totalRepresentativeValuesBig =
-      new BigInteger(totalRepresentativeValues.toString());
+    /**
+     * Generate next value up to the boundary value. As the class BigInteger
+     * does not have the ability to multiply a BigInteger times a fractional
+     * value, we will do the fractional math using longs. This routine will not
+     * generate every BigInteger between this.max and 0, only long.MAX_VALUE
+     * distinct representatives equally spaced in the BigInteger address space.
+     */
+    public Object generate()
+    {
+        BigInteger retval;
 
-    // retval = max * currentRepresentative / totalNumberOfRepresentatives
-    retval = this.max;
-    retval = retval.multiply(currentRepresentativeValueBig);
-    retval = retval.divide(totalRepresentativeValuesBig);
+        Long totalRepresentativeValues = 9223372036854775807L;
+        Long currentRepresentativeValue = (long) (Math.random() * totalRepresentativeValues
+                .longValue());
 
-    return retval;
-  }
+        BigInteger currentRepresentativeValueBig = new BigInteger(
+                currentRepresentativeValue.toString());
+        BigInteger totalRepresentativeValuesBig = new BigInteger(
+                totalRepresentativeValues.toString());
+
+        // retval = max * currentRepresentative / totalNumberOfRepresentatives
+        retval = this.max;
+        retval = retval.multiply(currentRepresentativeValueBig);
+        retval = retval.divide(totalRepresentativeValuesBig);
+
+        return retval;
+    }
 }
