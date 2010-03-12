@@ -80,23 +80,33 @@ public class DataGeneratorFactory
       case java.sql.Types.BIGINT:
         return new DataGeneratorForLong(Long.MAX_VALUE); 
       case AdditionalTypes.UTINYINT:
-        return new DataGeneratorForUBigInt("255"); 
+          return new DataGeneratorForUBigInt("255", true); 
+      case AdditionalTypes.UNTINYINT:
+          return new DataGeneratorForUBigInt("255", false); 
       case AdditionalTypes.USMALLINT:
-        return new DataGeneratorForUBigInt("65535"); 
+          return new DataGeneratorForUBigInt("65535", true); 
+      case AdditionalTypes.UNSMALLINT:
+          return new DataGeneratorForUBigInt("65535", false); 
       case AdditionalTypes.UMEDIUMINT:
-        return new DataGeneratorForUBigInt("16777215"); 
+          return new DataGeneratorForUBigInt("16777215", true); 
+      case AdditionalTypes.UNMEDIUMINT:
+          return new DataGeneratorForUBigInt("16777215", false); 
       case AdditionalTypes.UINT:
-        return new DataGeneratorForUBigInt("4294967295"); 
+          return new DataGeneratorForUBigInt("4294967295", true); 
+      case AdditionalTypes.UNINT:
+          return new DataGeneratorForUBigInt("4294967295", false); 
       case AdditionalTypes.UBIGINT:
-        return new DataGeneratorForUBigInt("18446744073709551615"); 
+          return new DataGeneratorForUBigInt("18446744073709551615", true); 
+      case AdditionalTypes.UNBIGINT:
+          return new DataGeneratorForUBigInt("18446744073709551615", false); 
       case java.sql.Types.VARCHAR:
-        return new DataGeneratorForString(c.getLength(), 10);
+          return new DataGeneratorForString(c.getLength(), 10);
       case java.sql.Types.BOOLEAN:
-        return new DataGeneratorForBoolean();
+          return new DataGeneratorForBoolean();
       case java.sql.Types.DATE:
-        return new DataGeneratorForDate();
+          return new DataGeneratorForDate();
       case java.sql.Types.TIME:
-        return new DataGeneratorForTime();
+          return new DataGeneratorForTime();
       case AdditionalTypes.ENUM :
           return new DataGeneratorForEnum(c.getLength());
       case AdditionalTypes.SET :

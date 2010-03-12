@@ -38,7 +38,7 @@ public class DataGeneratorForUBigInt implements DataGenerator
     // known that we are unable to replicate unsigned types with the
     // high bit on.  It is more useful to have a test case that is
     // expected to pass than one that is expected to fail.
-    private boolean    testFullRange = false; // Set this to false to cut range in half
+    private boolean    testFullRange = true; // Set this to false to cut range in half
 
     /** Create a new instance with an upper bound. */
     DataGeneratorForUBigInt()
@@ -49,6 +49,13 @@ public class DataGeneratorForUBigInt implements DataGenerator
     /** Create a new instance with an upper bound. */
     DataGeneratorForUBigInt(String s)
     {
+        this(s, true);
+    }
+    
+    /** Create a new instance with an upper bound. */
+    DataGeneratorForUBigInt(String s, boolean testFullRange)
+    {
+        this.testFullRange = testFullRange;
         this.max = new BigInteger(s);
         if (!this.testFullRange)
         {

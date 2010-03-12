@@ -59,6 +59,17 @@ public class AdditionalTypes
     public final static int ENUM        =  1516; // MySQL's enum col type
     public final static int SET         =  1517; // MySQL's set col type
     public final static int YEAR        =  1518; // MySQL's year col type
+    
+    /**
+     *  Unsigned "narrow" MySQL types.  These types represent one half the range of
+     *  the true unsigned types listed above.
+     */
+    public final static int UNTINYINT    =  1520; // UNSIGNED TINYINT   0-127
+    public final static int UNSMALLINT   =  1521; // UNSIGNED SMALLINT  0-32767
+    public final static int UNMEDIUMINT  =  1522; // UNSIGNED MEDIUMINT 0-8388607
+    public final static int UNINT        =  1523; // UNSIGNED INT       0-2147483647
+    public final static int UNBIGINT     =  1524; // UNSIGNED BIGINT    0-9223372036854775807
+
 
 
     // Prevent instantiation

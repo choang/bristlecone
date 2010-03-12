@@ -485,6 +485,11 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.UMEDIUMINT :
       case AdditionalTypes.UINT :
       case AdditionalTypes.UBIGINT :
+      case AdditionalTypes.UNTINYINT :
+      case AdditionalTypes.UNSMALLINT :
+      case AdditionalTypes.UNMEDIUMINT :
+      case AdditionalTypes.UNINT :
+      case AdditionalTypes.UNBIGINT :
       case AdditionalTypes.MEDIUMINT :      
       case AdditionalTypes.XML :
       case AdditionalTypes.ENUM :
@@ -532,6 +537,11 @@ public abstract class AbstractSqlDialect implements SqlDialect
       case AdditionalTypes.UMEDIUMINT :
       case AdditionalTypes.UINT :
       case AdditionalTypes.UBIGINT :
+      case AdditionalTypes.UNTINYINT :
+      case AdditionalTypes.UNSMALLINT :
+      case AdditionalTypes.UNMEDIUMINT :
+      case AdditionalTypes.UNINT :
+      case AdditionalTypes.UNBIGINT :
       case AdditionalTypes.MEDIUMINT :
       case AdditionalTypes.XML :
       case AdditionalTypes.ENUM :
