@@ -1,0 +1,21 @@
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/pcluster.dtd">
+<!--
+This configuration runs a brief test against a Hypersonic (hsql) database.
+It is intended to show that all the evaluator is working.  The result is 
+a hsql database in the directory testdb.  
+-->
+<EvaluatorConfiguration name="hsql" testDuration="10">
+	
+	<Database driver="org.hsqldb.jdbcDriver" 
+		url="jdbc:hsqldb:file:testdb/testdb;shutdown=true" 
+		user="sa" 
+		password=""/>	
+	 
+	<TableGroup name="tbl" size="100">
+		<!-- Use medium weight queries. -->
+		<ThreadGroup name="A" threadCount="20" thinkTime="500"
+			updates="0" deletes="0" inserts="0" readSize="3"
+			rampUpInterval="5" rampUpIncrement="5"
+			queryWeight="medium"/>
+	</TableGroup>
+</EvaluatorConfiguration>

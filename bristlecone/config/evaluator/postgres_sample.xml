@@ -1,0 +1,21 @@
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/pcluster.dtd">
+<!--
+	This configuration will run a test directly against a Postgres database.
+	It creates the same load on the database as the pcluster configuration does.
+	
+	All the names enclosed in '@' must be
+-->
+<EvaluatorConfiguration name="postgres" testDuration="120"
+	autoCommit="true" statusInterval="2" xmlFile="postgresResults.xml">
+	
+	<Database driver="org.postgresql.Driver" 
+		url="jdbc:postgresql://@postgres_host@/@postgres_database@" 
+		user="@postgres_login@" 
+		password="@postgres_password@"/>	
+	 
+	<TableGroup name="tbl" size="200">
+		<ThreadGroup name="A" threadCount="100" thinkTime="500"
+			updates="7" deletes="1" inserts="2" readSize="10"
+			rampUpInterval="10" rampUpIncrement="10"/>
+	</TableGroup>
+</EvaluatorConfiguration>

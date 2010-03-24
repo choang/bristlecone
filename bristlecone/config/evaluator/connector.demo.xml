@@ -1,0 +1,23 @@
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/evaluator.dtd">
+<!--
+	This configuration runs a 2 minute test against the pcluster configuration.
+	It should create a load on the backend databases.
+	
+	All the names enclosed in '@' must be changed to the actual names used
+	in your system.
+-->
+<EvaluatorConfiguration name="mysql" testDuration="7200"
+	autoCommit="true" statusInterval="500" htmlFile="mysqlResults.html">
+
+	<DataSource name="s1" driver="com.mysql.jdbc.Driver" 		
+		url="jdbc:mysql://localhost:9999/test"
+		user="tungsten" 
+		password="secret"/>	
+	 
+	<TableGroup name="ta" size="400" dataSource="s1">
+		<ThreadGroup dataSource="s1" name="A" threadCount="75" thinkTime="100"
+			updates="30" deletes="40" inserts="30" readSize="10"
+			rampUpInterval="5" rampUpIncrement="5" reconnectInterval="5" />
+	</TableGroup>
+
+</EvaluatorConfiguration>
