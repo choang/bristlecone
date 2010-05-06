@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="/sql-router/conf"/>
 	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/jline-0.9.94.jar"/>
-	<classpathentry kind="lib" path="/sql-router/build/jars/tungsten-sqlrouter-0.6.jar" sourcepath="/sql-router/src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/commons"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/fsm"/>
 	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.6-bin.jar"/>
