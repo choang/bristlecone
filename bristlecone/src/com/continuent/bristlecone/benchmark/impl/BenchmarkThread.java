@@ -79,7 +79,7 @@ public class BenchmarkThread extends Thread
   }
 
   /** Initialize the thread.  */
-  public void initialize() throws BenchmarkException
+  public void prepare() throws BenchmarkException
   {
     try {
       scenario.prepare();

@@ -36,10 +36,10 @@ public class Utilities
   private static Logger logger = Logger.getLogger(Utilities.class);
 
   // Load a class with appropriate logging and failure handling.
-  public static Class loadClass(String name)
+  public static Class<?> loadClass(String name)
   {
     logger.debug("Loading class: " + name);
-    Class c = null;
+    Class<?> c = null;
     try
     {
       c = Class.forName(name);
@@ -51,5 +51,32 @@ public class Utilities
       throw new BenchmarkException(msg, e);
     }
     return c;
+  }
+
+  // Instantiate instance with appropriate error checking. 
+  public static Object instantiateClass(Class<?> c) throws BenchmarkException
+  {
+    try
+    {
+      return c.newInstance();
+    }
+    catch (IllegalAccessException e)
+    {
+      String msg = "Class default constructor is not accessible: "
+            + c.getClass();
+      throw new BenchmarkException(msg, e);
+    }
+    catch (InstantiationException e)
+    {
+      String msg = "Unable to instantiate class: "
+            + c.getClass();
+      throw new BenchmarkException(msg, e);
+    }
+    catch (Exception e)
+    {
+      String msg = "Unable to initialize class: "
+            + c.getName();
+      throw new BenchmarkException(msg, e);
+    }
   }
 }

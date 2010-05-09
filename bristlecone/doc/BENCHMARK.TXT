@@ -1,7 +1,7 @@
                     INTRODUCTION TO BENCHMARK UTILITY
                                 R. Hodges
-                             15 April 2008
-                   Copyright (c) 2007-2008 Continuent, Inc.
+                                8 May 2010 
+                   Copyright (c) 2007-2010 Continuent, Inc.
 
 1 WHAT THE BENCHMARK UTILITY DOES
 
@@ -9,22 +9,29 @@ The Benchmark utility is a Java program that runs benchmarks in
 which different run parameters can be varied systematically for a
 single scenario across multiple rules.  Since we are testing database
 applications standard run parameters include the number of client
-threads, the number of tables, the numbers of rows in each table, the
-number of rows returned by queries, etc.  The results of a benchmark
-run are written into a .csv file, which can then be loaded into Excel
-for further analysis.  You can also get results in HTML as well. 
+threads, the number of tables, the numbers of rows in each table,
+the number of rows returned by queries, etc.  The results of a
+benchmark run are written into a .csv file, which can then be loaded
+into Excel for further analysis.  You can also get results in HTML
+as well.
 
-Benchmark test runs are controlled by a properties file, which specifies
-parameters for the test.  Properties files allow specification of 
-multiple values for each property using the pipe sign ("|").  The 
-Benchmark utility creates a cross product of property files from all 
-such values.  This allows you to specify all runs for a single test
-in a very compact mannger. 
+Benchmark test runs are controlled by a properties file, which
+specifies parameters for the test.  Properties files allow specification
+of multiple values for each property using the pipe sign ("|").
+The Benchmark utility creates a cross product of property files
+from all such values.  This allows you to specify all runs for a
+single test in a very compact manner.
 
-Scenarios are Java files that match a specific interface.  The scenario 
-class has methods for benchmark setup and teardown, setup and teardown of 
-individual threads, and for execution of the scenario itself.  Scenarios
-are already provided and it is easy to write more.  
+Scenarios are Java classes that match a specific interface.  The
+scenario class has methods for benchmark setup and teardown, setup
+and teardown of individual threads, and for execution of the scenario
+itself.  Scenarios are already provided and it is easy to write
+more.
+
+Benchmark test runs can also add a monitor, which runs in a separate
+thread alongside the scenario threads.  The monitor can be used to
+print logging messages.  It can also perform additional testing,
+for example to track slave latency in master/slave testing.
 
 3 PLATFORM PREREQUISITES AND SETUP
 
@@ -49,7 +56,10 @@ insert operations running against MySQL and uni/cluster for MySQL.
   #
   # Scenario name. 
   scenario=com.continuent.bristlecone.benchmark.scenarios.WriteSimpleScenario
-  
+
+  # Slave monitor name. 
+  monitor=com.continuent.bristlecone.benchmark.monitors.SlaveMonitor
+
   # Specify separate connection files for mcluster/mysql. 
   include=mclusterConnection.properties|mysqlConnection.properties
   
@@ -73,14 +83,15 @@ They are supported by any scenario.
   ----        -------------------------------------------------------------
   include     Name of file from which to include more properties
   scenario    Name of the class that implements the scenario
+  monitor     Optional name of a monitor class
   driver      JDBC driver class, e.g, com.mysql.jdbc.Driver
   threads     Number of threads to use; each one runs the scenario
-  bound       Method of bounding number of runs:  duration or iterations
+  bound       Method to bound test runs:  duration (seconds) or iterations
   iterations  Number of times to run each scenario (iterations bound only)
   duration    Number of seconds to run each scenario (duration only)
 
 The following additional properties are provided by the ScenarioBase 
-class, which is the parent of all currently implemented scenarios. 
+class, which is the parent of most currently implemented scenarios. 
 
   url         JDBC URL, e.g., jdbc:mysql://coot/gi24
   user        Database login 
@@ -132,7 +143,7 @@ Here is the invocation syntax.
 
 where options are 
 
-  -props propsfile  Scenario properties file (default=benchmark.properties
+  -props propsfile  Scenario properties file (default=benchmark.properties)
   -console          Log results on console
   -csv file         Log results to CSV output file
   -html file        Log results to HTML output file
@@ -167,8 +178,8 @@ measure deadlock / aborts likelihood.
 
 6.2 com.continuent.bristlecone.benchmark.scenarios.ReadScalingAggregatesScenario
 
-Runs a CPU-intensive query that computes an aggregate.  This query can simulate
-heavyweight reads. 
+Runs a CPU-intensive query that computes an aggregate.  This query
+can simulate heavyweight reads.
 
   Name        Description
   ----        -------------------------------------------------------------
@@ -176,9 +187,10 @@ heavyweight reads.
 
 6.3 com.continuent.bristlecone.benchmark.scenarios.ReadScalingInvertedKeysScenario
 
-Runs queries using a secondary "inverted" index that practically guarantees 
-sequential index values are on different disk pages.  The scenario is designed
-to stress the buffer cache by forcing large numbers of random pages into cache.
+Runs queries using a secondary "inverted" index that practically
+guarantees sequential index values are on different disk pages.
+The scenario is designed to stress the buffer cache by forcing large
+numbers of random pages into cache.
 
   Name        Description
   ----        -------------------------------------------------------------
@@ -191,9 +203,9 @@ This scenario is rather complex.  It is describe fully in the Javadoc.
 
 6.4 com.continuent.bristlecone.benchmark.scenarios.ReadSimpleLargeResultsScenario
 
-Runs cross product queries (i.e., select * from x, y) to generate very large
-result sets.  The number of rows returned is the value of the datarows 
-property squared.  
+Runs cross product queries (i.e., select * from x, y) to generate
+very large result sets.  The number of rows returned is the value
+of the datarows property squared.
 
   Name        Description
   ----        -------------------------------------------------------------
@@ -201,8 +213,9 @@ property squared.
 
 6.5 com.continuent.bristlecone.benchmark.scenarios.ReadSimpleScenario
 
-Runs very short queries designed to test read latency of middleware layers. 
-The number of rows returned is the value of the datarows property. 
+Runs very short queries designed to test read latency of middleware
+layers.  The number of rows returned is the value of the datarows
+property.
 
 6.6 com.continuent.bristlecone.benchmark.scenarios.ReadWriteScenario
 
@@ -217,9 +230,9 @@ then inserted.
 
 6.7 com.continuent.bristlecone.benchmark.scenarios.WriteComplexScenario
 
-Performs updates that select varying numbers of rows when updating.  The 
-update itself is quite small but the number of rows read in the sub-select
-is large. 
+Performs updates that select varying numbers of rows when updating.
+The update itself is quite small but the number of rows read in the
+sub-select is large.
 
   Name        Description
   ----        -------------------------------------------------------------
@@ -227,24 +240,44 @@ is large.
 
 6.8 com.continuent.bristlecone.benchmark.scenarios.WriteSimpleScenario
 
-Performs simple insert statements with autocommit (no transaction).  This is 
-quite useful for testing raw throughput numbers.  
+Performs simple insert statements with autocommit (no transaction).
+This is quite useful for testing raw throughput numbers.  You can
+combine it with the slave Monitor (see next section) to measure
+slave latency.
+
+7. STANDARD MONITORS
+
+Benchmark includes a monitor implementation to track master slave 
+latency.  Other monitors may be added at a later time.  
+
+7.1 com.continuent.bristlecone.benchmark.monitors.SlaveMonitor
+
+Monitors slave latency and ensures benchmark run completes only when 
+the slave is fully caught up.  The class also prints log messages 
+every couple of seconds to show current latency, which is useful if 
+you need to see where things stand. 
+
+The slave monitor works by constructing a small heartbeat table that
+it updates on the master and then checks on the slave.  The slave
+monitor uses the following variables. 
 
   Name        Description
   ----        -------------------------------------------------------------
-  replicaUrl  A JDBC connection URL for a replica database
+  url         Master connection URL
+  user        Database user
+  password    Database password
+  monitorReplicaUrl Slave URL
 
-The replicaUrl property allows you to set up tests of replication latency. 
-If specified, we check to see if the row has arrived on the other database. 
+8. INTERPRETING RESULTS
 
+The Benchmark utility can generate text, HTML, and CSV output.  The
+output files are controlled by the -text, -html, and -cvs options
+respectively.
 
-7. INTERPRETING RESULTS
-
-The Benchmark utility writes output as comma-separated values (CSV),
-which is a format that can be easily loaded into Excel for analysis.
-By default CSV output contains a line of output for each scenario and
-each thread.  For example, if you have 2 threads running a scenario,
-you can expect two lines of ouput.
+CSV data can be easily loaded into Excel or similar spreadsheet
+tools for analysis.  By default CSV output contains a line of output
+for each scenario and each thread.  For example, if you have 2
+threads running a scenario, you can expect two lines of ouput.
 
 Here is a typical example of CSV output, including the column names. 
 
@@ -262,9 +295,9 @@ names plus generated files from the test.  The generated values are:
   exception      Exception encountered during the run or NONE
 
 To analyze the output, load the values into Excel and use pivot tables
-to display and graph values from different scenarios.  Suppose, for example, 
+to display and graph values from different scenarios.  Suppose
 you run a test that compares query performance on MySQL and uni/cluster
-with different numbers of threads.  You could analyzes the differences in 
+with different numbers of threads.  You could analyze the differences in 
 throughput by constructing a pivot table as follows:  
 
   a.) Use the Excel Pivot Table wizard to select the data sheet and 
@@ -287,8 +320,10 @@ Sum of  ops_sec	 driver
 40	                               5690.255327	         10307.82151
 80	                               5597.51394	         10371.14912
 
-8. WRITING NEW SCENARIOS
+8. WRITING NEW SCENARIOS AND NEW MONITORS
 
-Benchmark code is located in package com.continuent.bristlecone.benchmark.  
-You can add new test scenarios quite easily by writing classes that implement
-the Scenario interface.  Look at existing implementations for examples. 
+Benchmark code is located in package com.continuent.bristlecone.benchmark.
+You can add new test scenarios quite easily by writing classes that
+implement the Scenario interface.  Similarly, monitors implement
+the Monitor interface.  Look at existing implementations for examples
+and hints on how to proceed.

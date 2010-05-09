@@ -111,7 +111,7 @@ public class BenchmarkTest extends TestCase
     // Generate properties instances using a cross product and print the result.
     PropertyManager pm = new PropertyManager();
     Vector<String> splitPropertyNames = new Vector<String>();
-    Vector crossProductList = pm.propertiesCrossProduct(testProps, null, splitPropertyNames);
+    Vector<Properties> crossProductList = pm.propertiesCrossProduct(testProps, null, splitPropertyNames);
     writePropertiesVector(crossProductList);
     
     // Ensure the properties list and instance sizes are correct.   
@@ -195,7 +195,7 @@ public class BenchmarkTest extends TestCase
     // Generate properties instances using a cross product and print the result.
     PropertyManager pm = new PropertyManager();
     Vector<String> splitPropertyNames = new Vector<String>();
-    Vector crossProductList = pm.propertiesCrossProduct(f, splitPropertyNames);
+    Vector<Properties> crossProductList = pm.propertiesCrossProduct(f, splitPropertyNames);
     writePropertiesVector(crossProductList);
     
     // Ensure the properties list and instance sizes are correct.   
@@ -282,15 +282,23 @@ public class BenchmarkTest extends TestCase
   public void testBenchmarkExecution1() throws Exception
   {
     SimpleScenario.clearCounters();
+    SimpleMonitor.clearCounters();
+    
     Properties p = new Properties();
     p.setProperty("simple", "simple value");
+    p.setProperty("monitor", SimpleMonitor.class.getName());
     this.runScenario("Default", SimpleScenario.class, p, true, 2);
     
-    // Check that all methods were called once. 
+    // Check that all scenario methods were called once. 
     assertEquals("Init called once", 1, SimpleScenario.calledInitialize);
     assertEquals("Prepare called once", 1, SimpleScenario.calledPrepare);
     assertEquals("Iterate called once", 1, SimpleScenario.calledIterate);
     assertEquals("Cleaned called once", 1, SimpleScenario.calledCleanup);
+
+    // Check that the monitor methods were called once. 
+    assertEquals("Prepare called once", 1, SimpleMonitor.calledPrepare);
+    assertEquals("Run called once", 1, SimpleMonitor.calledRun);
+    assertEquals("Cleanup called once", 1, SimpleMonitor.calledCleanup);
   }
 
   /**
@@ -372,9 +380,11 @@ public class BenchmarkTest extends TestCase
   public void testBenchmarkExecution5() throws Exception
   {
     ComplexScenario.clearCounters();
+    SimpleMonitor.clearCounters();
 
     // Set properties and run. 
     Properties props = new Properties(); 
+    props.setProperty("monitor", SimpleMonitor.class.getName());
     props.setProperty("bound", "iterations");
     props.setProperty("iterations", "10");
     props.setProperty("threads", "1|2");
@@ -386,6 +396,12 @@ public class BenchmarkTest extends TestCase
     assertEquals("Init called three times", 3, ComplexScenario.calledInitialize);
     assertEquals("Cleanup called three times", 3, ComplexScenario.calledCleanup);
     assertEquals("Iterate called 30 times", 30, ComplexScenario.calledIterate);
+    
+    // Check that the monitor methods were called once per run. 
+    assertEquals("Prepare called twice", 2, SimpleMonitor.calledPrepare);
+    assertEquals("Run called twice", 2, SimpleMonitor.calledRun);
+    assertEquals("Cleanup called twice", 2, SimpleMonitor.calledCleanup);
+
   }
 
   /** 
@@ -637,12 +653,12 @@ public class BenchmarkTest extends TestCase
   }
 
   // Dump a properties vector.
-  private void writePropertiesVector(Vector pv)
+  private void writePropertiesVector(Vector<Properties> pv)
   {
     System.out.println("Dumping properties instance list...");
     for (int i = 0; i < pv.size(); i++)
     {
-      Properties p = (Properties) pv.elementAt(i);
+      Properties p = pv.elementAt(i);
       writeProperties(p);
     }
   }
@@ -668,7 +684,7 @@ public class BenchmarkTest extends TestCase
    * @param consoleOutput True if console output is desired
    * @param expectedLines Number of CSV lines we expect to see
    */ 
-  public void runScenario(String name, Class scenarioClass, Properties props,
+  public void runScenario(String name, Class<?> scenarioClass, Properties props,
       boolean consoleOutput, int expectedLines) throws Exception
   {
     // Write properties definition to a file. 

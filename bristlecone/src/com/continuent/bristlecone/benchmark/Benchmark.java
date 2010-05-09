@@ -123,7 +123,7 @@ public class Benchmark
     {
       throw new BenchmarkException("scenario property not found; cannot load scenario class!");
     }
-    Class scenarioClass = Utilities.loadClass(scenarioClassName);
+    Class<?> scenarioClass = Utilities.loadClass(scenarioClassName);
 
     // Load the benchmark properties file and explode it out to a cross product
     // of property sets.
@@ -157,11 +157,11 @@ public class Benchmark
     }
     
     // Iterate through each of the property files.
-    Iterator propertiesListIterator = propertiesList.iterator();
+    Iterator<Properties> propertiesListIterator = propertiesList.iterator();
     while (propertiesListIterator.hasNext())
     {
       // Create the benchmark configuration with a wrapper. 
-      Properties bProperties = (Properties) propertiesListIterator.next();
+      Properties bProperties = propertiesListIterator.next();
       runBenchmark(metadata, bProperties);
     }
 
@@ -181,33 +181,28 @@ public class Benchmark
     logger.info("+++++ Starting benchmark run +++++");
     Config config = new Config(bProperties, metadata);
     ConfigWrapper configWrapper = new ConfigWrapper(config);
-    Class scenarioClass = Utilities.loadClass(configWrapper.getScenarioClass());
     logger.info("Input variables: " + listVariableValues(metadata, bProperties));
 
+    // Instantiate monitor class. 
+    Monitor monitor = null;
+    if (configWrapper.getMonitorClass() != null)
+    {
+        Class<?> monitorClass = Utilities.loadClass(configWrapper.getMonitorClass());
+        monitor = (Monitor) Utilities.instantiateClass(monitorClass);
+    }
+    
     // Instantiate and set properties on all scenario instances. 
     logger.info("Instantiating and initializing " + configWrapper.getThreads()
         + " scenario instances");
+    Class<?> scenarioClass = Utilities.loadClass(configWrapper.getScenarioClass());
     Scenario[] scenarioArray = new Scenario[(int) configWrapper.getThreads()];
     for (int i = 0; i < scenarioArray.length; i++)
     {
+      Scenario scenarioInst = (Scenario) Utilities.instantiateClass(scenarioClass);
+      metadata.setProperties(bProperties, scenarioInst);
       try
       {
-        Scenario scenarioInst = (Scenario) scenarioClass.newInstance();
-        metadata.setProperties(bProperties, scenarioInst);
         scenarioInst.initialize(bProperties);
-        scenarioArray[i] = scenarioInst; 
-      }
-      catch (IllegalAccessException e)
-      {
-        String msg = "Scenario class default constructor is not accessible: "
-            + scenarioClass.getClass();
-        throw new BenchmarkException(msg, e);
-      }
-      catch (InstantiationException e)
-      {
-        String msg = "Unable to instantiate scenario class: "
-            + scenarioClass.getClass();
-        throw new BenchmarkException(msg, e);
       }
       catch (Exception e)
       {
@@ -215,6 +210,20 @@ public class Benchmark
             + scenarioClass.getName();
         throw new BenchmarkException(msg, e);
       }
+      scenarioArray[i] = scenarioInst; 
+    }
+    
+    // Prepare the monitor for operation. 
+    if (monitor != null)
+    {
+        try
+        {
+            monitor.prepare(bProperties);
+        }
+        catch (Exception e)
+        {
+            throw new BenchmarkException("Unable to prepare monitor", e);
+        }
     }
     
     // Call the global init method on a selected benchmark scenario. 
@@ -235,10 +244,18 @@ public class Benchmark
     {
       String name = "PBenchmark-" + i;
       BenchmarkThread bt = new BenchmarkThread(name, scenarioArray[i], configWrapper);
-      bt.initialize();
+      bt.prepare();
       threadArray[i] = bt;
     }
 
+    // Start the monitor. 
+    Thread monitorThread = null;
+    if (monitor != null)
+    {
+        monitorThread = new Thread(monitor, "monitor");
+        monitorThread.start();
+    }
+    
     // Start all threads.
     logger.debug("Starting threads");
     for (int i = 0; i < threadArray.length; i++)
@@ -280,6 +297,27 @@ public class Benchmark
     }
     logger.info("Threads completed execution");
 
+    // Terminate monitor using an interrupt.  This counts in the test 
+    // duration, so if the monitor is doing something unrelated it needs
+    // to stop quickly. 
+    if (monitor != null)
+    {
+      try
+      {
+        monitorThread.interrupt();
+        monitorThread.join();
+        monitor.cleanup();
+      }
+      catch (InterruptedException e)
+      {
+        logger.warn("Monitor thread join operation was interrupted");
+      }
+      catch (Exception e)
+      {
+        throw new BenchmarkException("Unable to terminate monitor", e);
+      }
+    }
+    
     // Compute and add result values to the config instance.  Note extra 
     // code to deal with durations that equate to 0 seconds. 
     double actualDuration = (System.currentTimeMillis() - start) / 1000;
@@ -289,7 +327,7 @@ public class Benchmark
     if (actualDuration == 0)
       actualAvgOpsSec = Double.MAX_VALUE;
     else 
-      actualAvgOpsSec = actualIterations / actualDuration;
+      actualAvgOpsSec = actualIterations / (actualDuration * scenarioArray.length);
 
     configWrapper.setActualIterations((int) actualIterations);
     configWrapper.setActualDuration(actualDuration);
@@ -385,7 +423,7 @@ public class Benchmark
   }
 
   //  sFind a method that matches the provided argument types or return null. 
-  protected Method findMethod(Class c, String name, Class[] argTypes)
+  protected Method findMethod(Class<?> c, String name, Class<?>[] argTypes)
   {
     logger.debug("Looking for static method: class=" + c + " name=" + name);
     Method m = null;

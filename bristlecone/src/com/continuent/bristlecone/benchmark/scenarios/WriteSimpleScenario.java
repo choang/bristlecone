@@ -22,14 +22,12 @@
 
 package com.continuent.bristlecone.benchmark.scenarios;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.continuent.bristlecone.benchmark.BenchmarkException;
 import com.continuent.bristlecone.benchmark.db.Column;
 import com.continuent.bristlecone.benchmark.db.SqlDialect;
 import com.continuent.bristlecone.benchmark.db.Table;
@@ -39,11 +37,6 @@ import com.continuent.bristlecone.benchmark.db.TableSetHelper;
 /**
  * Implements a scenario that repeatedly inserts into one or more tables.  
  * Inserts are non-conflicting (i.e., should never deadlock).  <p>
- * 
- * This scenario suppors a special parameter called replicaUrl that contains
- * the URL of a slave replica.  If set, the code used it to confirm that 
- * data have arrived in the slave database by looking up a key generated as 
- * part of the insert.<p>
  * 
  * This scenario is useful for testing raw insert speed, as rows are just
  * added to the end of the table.  It can be parameterized by the usual options
@@ -67,20 +60,6 @@ public class WriteSimpleScenario extends ScenarioBase
   // Prepared insert statements. 
   protected PreparedStatement[] pstmtArray;
 
-  // Variables used for managing master/slave replication.  
-  protected Connection replicaConn;
-  TableSetHelper replicaTableSetHelper; 
-  protected PreparedStatement[] replicaSelectArray;
-
-  /** 
-   * Sets the replica URL used to check whether updates have arrived
-   * on a replica.  If unset, the check is ignored. 
-   */
-  public void setReplicaUrl(String replicaUrl)
-  {
-    this.replicaUrl = replicaUrl;
-  }
-
   /** Add additional initialization to take care of replica databases. */
   public void initialize(Properties properties) throws Exception
   {
@@ -102,13 +81,6 @@ public class WriteSimpleScenario extends ScenarioBase
         datarows, columns);
     helper = new TableSetHelper(url, user, password); 
     conn = helper.getConnection();
-
-    if (replicaUrl != null)
-    {
-      logger.debug("Connecting to replica database: url=" + url + " user=" + user);
-      replicaTableSetHelper = new TableSetHelper(url, user, password); 
-      replicaConn = replicaTableSetHelper.getConnection();
-    }
   }
 
   /** Create test tables. */
@@ -146,17 +118,6 @@ public class WriteSimpleScenario extends ScenarioBase
       String sql = dialect.getInsert(tables[i]);
       pstmtArray[i] = conn.prepareStatement(sql);
     }
-    
-    // Prepare select statements if we have a replica database. 
-    if (replicaConn != null)
-    {
-      replicaSelectArray = new PreparedStatement[tables.length];
-      for (int i = 0; i < tables.length; i++)
-      {
-        String sql = dialect.getSelectByColumn(tables[i], tables[i].getColumn("mythread"));
-        replicaSelectArray[i] = replicaConn.prepareStatement(sql);
-      }
-    }
   }
 
   /** Execute an interation. */
@@ -172,17 +133,6 @@ public class WriteSimpleScenario extends ScenarioBase
     helper.generateParameters(tableSet, pstmt);
     pstmt.setString(1, value);
     pstmt.executeUpdate();
-    
-    // If we have a replica database, ensure the insert made it over. 
-    // If there is a replica, connect to it and find our last record.
-    if (replicaConn != null)
-    {
-      // Find the inserted row. 
-      boolean found = replicaTableSetHelper
-          .testRowExistence(this.replicaSelectArray[index], value, true, 120000, 5000); 
-      if (! found)
-        throw new BenchmarkException("Unable to find last row on replica: mythread=" + value); 
-    }
   }
 
   /** Clean up resources used by scenario. */

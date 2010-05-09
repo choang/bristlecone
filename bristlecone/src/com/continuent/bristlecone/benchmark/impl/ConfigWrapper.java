@@ -61,6 +61,14 @@ public class ConfigWrapper
   {
     return configData.getProperty("scenario");
   }
+  
+  /**
+   * Returns the monitor class name or null if not specified. 
+   */
+  public String getMonitorClass()
+  {
+    return configData.getProperty("monitor");
+  }
 
   /** 
    * Returns the method for bounding runs, which is either "duration" 
