@@ -142,7 +142,7 @@ public class TPCBClient
         }
         
         configuration = new Configuration(numberOfBranches, tellersPerBranch, accountsPerBranch);      
-        connection = new DatabaseConnection(logger, databaseURL);
+        connection = new DatabaseConnection(databaseURL);
         connection.connect();
         
         try 

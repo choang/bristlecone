@@ -24,95 +24,105 @@ package com.continuent.bristlecone.benchmark.tpcb;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
-import org.apache.log.Logger;
+import org.apache.log4j.Logger;
 
 import com.continuent.bristlecone.benchmark.db.SqlDialect;
 import com.continuent.bristlecone.benchmark.db.SqlDialectFactory;
 
 /**
- * Manages connection to the database.  This class currently does little more than the
- * underlying Java class - Connection.
+ * Manages connection to the database. This class currently does little more
+ * than the underlying Java class - Connection.
  */
-public class DatabaseConnection {
-	private Connection connection;
-	private String dbUri;
-    private Logger logger = null;
-    private SqlDialect dialect;
-	
-	enum ConnectionType {MYSQL, ORACLE};
-	
-    DatabaseConnection(Logger logger, String url)
-    {
-        this.logger = logger;
-        
-        dbUri = url;
+public class DatabaseConnection
+{
+    private static final Logger logger = Logger
+                                               .getLogger(DatabaseConnection.class);
+    private Connection          connection;
+    private String              dbUri;
+    private String              user;
+    private String              password;
+    private SqlDialect          dialect;
 
-        dialect = SqlDialectFactory.getInstance().getDialect(dbUri);
+    public DatabaseConnection(String url)
+    {
+        this(url, null, null);
     }
-    
-	public void connect()
-	{
-		initDbConnection();
-	}
-	
-	public Connection getConnection()
-	{
-		return connection;
-	}
-	
-	public SqlDialect getDialect()
-	{
-		return dialect;
-	}
-	
-	public void close()
-	{
-	    try
-	    {
-	        connection.close();
-	    }
-	    catch (Exception e)
-	    {
-	    }
-	}
-	
+
+    public DatabaseConnection(String url, String user, String password)
+    {
+        this.dbUri = url;
+        this.user = user;
+        this.password = password;
+        this.dialect = SqlDialectFactory.getInstance().getDialect(dbUri);
+    }
+
+    public void connect()
+    {
+        initDbConnection();
+    }
+
+    public Connection getConnection()
+    {
+        return connection;
+    }
+
+    public SqlDialect getDialect()
+    {
+        return dialect;
+    }
+
+    public void close()
+    {
+        try
+        {
+            connection.close();
+        }
+        catch (Exception e)
+        {
+        }
+    }
+
     private void initDbConnection()
     {
         try
         {
             logger.info("Connecting to database via:" + dbUri, null);
             Class.forName(dialect.getDriver()).newInstance();
-            connection = DriverManager.getConnection(dbUri);
+            if (user == null)
+                connection = DriverManager.getConnection(dbUri);
+            else
+                connection = DriverManager.getConnection(dbUri, user, password);
             connection.setAutoCommit(false);
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            throw new RuntimeException("Unable to connect to database: uri="
+                    + dbUri + " user=" + user + " password=" + password, e);
         }
     }
-	
-	public Statement createStatement() throws SQLException
-	{
-		return connection.createStatement();
-	}
 
-	public PreparedStatement prepareStatement(String SQL) throws SQLException
-	{
-		return connection.prepareStatement(SQL);
-	}
+    public Statement createStatement() throws SQLException
+    {
+        return connection.createStatement();
+    }
 
-	public void commit() throws SQLException
-	{
-		connection.commit();
-	}
-	
-	public void execute(String SQL) throws SQLException
-	{
-		PreparedStatement statement = prepareStatement(SQL);
-		statement.execute();
-	}
+    public PreparedStatement prepareStatement(String SQL) throws SQLException
+    {
+        return connection.prepareStatement(SQL);
+    }
+
+    public void commit() throws SQLException
+    {
+        connection.commit();
+    }
+
+    public void execute(String SQL) throws SQLException
+    {
+        PreparedStatement statement = prepareStatement(SQL);
+        statement.execute();
+    }
 }
