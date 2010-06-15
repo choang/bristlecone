@@ -327,7 +327,7 @@ public class Benchmark
     if (actualDuration == 0)
       actualAvgOpsSec = Double.MAX_VALUE;
     else 
-      actualAvgOpsSec = actualIterations / (actualDuration * scenarioArray.length);
+      actualAvgOpsSec = actualIterations / actualDuration;
 
     configWrapper.setActualIterations((int) actualIterations);
     configWrapper.setActualDuration(actualDuration);
