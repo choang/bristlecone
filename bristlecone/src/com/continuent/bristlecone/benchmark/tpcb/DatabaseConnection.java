@@ -62,6 +62,7 @@ public class DatabaseConnection
 
     public void connect()
     {
+        close();
         initDbConnection();
     }
 
@@ -77,12 +78,19 @@ public class DatabaseConnection
 
     public void close()
     {
-        try
+        if (connection != null)
         {
-            connection.close();
-        }
-        catch (Exception e)
-        {
+            try
+            {
+                connection.close();
+            }
+            catch (Exception e)
+            {
+            }
+            finally
+            {
+                connection = null;
+            }
         }
     }
 
@@ -90,7 +98,7 @@ public class DatabaseConnection
     {
         try
         {
-            logger.info("Connecting to database via:" + dbUri, null);
+            logger.debug("Connecting to database via:" + dbUri, null);
             Class.forName(dialect.getDriver()).newInstance();
             if (user == null)
                 connection = DriverManager.getConnection(dbUri);

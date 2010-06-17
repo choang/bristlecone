@@ -24,6 +24,7 @@ package com.continuent.bristlecone.benchmark.tpcb;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Properties;
 
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -42,23 +43,24 @@ import com.continuent.bristlecone.benchmark.db.Table;
  */
 public class TPCBScenario implements Scenario
 {
-    private static final Logger logger            = Logger
-                                                          .getLogger(TPCBScenario.class);
+    private static final Logger logger                = Logger
+                                                              .getLogger(TPCBScenario.class);
     // TPC-B scenario parameters.
     private String              url;
     private String              password;
     private String              user;
     private boolean             reusedata;
-    private int                 numberOfBranches  = 10;
-    private int                 tellersPerBranch  = 10;
-    private int                 accountsPerBranch = 10000;
-    private boolean             updateBranch      = true;
-    private boolean             updateTeller      = true;
-    private boolean             updateAccount     = true;
-    private boolean             insertHistory     = true;
-    private int                 queryPCT          = 0;
-    private int                 thinkMillis       = 0;
-    private float               randomizationPct  = 0;
+    private int                 numberOfBranches      = 10;
+    private int                 tellersPerBranch      = 10;
+    private int                 accountsPerBranch     = 10000;
+    private boolean             updateBranch          = true;
+    private boolean             updateTeller          = true;
+    private boolean             updateAccount         = true;
+    private boolean             insertHistory         = true;
+    private int                 queryPCT              = 0;
+    private int                 thinkMillis           = 0;
+    private float               randomizationPct      = 0;
+    private int                 connectionRefreshRate = 0;
 
     // Statistics.
     private TPCBStatistics      statistics;
@@ -71,6 +73,7 @@ public class TPCBScenario implements Scenario
     private PreparedStatement   accountUpdate;
     private PreparedStatement   accountQuery;
     private PreparedStatement   historyInsert;
+    private long                xactCount;
 
     // Setters for TPC-B parameters.
     public void setUrl(String url)
@@ -96,6 +99,16 @@ public class TPCBScenario implements Scenario
     public void setNumberOfBranches(int numberOfBranches)
     {
         this.numberOfBranches = numberOfBranches;
+    }
+
+    public void setTellersPerBranch(int tellersPerBranch)
+    {
+        this.tellersPerBranch = tellersPerBranch;
+    }
+
+    public void setAccountsPerBranch(int accountsPerBranch)
+    {
+        this.accountsPerBranch = accountsPerBranch;
     }
 
     public void setUpdateBranch(boolean updateBranch)
@@ -133,6 +146,11 @@ public class TPCBScenario implements Scenario
         this.randomizationPct = randomizationPct;
     }
 
+    public void setConnectionRefreshRate(int connectionRefreshRate)
+    {
+        this.connectionRefreshRate = connectionRefreshRate;
+    }
+
     // BENCHMARK API -- LISTED IN CALL ORDER.
 
     /**
@@ -142,10 +160,10 @@ public class TPCBScenario implements Scenario
      */
     public void initialize(Properties properties) throws Exception
     {
-        // Get stats. 
+        // Get stats.
         statistics = TPCBStatistics.getInstance();
 
-        // Login to the database. 
+        // Login to the database.
         configuration = new Configuration(numberOfBranches, tellersPerBranch,
                 accountsPerBranch);
         connection = new DatabaseConnection(url, user, password);
@@ -153,7 +171,7 @@ public class TPCBScenario implements Scenario
     }
 
     /**
-     * Generate data (optionally) and zero out stats. 
+     * Generate data (optionally) and zero out stats.
      */
     public void globalPrepare() throws Exception
     {
@@ -195,11 +213,11 @@ public class TPCBScenario implements Scenario
         if (thinkMillis > 0)
         {
             int variance = (int) (thinkMillis * randomizationPct / 100.);
-            long thinkTime = thinkMillis + variance; 
+            long thinkTime = thinkMillis + variance;
             Thread.sleep(thinkTime);
         }
-        
-        // Execute a transaction or query. 
+
+        // Execute a transaction or query.
         executeOneTransaction();
     }
 
@@ -230,11 +248,11 @@ public class TPCBScenario implements Scenario
 
         try
         {
-            SQL = "update branch set branch_balance = branch_balance + ? where branch_id = ?";
+            SQL = "update branch set branch_balance = branch_balance + ?, time_stamp = now() where branch_id = ?";
             branchUpdate = connection.prepareStatement(SQL);
-            SQL = "update teller set teller_balance = teller_balance + ? where teller_id = ?";
+            SQL = "update teller set teller_balance = teller_balance + ?, time_stamp = now() where teller_id = ?";
             tellerUpdate = connection.prepareStatement(SQL);
-            SQL = "update account set account_balance = account_balance + ? where account_id = ?";
+            SQL = "update account set account_balance = account_balance + ?, time_stamp = now() where account_id = ?";
             accountUpdate = connection.prepareStatement(SQL);
             SQL = "select account_balance from account where account_id = ?";
             accountQuery = connection.prepareStatement(SQL);
@@ -255,7 +273,7 @@ public class TPCBScenario implements Scenario
      * way can be a nuisance when performance testing is all that is of
      * interest.
      */
-    private void executeOneTransaction()
+    private void executeOneTransaction() throws Exception
     {
         int amount = 10;
         int branchID = 1;
@@ -276,6 +294,16 @@ public class TPCBScenario implements Scenario
 
         try
         {
+            // Refresh the connection if necessary.
+            xactCount++;
+            if (connectionRefreshRate > 0
+                    && xactCount % connectionRefreshRate == 0)
+            {
+                connection.connect();
+                prepareStatements();
+            }
+
+            // Decide whether to read or write.
             if (Math.random() * 100 <= queryPCT)
                 performQuery = true;
             else
@@ -321,8 +349,8 @@ public class TPCBScenario implements Scenario
         catch (Exception e)
         {
             logger.info("exception during transaction " + e);
+            throw e;
         }
-
     }
 
     public Configuration getConfiguration()
@@ -362,9 +390,11 @@ public class TPCBScenario implements Scenario
             insertStatement.setObject(1, i, java.sql.Types.INTEGER);
             insertStatement.setObject(2, 0, java.sql.Types.INTEGER);
             insertStatement.setObject(3, filler100, java.sql.Types.VARCHAR);
+            insertStatement.setObject(4, new Timestamp(System
+                    .currentTimeMillis()), java.sql.Types.TIMESTAMP);
             insertStatement.execute();
-
         }
+        connection.commit();
 
         /* teller table */
         /*
@@ -383,8 +413,11 @@ public class TPCBScenario implements Scenario
             insertStatement.setObject(2, i / 10, java.sql.Types.INTEGER);
             insertStatement.setObject(3, 0, java.sql.Types.INTEGER);
             insertStatement.setObject(4, filler100, java.sql.Types.VARCHAR);
+            insertStatement.setObject(5, new Timestamp(System
+                    .currentTimeMillis()), java.sql.Types.TIMESTAMP);
             insertStatement.execute();
         }
+        connection.commit();
 
         /* account table */
         /*
@@ -405,8 +438,11 @@ public class TPCBScenario implements Scenario
                     java.sql.Types.INTEGER);
             insertStatement.setObject(3, 0, java.sql.Types.INTEGER);
             insertStatement.setObject(4, filler100, java.sql.Types.VARCHAR);
+            insertStatement.setObject(5, new Timestamp(System
+                    .currentTimeMillis()), java.sql.Types.TIMESTAMP);
             insertStatement.execute();
         }
+        connection.commit();
     }
 
     private static String createFiller(int size)

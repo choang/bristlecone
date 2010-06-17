@@ -28,115 +28,131 @@ import com.continuent.bristlecone.benchmark.db.Table;
 /**
  * A configuration holds the data describing a particular tpcb database layout.
  * It is not much more than a simple structure.
+ * 
  * @author smartin
- *
  */
-public class Configuration {
-	private static Table accountTable;
-	private static Table tellerTable;
-	private static Table branchTable;
-	private static Table historyTable;
-    private int numberOfBranches;
-    private int tellersPerBranch;
-	private int accountsPerBranch;
-	
-	public Configuration(int numberOfBranches, int tellersPerBranch, int accountsPerBranch)
-	{
-		this.numberOfBranches = numberOfBranches;
+public class Configuration
+{
+    private static Table accountTable;
+    private static Table tellerTable;
+    private static Table branchTable;
+    private static Table historyTable;
+    private int          numberOfBranches;
+    private int          tellersPerBranch;
+    private int          accountsPerBranch;
+
+    public Configuration(int numberOfBranches, int tellersPerBranch,
+            int accountsPerBranch)
+    {
+        this.numberOfBranches = numberOfBranches;
         this.tellersPerBranch = tellersPerBranch;
         this.accountsPerBranch = accountsPerBranch;
-		createTableDefinitions();
-	}
-	
-	public Configuration()
-	{
-		this(1, 10, 10000);
-	}
-	
-	/**
-	 * Create the bristlecone Table definitions for the TPCB tables.  The data tables
-	 * themselves are not created in the RDBMS - only the java representation of them is.
-	 * The somewhat cumbersome names of the columns where taken directly from the TPCB
-	 * specification found at http://www.tpc.org/tpcb/spec/tpcb_current.pdf
-	 */
+        createTableDefinitions();
+    }
+
+    public Configuration()
+    {
+        this(1, 10, 10000);
+    }
+
+    /**
+     * Create the bristlecone Table definitions for the TPCB tables. The data
+     * tables themselves are not created in the RDBMS - only the java
+     * representation of them is. The somewhat cumbersome names of the columns
+     * where taken directly from the TPCB specification found at
+     * http://www.tpc.org/tpcb/spec/tpcb_current.pdf
+     */
     private static void createTableDefinitions()
     {
-    	/* account table */
-    	Column aAccountID = new Column("account_id", java.sql.Types.INTEGER, 0, 0, true, false); // primary key
-    	Column aBranchID = new Column("branch_id", java.sql.Types.INTEGER);
-    	Column aAccountBalance = new Column("account_balance", java.sql.Types.INTEGER);
-    	Column aFiller = new Column("filler", java.sql.Types.VARCHAR, 100);
-    	Column[] accountColumns = {aAccountID, aBranchID, aAccountBalance, aFiller};
-    	accountTable = new Table("account", accountColumns);
-    	
-    	/* teller table */
-    	Column tTellerID = new Column("teller_id", java.sql.Types.INTEGER, 0, 0, true, false); // primary key
-    	Column tBranchID = new Column("branch_id", java.sql.Types.INTEGER);
-    	Column tTellerBalance = new Column("teller_balance", java.sql.Types.INTEGER);
-    	Column tFiller = new Column("filler", java.sql.Types.VARCHAR, 100);
-    	Column[] tellerColumns = {tTellerID, tBranchID, tTellerBalance, tFiller};
-    	tellerTable = new Table("teller", tellerColumns);
-    	
-    	/* branch table */
-    	Column bBranchID = new Column("branch_id", java.sql.Types.INTEGER, 0, 0, true, false); // primary key
-    	Column bBranchBalance = new Column("branch_balance", java.sql.Types.INTEGER);
-    	Column bFiller = new Column("filler", java.sql.Types.VARCHAR, 100);
-    	Column[] branchColumns = {bBranchID, bBranchBalance, bFiller};
-    	branchTable = new Table("branch", branchColumns);
+        /* account table */
+        Column aAccountID = new Column("account_id", java.sql.Types.INTEGER, 0,
+                0, true, false); // primary key
+        Column aBranchID = new Column("branch_id", java.sql.Types.INTEGER);
+        Column aAccountBalance = new Column("account_balance",
+                java.sql.Types.INTEGER);
+        Column aFiller = new Column("filler", java.sql.Types.VARCHAR, 100);
+        Column aTimeStamp = new Column("time_stamp", java.sql.Types.TIMESTAMP);
+        Column[] accountColumns = {aAccountID, aBranchID, aAccountBalance,
+                aFiller, aTimeStamp};
+        accountTable = new Table("account", accountColumns);
 
-    	/* history table */
-    	Column hAccountID = new Column("account_id", java.sql.Types.INTEGER);
-    	Column hTellerID = new Column("teller_id", java.sql.Types.INTEGER);
-    	Column hBranchID = new Column("branch_id", java.sql.Types.INTEGER);
-    	Column hAmount = new Column("amount", java.sql.Types.INTEGER);
-    	Column hTimeStamp = new Column("time_stamp", java.sql.Types.TIMESTAMP);
-    	Column hFiller = new Column("filler", java.sql.Types.VARCHAR, 50);
-    	Column[] historyColumns = {hAccountID, hTellerID, hBranchID, hAmount, hTimeStamp, hFiller};
-    	historyTable = new Table("history", historyColumns);
+        /* teller table */
+        Column tTellerID = new Column("teller_id", java.sql.Types.INTEGER, 0,
+                0, true, false); // primary key
+        Column tBranchID = new Column("branch_id", java.sql.Types.INTEGER);
+        Column tTellerBalance = new Column("teller_balance",
+                java.sql.Types.INTEGER);
+        Column tFiller = new Column("filler", java.sql.Types.VARCHAR, 100);
+        Column tTimeStamp = new Column("time_stamp", java.sql.Types.TIMESTAMP);
+        Column[] tellerColumns = {tTellerID, tBranchID, tTellerBalance,
+                tFiller, tTimeStamp};
+        tellerTable = new Table("teller", tellerColumns);
+
+        /* branch table */
+        Column bBranchID = new Column("branch_id", java.sql.Types.INTEGER, 0,
+                0, true, false); // primary key
+        Column bBranchBalance = new Column("branch_balance",
+                java.sql.Types.INTEGER);
+        Column bFiller = new Column("filler", java.sql.Types.VARCHAR, 100);
+        Column bTimeStamp = new Column("time_stamp", java.sql.Types.TIMESTAMP);
+        Column[] branchColumns = {bBranchID, bBranchBalance, bFiller,
+                bTimeStamp};
+        branchTable = new Table("branch", branchColumns);
+
+        /* history table */
+        Column hAccountID = new Column("account_id", java.sql.Types.INTEGER);
+        Column hTellerID = new Column("teller_id", java.sql.Types.INTEGER);
+        Column hBranchID = new Column("branch_id", java.sql.Types.INTEGER);
+        Column hAmount = new Column("amount", java.sql.Types.INTEGER);
+        Column hTimeStamp = new Column("time_stamp", java.sql.Types.TIMESTAMP);
+        Column hFiller = new Column("filler", java.sql.Types.VARCHAR, 50);
+        Column[] historyColumns = {hAccountID, hTellerID, hBranchID, hAmount,
+                hTimeStamp, hFiller};
+        historyTable = new Table("history", historyColumns);
     }
-    
+
     public Table getAccountTable()
     {
-    	return accountTable;
+        return accountTable;
     }
 
     public Table getTellerTable()
     {
-    	return tellerTable;
+        return tellerTable;
     }
 
     public Table getBranchTable()
     {
-    	return branchTable;
+        return branchTable;
     }
 
     public Table getHistoryTable()
     {
-    	return historyTable;
+        return historyTable;
     }
 
     public int getNumberOfBranches()
     {
-    	return numberOfBranches;
+        return numberOfBranches;
     }
 
     public int getAccountsPerBranch()
     {
         return accountsPerBranch;
     }
-    
+
     public int getTellersPerBranch()
     {
         return tellersPerBranch;
     }
-    
+
     public int getNumberOfTellers()
     {
-    	return numberOfBranches * tellersPerBranch;
+        return numberOfBranches * tellersPerBranch;
     }
-    
+
     public int getNumberOfAccounts()
     {
-    	return numberOfBranches * accountsPerBranch;
+        return numberOfBranches * accountsPerBranch;
     }
 }

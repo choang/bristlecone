@@ -64,8 +64,8 @@ public class TPCBMonitor implements Monitor
                 long newTPCBCount = stats.getTPCBCount();
                 long newQueryCount = stats.getQueryCount();
 
-                logger.info("TPC-B Statistics: updates="
-                        + (newTPCBCount - currentTPCBCount) + " queries="
+                logger.info("TPC-B Statistics: write xacts="
+                        + (newTPCBCount - currentTPCBCount) + " r/o xacts="
                         + (newQueryCount - currentQueryCount));
 
                 currentTPCBCount = newTPCBCount;
