@@ -65,7 +65,8 @@ public class WriteSimpleScenario extends ScenarioBase
   {
     // Define table layout. 
     Column[] columns = new Column[3]; 
-    columns[0] = new Column("mykey", Types.INTEGER, -1, -1, true, true); 
+    //columns[0] = new Column("mykey", Types.INTEGER, -1, -1, true, true); 
+    columns[0] = new Column("mykey", Types.INTEGER, -1, -1, false, false); 
     columns[1] = new Column("mythread", Types.VARCHAR, 50); 
     columns[1].setIndexed(true);
     columns[2] = new Column("mypayload", Types.VARCHAR, (int) datawidth); 
@@ -131,7 +132,7 @@ public class WriteSimpleScenario extends ScenarioBase
     String value = localKey + "_" + Thread.currentThread().getName() + "_"
         + iterationCount;
     helper.generateParameters(tableSet, pstmt);
-    pstmt.setString(1, value);
+    pstmt.setString(2, value);
     pstmt.executeUpdate();
   }
 
