@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<gems>
-	<gem>
-		<name>rubygems-update</name>
-		<version>1.3.6</version>
-		<description>RubyGems is a package management framework for Ruby</description>
-		<platform>ruby</platform>
-	</gem>
-</gems>
