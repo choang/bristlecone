@@ -386,7 +386,10 @@ public class TPCBScenario implements Scenario
         for (int i = 0; i < configuration.getNumberOfBranches(); i++)
         {
             if (i > 0 && i % 100 == 0)
+            {
+                connection.commit();
                 logger.info("Inserted " + i + " rows...");
+            }
             insertStatement.setObject(1, i, java.sql.Types.INTEGER);
             insertStatement.setObject(2, 0, java.sql.Types.INTEGER);
             insertStatement.setObject(3, filler100, java.sql.Types.VARCHAR);
@@ -407,7 +410,10 @@ public class TPCBScenario implements Scenario
         for (int i = 0; i < configuration.getNumberOfTellers(); i++)
         {
             if (i > 0 && i % 1000 == 0)
+            {
+                connection.commit();
                 logger.info("Inserted " + i + " rows...");
+            }
 
             insertStatement.setObject(1, i, java.sql.Types.INTEGER);
             insertStatement.setObject(2, i / 10, java.sql.Types.INTEGER);
@@ -430,7 +436,10 @@ public class TPCBScenario implements Scenario
         for (int i = 0; i < configuration.getNumberOfAccounts(); i++)
         {
             if (i > 0 && i % 10000 == 0)
+            {
+                connection.commit();
                 logger.info("Inserted " + i + " rows...");
+            }
 
             insertStatement.setObject(1, i, java.sql.Types.INTEGER);
             insertStatement.setObject(2, i
