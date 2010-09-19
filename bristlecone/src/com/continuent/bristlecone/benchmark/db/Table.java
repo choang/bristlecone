@@ -139,4 +139,13 @@ public class Table
   {
     return ToStringHelper.toString(this);
   }
+  
+  /** Make a copy of this table. */
+  public Table clone()
+  {
+      Column[] colCopy = getColumns();
+      Table tableCopy = new Table(name, colCopy);
+      tableCopy.setDatabaseEngine(databaseEngine);
+      return tableCopy;
+  }
 }
