@@ -93,6 +93,9 @@ public class SqlDialectForMysql extends AbstractSqlDialect
         return "bigint unsigned";
       case AdditionalTypes.MEDIUMINT :
         return "mediumint";
+      case java.sql.Types.TIMESTAMP :
+          // Allow null value for timestamps
+          return "timestamp null";
       default :
         return super.implementationTypeName(type);
     }
