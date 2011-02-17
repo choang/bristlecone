@@ -190,7 +190,7 @@
 				<include name="*.jar" />
 			</fileset>
 		</copy>
-		<copy todir="${build.bristlecone}/lib-ext" verbose="true">
+		<copy todir="${build.bristlecone}/lib-ext" verbose="true" failonerror="false">
 			<fileset dir="${libextdir}">
 				<include name="*.jar" />
 			</fileset>
