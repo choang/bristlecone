@@ -676,11 +676,9 @@ public class Evaluator implements RowFactory, Runnable
     private void printStatistics(Statistics stats, String label, float interval)
     {
         statsList.put(label, stats);
-        logger.info("interval=" + interval + " secs, " + stats.getQueries()
-                + " queries, " + stats.getQueries() / interval
-                + " queries/second, " + threadsAlive + "/" + stats.getThreads()
-                + " threads, " + stats.getAverageResponseTime()
-                + " response time, " + stats.getRowsRead() + " rows read,  "
+        System.out.println(stats.getQueries() / interval
+                + " ops/sec, " + stats.getAverageResponseTime()
+                + " ms/op, " + stats.getRowsRead() + " rows/select,  "
                 + stats.getUpdates() + " updates, " + stats.getDeletes()
                 + " deletes, " + stats.getInserts() + " inserts");
     }
