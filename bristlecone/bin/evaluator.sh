@@ -30,6 +30,6 @@ CP=$CP:$BHOME/config
 
 BRISTLECONE_JVMDEBUG_PORT=54001
 # uncomment to debug
-# JVM_OPTIONS="${JVM_OPTIONS} -enableassertions -Xdebug -Xnoagent -Djava.compiler=none -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$BRISTLECONE_JVMDEBUG_PORT"
+# JVM_OPTIONS="${JVM_OPTIONS} -enableassertions -Xdebug -Xnoagent -Dwrapper.java.pid=$$ -Dtungsten.router.name=evaluator -Djava.compiler=none -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$BRISTLECONE_JVMDEBUG_PORT"
 
 java -cp $CP ${JVM_OPTIONS} $CLUSTER_HOME_ARGS com.continuent.bristlecone.evaluator.Evaluator $*
