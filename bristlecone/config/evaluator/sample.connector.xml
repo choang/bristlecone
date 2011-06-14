@@ -7,7 +7,7 @@
 	in your system.
 -->
 <EvaluatorConfiguration name="mysql" testDuration="7200"
-	autoCommit="true" statusInterval="500" htmlFile="mysqlResults.html">
+	autoCommit="false" statusInterval="500" htmlFile="mysqlResults.html">
 
 	<DataSource name="s1" driver="com.mysql.jdbc.Driver" 		
 		url="jdbc:mysql://localhost/test"
