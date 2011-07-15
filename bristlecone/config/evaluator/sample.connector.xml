@@ -10,7 +10,7 @@
 	autoCommit="false" statusInterval="500" htmlFile="mysqlResults.html">
 
 	<DataSource name="s1" driver="com.mysql.jdbc.Driver" 		
-		url="jdbc:mysql://localhost/test"
+		url="jdbc:mysql://localhost:9999/test"
 		user="tungsten" 
 		password="secret"/>	
 	 
