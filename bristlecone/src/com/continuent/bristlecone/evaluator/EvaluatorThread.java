@@ -526,7 +526,6 @@ public class EvaluatorThread extends Thread
 
         current = select;
         long queryStart = System.currentTimeMillis();
-        select.execute();
         int i = processResults(select);
         rowsRead += i;
         conf.addRowsRead(i, System.currentTimeMillis() - queryStart);
