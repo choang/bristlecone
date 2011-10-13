@@ -401,6 +401,14 @@ public abstract class AbstractSqlDialect implements SqlDialect
     return false;
   }
 
+  /**
+   * Provides general default on index support for OLTP databases. 
+   */
+  public boolean implementationSupportsIndexes()
+  {
+      return true;
+  }
+
   /** Returns the generic autoincrement keyword. */
   public String implementationAutoIncrementKeyword()
   {

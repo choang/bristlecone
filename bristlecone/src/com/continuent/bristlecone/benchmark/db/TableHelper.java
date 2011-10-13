@@ -34,326 +34,336 @@ import org.apache.log4j.Logger;
 import com.continuent.bristlecone.benchmark.BenchmarkException;
 
 /**
- * Implements methods to create, drop, and populate individual tables. 
+ * Implements methods to create, drop, and populate individual tables.
  * 
  * @author rhodges
  */
 public class TableHelper
 {
-  private static Logger logger = Logger.getLogger(TableHelper.class);
+    private static Logger      logger = Logger.getLogger(TableHelper.class);
 
-  protected final String connectionUrl; 
-  protected final String login;
-  protected final String password; 
-  protected final SqlDialect sqlDialect;
-  
-  /** 
-   * Creates a new instance. 
-   * 
-   * @param url JDBC URL of database where tables live 
-   * @param login
-   * @param password
-   * @throws BenchmarkException If JDBC driver cannot be loaded or we can't 
-   *         find the SqlDialect. 
-   */
-  public TableHelper(String url, String login, String password)
-  {
-    this.connectionUrl = url;
-    this.login = login;
-    this.password = password;
-    this.sqlDialect = SqlDialectFactory.getInstance().getDialect(url);
-    loadDriver(sqlDialect.getDriver());
-  }
-  
-  /**
-   * Loads a JDBC driver. 
-   */
-  public void loadDriver(String name) throws BenchmarkException
-  {
-    try
-    {
-      Class.forName(name);
-    }
-    catch (Exception e)
-    {
-      throw new BenchmarkException("Unable to load JDBC driver: " + name, e);
-    }
-  }
-  
-  /** 
-   * Returns the SQLDialect used by this helper. 
-   */
-  public SqlDialect getSqlDialect()
-  {
-    return sqlDialect;
-  }
+    protected final String     connectionUrl;
+    protected final String     login;
+    protected final String     password;
+    protected final SqlDialect sqlDialect;
 
-  /**
-   * Runs an arbitrary SQL command with proper clean-up of resources.  
-   */
-  public void execute(String sql) throws SQLException
-  {
-    Connection conn = getConnection();
-    Statement stmt = conn.createStatement();
-    try
+    /**
+     * Creates a new instance.
+     * 
+     * @param url JDBC URL of database where tables live
+     * @param login
+     * @param password
+     * @throws BenchmarkException If JDBC driver cannot be loaded or we can't
+     *             find the SqlDialect.
+     */
+    public TableHelper(String url, String login, String password)
     {
-      stmt.execute(sql);
+        this.connectionUrl = url;
+        this.login = login;
+        this.password = password;
+        this.sqlDialect = SqlDialectFactory.getInstance().getDialect(url);
+        loadDriver(sqlDialect.getDriver());
     }
-    finally
-    {
-      releaseStatement(stmt);
-      releaseConnection(conn);
-    }
-  }
 
-  /** 
-   * Creates a table from a definition. 
-   * 
-   * @param table Definition of table to be dropped 
-   * @param dropExisting If true, try to drop an existing table first
-   */
-  public void create(Table table, boolean dropExisting) throws SQLException
-  {
-    // Drop existing table. 
-    if (dropExisting)
-        drop(table, true);
-    
-    Connection conn = getConnection();
-    String createSql = null;
-    Statement stmt = conn.createStatement();
-    try
+    /**
+     * Loads a JDBC driver.
+     */
+    public void loadDriver(String name) throws BenchmarkException
     {
-      // Create the table. 
-      createSql = sqlDialect.getCreateTable(table);
-      stmt.execute(createSql);
-        
-      // Add extra index for any indexed columns. 
-      for (int c = 0; c < table.getColumns().length; c++)
-      {
-        Column col = table.getColumns()[c];
-        if (col.isIndexed())
+        try
         {
-          createSql = sqlDialect.getCreateIndex(table, col);
-          stmt.execute(createSql);
+            Class.forName(name);
         }
-      }
-    }
-    catch (SQLException e)
-    {
-      logger.debug("Table creation failed: " + createSql, e);
-      throw e;
-    }
-    finally
-    {
-      releaseStatement(stmt);
-      releaseConnection(conn);
-    }
-  }
-
-  /** 
-   * Drop all tables in the table set, optionally ignoring errors
-   * due to non-existing tables. 
-   */
-  public void drop(Table table, boolean ignore) throws SQLException
-  {
-    Connection conn = getConnection();
-    
-    String dropSql = sqlDialect.getDropTable(table);
-    Statement stmt = conn.createStatement();
-    try 
-    {
-      stmt.execute(dropSql);
-    }
-    catch (SQLException e) 
-    {
-      if (ignore)
-        logger.debug("Table deletion failure ignored: " + dropSql);
-      else
-      {
-        logger.debug("Table drop failed: " + dropSql, e);
-        throw e;
-      }
-    }
-    finally
-    {
-      releaseStatement(stmt);
-      releaseConnection(conn);
-    }
-  }
-
-  /**
-   * Inserts a row using values from an array of objects.  The input array
-   * should not include values for auto-increment fields. 
-   * 
-   * @param table Table 
-   * @param values Array of values to insert.  
-   */
-  public void insert(Table table, Object[] values) throws SQLException
-  {
-      Connection conn = getConnection();
-      String insert = sqlDialect.getInsert(table);
-      PreparedStatement ps = conn.prepareStatement(insert);
-      try 
-      {
-        for (int i = 0; i < values.length; i++)
+        catch (Exception e)
         {
-          ps.setObject(i + 1, values[i]);
+            throw new BenchmarkException("Unable to load JDBC driver: " + name,
+                    e);
         }
-        ps.execute();
-      }
-      catch (SQLException e) 
-      {
-        logger.debug("Table insert failed: " + insert, e);
-        throw e;
-      }
-      finally
-      {
-        releaseStatement(ps);
-        releaseConnection(conn);
-      }
-  }
+    }
 
-  /**
-   * Deletes a row using key values from an array of objects.  
-   * 
-   * @param table Table 
-   * @param keys Array containing keys
-   */
-  public void delete(Table table, Object[] keys) throws SQLException
-  {
-      Connection conn = getConnection();
-      String delete = sqlDialect.getDeleteByKey(table);
-      PreparedStatement ps = conn.prepareStatement(delete);
-      try 
-      {
-        for (int i = 0; i < keys.length; i++)
+    /**
+     * Returns the SQLDialect used by this helper.
+     */
+    public SqlDialect getSqlDialect()
+    {
+        return sqlDialect;
+    }
+
+    /**
+     * Runs an arbitrary SQL command with proper clean-up of resources.
+     */
+    public void execute(String sql) throws SQLException
+    {
+        Connection conn = getConnection();
+        Statement stmt = conn.createStatement();
+        try
         {
-          ps.setObject(i + 1, keys[i]);
+            stmt.execute(sql);
         }
-        ps.execute();
-      }
-      catch (SQLException e) 
-      {
-        logger.debug("Table delete failed: " + delete, e);
-        throw e;
-      }
-      finally
-      {
-        releaseStatement(ps);
-        releaseConnection(conn);
-      }
-  }
-
-  /** Gets a database connection. */
-  public Connection getConnection()
-      throws SQLException
-  {
-    // Connect to database.
-    logger.debug("Connecting to database: url=" + connectionUrl + " user=" + login);
-    Connection conn = DriverManager.getConnection(connectionUrl, login, password);
-    logger.debug("Obtained database connection: " + conn);
-    return conn; 
-  }
-  
-  /** Releases a database connection. */
-  public void releaseConnection(Connection conn)
-  {
-    // Connect to database.
-    logger.debug("Releasing database connection: " + conn);
-    try
-    {
-      conn.close();
-    }
-    catch (SQLException e)
-    {
-      logger.debug("Connection release failed", e);
-    }
-  }
-  
-  /** Releases a statement. */
-  public void releaseStatement(Statement stmt)
-  {
-    // Connect to database.
-    logger.debug("Releasing database statement: " + stmt);
-    try
-    {
-      stmt.close();
-    }
-    catch (SQLException e)
-    {
-      logger.debug("Statement release failed", e);
-    }
-  }
-  
-  /**
-   * Confirm [non-]existence of a particular row indexed by a key.
-   *
-   * @param key   Key value
-   * @param exists If true, expect the key to exist.  Otherwise we
-   *               expect not to find it.
-   * @param limit  Number of milliseconds to wait before giving up.
-   * @param logInterval  Interval in milliseconds between writing messages.
-   * @return true if the test succeeded, false if we exceeded the limit
-   * 
-   * @throws BenchmarkException If the test criteria appear to be bad
-   * @throws Execption If there is any other exception
-   */
-  public boolean testRowExistence(PreparedStatement keyQuery, 
-      String key, boolean exists, long limit, long logInterval) 
-      throws BenchmarkException, Exception
-  {
-    long limitTimer = System.currentTimeMillis();
-    long logIntervalTimer = limitTimer;
-    keyQuery.setString(1, key);
-
-    // Repeat the search until we exceed the time limit.
-    do
-    {
-      // Look for matching tables.
-      ResultSet rs = null;
-      int matches = 0;
-      try {
-        rs = keyQuery.executeQuery();
-        while (rs.next())
+        finally
         {
-          matches++;
+            releaseStatement(stmt);
+            releaseConnection(conn);
         }
-      }
-      finally
-      {
-        if (rs != null)
-          rs.close();
-      }
-
-      // If there are multiple matches the test selection criteria are buggy.
-      if (matches > 1)
-        throw new BenchmarkException("Found multiple matches when searching for record: key="
-            + key);
-
-      // Apply result matching to ensure we get what we are looking for...
-      if (exists && matches == 1)
-      {
-        // Key expected to exist and we found it.
-        return true;
-      }
-      else if (!exists && matches == 0)
-      {
-        // Key not expected to exist and we did not find it.
-        return true;
-      }
-
-      // See if we need to log a message because we have been waiting over the
-      // log limit.
-      if ((System.currentTimeMillis() - logIntervalTimer) > logInterval)
-      {
-        logIntervalTimer = System.currentTimeMillis();
-        logger.info("Waited " + (logInterval / 1000) +
-            " to test row existence: key=" + key + " existence=" + exists);
-      }
     }
-    while ((System.currentTimeMillis() - limitTimer) < limit);
 
-    // If we got this far the test exceeded the timeout limit and is a failure.
-    return false;
-  }
+    /**
+     * Creates a table from a definition.
+     * 
+     * @param table Definition of table to be dropped
+     * @param dropExisting If true, try to drop an existing table first
+     */
+    public void create(Table table, boolean dropExisting) throws SQLException
+    {
+        // Drop existing table.
+        if (dropExisting)
+            drop(table, true);
+
+        Connection conn = getConnection();
+        String createSql = null;
+        Statement stmt = conn.createStatement();
+        try
+        {
+            // Create the table.
+            createSql = sqlDialect.getCreateTable(table);
+            stmt.execute(createSql);
+
+            // Add extra index for any indexed columns.
+            if (sqlDialect.implementationSupportsIndexes())
+            {
+                for (int c = 0; c < table.getColumns().length; c++)
+                {
+                    Column col = table.getColumns()[c];
+                    if (col.isIndexed())
+                    {
+                        createSql = sqlDialect.getCreateIndex(table, col);
+                        stmt.execute(createSql);
+                    }
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.debug("Table creation failed: " + createSql, e);
+            throw e;
+        }
+        finally
+        {
+            releaseStatement(stmt);
+            releaseConnection(conn);
+        }
+    }
+
+    /**
+     * Drop all tables in the table set, optionally ignoring errors due to
+     * non-existing tables.
+     */
+    public void drop(Table table, boolean ignore) throws SQLException
+    {
+        Connection conn = getConnection();
+
+        String dropSql = sqlDialect.getDropTable(table);
+        Statement stmt = conn.createStatement();
+        try
+        {
+            stmt.execute(dropSql);
+        }
+        catch (SQLException e)
+        {
+            if (ignore)
+                logger.debug("Table deletion failure ignored: " + dropSql);
+            else
+            {
+                logger.debug("Table drop failed: " + dropSql, e);
+                throw e;
+            }
+        }
+        finally
+        {
+            releaseStatement(stmt);
+            releaseConnection(conn);
+        }
+    }
+
+    /**
+     * Inserts a row using values from an array of objects. The input array
+     * should not include values for auto-increment fields.
+     * 
+     * @param table Table
+     * @param values Array of values to insert.
+     */
+    public void insert(Table table, Object[] values) throws SQLException
+    {
+        Connection conn = getConnection();
+        String insert = sqlDialect.getInsert(table);
+        PreparedStatement ps = conn.prepareStatement(insert);
+        try
+        {
+            for (int i = 0; i < values.length; i++)
+            {
+                ps.setObject(i + 1, values[i]);
+            }
+            ps.execute();
+        }
+        catch (SQLException e)
+        {
+            logger.debug("Table insert failed: " + insert, e);
+            throw e;
+        }
+        finally
+        {
+            releaseStatement(ps);
+            releaseConnection(conn);
+        }
+    }
+
+    /**
+     * Deletes a row using key values from an array of objects.
+     * 
+     * @param table Table
+     * @param keys Array containing keys
+     */
+    public void delete(Table table, Object[] keys) throws SQLException
+    {
+        Connection conn = getConnection();
+        String delete = sqlDialect.getDeleteByKey(table);
+        PreparedStatement ps = conn.prepareStatement(delete);
+        try
+        {
+            for (int i = 0; i < keys.length; i++)
+            {
+                ps.setObject(i + 1, keys[i]);
+            }
+            ps.execute();
+        }
+        catch (SQLException e)
+        {
+            logger.debug("Table delete failed: " + delete, e);
+            throw e;
+        }
+        finally
+        {
+            releaseStatement(ps);
+            releaseConnection(conn);
+        }
+    }
+
+    /** Gets a database connection. */
+    public Connection getConnection() throws SQLException
+    {
+        // Connect to database.
+        logger.debug("Connecting to database: url=" + connectionUrl + " user="
+                + login);
+        Connection conn = DriverManager.getConnection(connectionUrl, login,
+                password);
+        logger.debug("Obtained database connection: " + conn);
+        return conn;
+    }
+
+    /** Releases a database connection. */
+    public void releaseConnection(Connection conn)
+    {
+        // Connect to database.
+        logger.debug("Releasing database connection: " + conn);
+        try
+        {
+            conn.close();
+        }
+        catch (SQLException e)
+        {
+            logger.debug("Connection release failed", e);
+        }
+    }
+
+    /** Releases a statement. */
+    public void releaseStatement(Statement stmt)
+    {
+        // Connect to database.
+        logger.debug("Releasing database statement: " + stmt);
+        try
+        {
+            stmt.close();
+        }
+        catch (SQLException e)
+        {
+            logger.debug("Statement release failed", e);
+        }
+    }
+
+    /**
+     * Confirm [non-]existence of a particular row indexed by a key.
+     * 
+     * @param key Key value
+     * @param exists If true, expect the key to exist. Otherwise we expect not
+     *            to find it.
+     * @param limit Number of milliseconds to wait before giving up.
+     * @param logInterval Interval in milliseconds between writing messages.
+     * @return true if the test succeeded, false if we exceeded the limit
+     * @throws BenchmarkException If the test criteria appear to be bad
+     * @throws Execption If there is any other exception
+     */
+    public boolean testRowExistence(PreparedStatement keyQuery, String key,
+            boolean exists, long limit, long logInterval)
+            throws BenchmarkException, Exception
+    {
+        long limitTimer = System.currentTimeMillis();
+        long logIntervalTimer = limitTimer;
+        keyQuery.setString(1, key);
+
+        // Repeat the search until we exceed the time limit.
+        do
+        {
+            // Look for matching tables.
+            ResultSet rs = null;
+            int matches = 0;
+            try
+            {
+                rs = keyQuery.executeQuery();
+                while (rs.next())
+                {
+                    matches++;
+                }
+            }
+            finally
+            {
+                if (rs != null)
+                    rs.close();
+            }
+
+            // If there are multiple matches the test selection criteria are
+            // buggy.
+            if (matches > 1)
+                throw new BenchmarkException(
+                        "Found multiple matches when searching for record: key="
+                                + key);
+
+            // Apply result matching to ensure we get what we are looking for...
+            if (exists && matches == 1)
+            {
+                // Key expected to exist and we found it.
+                return true;
+            }
+            else if (!exists && matches == 0)
+            {
+                // Key not expected to exist and we did not find it.
+                return true;
+            }
+
+            // See if we need to log a message because we have been waiting over
+            // the
+            // log limit.
+            if ((System.currentTimeMillis() - logIntervalTimer) > logInterval)
+            {
+                logIntervalTimer = System.currentTimeMillis();
+                logger.info("Waited " + (logInterval / 1000)
+                        + " to test row existence: key=" + key + " existence="
+                        + exists);
+            }
+        }
+        while ((System.currentTimeMillis() - limitTimer) < limit);
+
+        // If we got this far the test exceeded the timeout limit and is a
+        // failure.
+        return false;
+    }
 }

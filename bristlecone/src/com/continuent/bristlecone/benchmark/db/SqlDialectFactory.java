@@ -40,6 +40,7 @@ public class SqlDialectFactory
     List<SqlDialect> al = new ArrayList<SqlDialect>();
     al.add(new SqlDialectForMysql());
     al.add(new SqlDialectForPostgreSQL());
+    al.add(new SqlDialectForVertica());
     al.add(new SqlDialectForPCluster());
     al.add(new SqlDialectForMCluster());
     al.add(new SqlDialectForHSQLDB());

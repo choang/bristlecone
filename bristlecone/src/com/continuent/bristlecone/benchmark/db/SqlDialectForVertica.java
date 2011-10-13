@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2009 Continuent Inc.
+ * Copyright (C) 2006-2007 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,47 +16,46 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
- * Initial developer(s): Robert Hodges
+ * Initial developer(s): Robert Hodges and Ralph Hannus.
  * Contributor(s):
  */
 
 package com.continuent.bristlecone.benchmark.db;
 
 /**
- * Derby embedded SQL dialect information. 
+ * PostgreSQL DBMS dialect information. 
  * 
  * @author rhodges
  */
-public class SqlDialectForDerby extends AbstractSqlDialect
+public class SqlDialectForVertica extends SqlDialectForPostgreSQL
 {
-  /** Return the HSQLDB driver. */
+  /** Return the PostgreSQL driver. */
   public String getDriver()
   {
-    return "org.apache.derby.jdbc.EmbeddedDriver";
+    return "com.vertica.Driver";
   }
 
-  /** Returns true if the JDBC URL looks like a Derby URL. */
+  /** Returns true if the JDBC URL looks like a PostgreSQL URL. */
   public boolean supportsJdbcUrl(String url)
   {
-    return (url.startsWith("jdbc:derby"));
+    return url.startsWith("jdbc:vertica");
   }
   
   /** 
-   * HSQLDB uses "identity" as keyword for auto_increment. 
+   * PostgreSQL uses "serial" datatype for autoincrement but does not have a
+   * keyword 
    */
   public String implementationAutoIncrementKeyword()
   {
-    return "identity";
+    // This should not be called or we will generate bad syntax. 
+    throw new Error("Bug: Vertica dialect should not use autoincrement keyword");
   }
   
-  /** Add support for specialized Derby type names. */
-  public String implementationTypeName(int type)
+  /**
+   * Provides general default on index support for OLTP databases. 
+   */
+  public boolean implementationSupportsIndexes()
   {
-    return super.implementationTypeName(type);
-  }
-  
-  public String implementationSpecificSuffix(Column c)
-  {    
-      return super.implementationSpecifcSuffix(c);     
+      return false;
   }
 }

@@ -174,4 +174,10 @@ public interface SqlDialect
    * Integer.MIN_VALUE to trigger row-by-row streaming.
    */
   public int implementationConvertFetchSize(int fetchSize);
+  
+  /**
+   * Returns true if this DBMS implementation supports indexes.  Data warehouses
+   * like Vertica do not. 
+   */
+  public boolean implementationSupportsIndexes();
 }
