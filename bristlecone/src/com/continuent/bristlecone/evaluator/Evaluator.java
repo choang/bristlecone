@@ -50,8 +50,7 @@ import com.continuent.tungsten.commons.config.TungstenProperties;
  */
 public class Evaluator implements RowFactory, Runnable
 {
-    private static Logger                     logger                = Logger
-                                                                            .getLogger(Evaluator.class);
+    private static Logger                     logger                = Logger.getLogger(Evaluator.class);
 
     private volatile boolean                  readyToStart;
 
@@ -254,7 +253,11 @@ public class Evaluator implements RowFactory, Runnable
         catch (EvaluatorException e)
         {
             e.printStackTrace();
+            System.exit(1);
         }
+
+        // Ensure we can exit.
+        System.exit(0);
     }
 
     /** Print to standard out. */
@@ -337,8 +340,8 @@ public class Evaluator implements RowFactory, Runnable
                 {
                     int intervals = conf.getTestDuration()
                             / threadGroup.getRampUpInterval() + 1;
-                    limit = Math.min(limit, intervals
-                            * threadGroup.getRampUpIncrement());
+                    limit = Math.min(limit,
+                            intervals * threadGroup.getRampUpIncrement());
                 }
                 for (int i = 0; i < limit; i++)
                 {
@@ -368,8 +371,7 @@ public class Evaluator implements RowFactory, Runnable
             t.start();
         }
         readyToStart = true;
-        logger
-                .info("############################ Starting test run ############################");
+        logger.info("############################ Starting test run ############################");
         int runTime = conf.getTestDuration() * 1000;
 
         // Interval to be used to log statistics. Graphical stats
@@ -482,8 +484,8 @@ public class Evaluator implements RowFactory, Runnable
                     xml.addAttribute("label", label);
                     xml.addAttribute("time", time);
                     xml.addAttribute("users", s.getThreads());
-                    xml.addAttribute("avgResponseTime", s
-                            .getAverageResponseTime());
+                    xml.addAttribute("avgResponseTime",
+                            s.getAverageResponseTime());
                     xml.addAttribute("queries", s.getQueries());
                     xml.addAttribute("queriesPerSecond",
                             (int) (s.getQueries() / s.getInterval()));
@@ -600,7 +602,6 @@ public class Evaluator implements RowFactory, Runnable
             }
         }
         logger.info("Test run complete");
-        System.exit(0);
     }
 
     private void logStatistics(int interval)
@@ -615,7 +616,7 @@ public class Evaluator implements RowFactory, Runnable
         // stuff works.
         // So this can be addressed later.
         // currentStatusStats.add(delta);
-        //       
+        //
         // if (timeSinceLastStatus < statusInterval)
         // {
         // timeSinceLastStatus += interval;
@@ -626,7 +627,7 @@ public class Evaluator implements RowFactory, Runnable
         // timeSinceLastStatus/1000);
         // currentStatusStats.clear();
         // timeSinceLastStatus = 0;
-        //           
+        //
         // }
 
         // If we don't have enough samples yet, just collect it...
@@ -639,8 +640,7 @@ public class Evaluator implements RowFactory, Runnable
             Statistics average = getStatsAverages(SAMPLES_TO_ACCUMULATE);
             currentSampleCount = 0;
 
-            average
-                    .setInterval(((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
+            average.setInterval(((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
             printStatistics(average, label,
                     ((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
 
@@ -676,12 +676,12 @@ public class Evaluator implements RowFactory, Runnable
     private void printStatistics(Statistics stats, String label, float interval)
     {
         statsList.put(label, stats);
-        System.out.println(getThreads().size() + "/" + stats.getThreads() + "  " +
-                stats.getQueries() / interval
-                + " ops/sec, " + stats.getAverageResponseTime()
-                + " ms/op, " + stats.getRowsRead() + " rows/select,  "
-                + stats.getUpdates() + " updates, " + stats.getDeletes()
-                + " deletes, " + stats.getInserts() + " inserts");
+        System.out.println(getThreads().size() + "/" + stats.getThreads()
+                + "  " + stats.getQueries() / interval + " ops/sec, "
+                + stats.getAverageResponseTime() + " ms/op, "
+                + stats.getRowsRead() + " rows/select,  " + stats.getUpdates()
+                + " updates, " + stats.getDeletes() + " deletes, "
+                + stats.getInserts() + " inserts");
     }
 
     private Statistics collectStatistics()
@@ -974,8 +974,8 @@ public class Evaluator implements RowFactory, Runnable
         {
             logger.debug("DataSource=" + ds.getName()
                     + ", getConnection() to: " + ds.getUrl());
-            conn = DriverManager.getConnection(ds.getUrl(), ds.getUser(), ds
-                    .getPassword());
+            conn = DriverManager.getConnection(ds.getUrl(), ds.getUser(),
+                    ds.getPassword());
             conn.setAutoCommit(ds.isAutoCommit());
             if (!ds.isAutoCommit())
                 conn.commit();
