@@ -24,13 +24,16 @@ package com.continuent.bristlecone.benchmark.scenarios;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.Types;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.continuent.bristlecone.benchmark.Scenario;
 import com.continuent.bristlecone.benchmark.db.Column;
+import com.continuent.bristlecone.benchmark.db.DataGenerator;
 import com.continuent.bristlecone.benchmark.db.SqlDialect;
 import com.continuent.bristlecone.benchmark.db.Table;
 import com.continuent.bristlecone.benchmark.db.TableSet;
@@ -78,8 +81,13 @@ public class PreparedStatementWriteScenario implements Scenario
     /** Number of inserts per batch. */
     protected int               writesPerXact = 1;
 
+
     /** If true, use JDBC batching within each transaction. */
-    protected boolean           jdbcBatching  = false;
+    protected BatchType batchType = BatchType.NONE;
+
+    protected enum BatchType {
+        NONE, JDBC, STATEMENT
+    }    
 
     // Implementation data for scenario
     protected TableSet          tableSet;
@@ -116,9 +124,17 @@ public class PreparedStatementWriteScenario implements Scenario
         this.writesPerXact = writesPerXact;
     }
 
-    public void setJdbcBatching(boolean jdbcBatching)
+    public void setBatchType(String batchType)
     {
-        this.jdbcBatching = jdbcBatching;
+        String type = batchType.toLowerCase();
+        if ("none".equals(type))
+            this.batchType = BatchType.NONE;
+        else if ("jdbc".equals(type))
+            this.batchType = BatchType.JDBC;
+        else if ("statement".equals(type))
+            this.batchType = BatchType.STATEMENT;
+        else
+            throw new RuntimeException("Unrecognized batch type: " + batchType);
     }
 
     public void initialize(Properties properties) throws Exception
@@ -162,26 +178,63 @@ public class PreparedStatementWriteScenario implements Scenario
 
         // Begin transaction. 
         conn.setAutoCommit(false);
+
+        // If we are using statement batching, add a StringBuffer and do it
+        // ourselves. 
+        StringBuffer stmtBuffer = null;
+        if (batchType == BatchType.STATEMENT)
+        {
+            stmtBuffer = new StringBuffer();
+            int valuesIndex = sql.indexOf("(?");
+            stmtBuffer.append(sql.substring(0, valuesIndex));
+        }
         
         // Loop through writes.
         for (int i = 0; i < this.writesPerXact; i++)
         {
-            // Add data.
-            String value = "pstmt_" + Thread.currentThread().getName() + "_"
-                    + iterationCount;
-            helper.generateParameters(tableSet, pstmt);
-            pstmt.setString(2, value);
+            // Add generate data.
+            List<DataGenerator> generators = tableSet.getDataGenerators();
+            Long myKey = (Long) generators.get(0).generate();
+            String myThread = "pstmt_" + Thread.currentThread().getName() + "_"
+            + iterationCount;
+            //String myPayload = (String) generators.get(2).generate();
+            String myPayload = "123456789*";
 
-            // Either batch or execute immediately.
-            if (this.jdbcBatching)
-                pstmt.addBatch();
+            if (batchType == BatchType.STATEMENT)
+            {
+                // Append to a statement batch. 
+                if (i > 0)
+                    stmtBuffer.append(", ");
+                stmtBuffer.append("(");
+                stmtBuffer.append(myKey).append(", ");
+                stmtBuffer.append("'").append(myThread).append("', ");
+                stmtBuffer.append("'").append(myPayload).append("')");
+            }
             else
-                pstmt.executeUpdate();
+            {
+                // Populate a prepared statement. 
+                pstmt.setLong(1, myKey);
+                pstmt.setString(2, myThread);
+                pstmt.setString(3, myPayload);
+
+                // Either batch or execute the prepared statement immediately. 
+                if (batchType == BatchType.JDBC)
+                    pstmt.addBatch();
+                else
+                    pstmt.executeUpdate();
+            }
         }
 
         // If we are batching, submit now.
-        if (this.jdbcBatching)
+        if (batchType == BatchType.JDBC)
             pstmt.executeBatch();
+        else if (batchType == BatchType.STATEMENT)
+        {
+            String bufferedInsert = stmtBuffer.toString();
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(bufferedInsert);
+            stmt.close();
+        }
         
         // Commit transaction. 
         conn.commit();
