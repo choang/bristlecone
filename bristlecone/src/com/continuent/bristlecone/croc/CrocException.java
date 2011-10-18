@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2011 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,32 +16,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
- * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s): Hannu Alamäki
+ * Initial developer(s): Robert Hodges
+ * Contributor(s):
  */
 
-package com.continuent.bristlecone.benchmark.db;
-
-import java.sql.Timestamp;
+package com.continuent.bristlecone.croc;
 
 /**
- * Generates TimeStamp values
+ * An unchecked exception that indicates a serious croc failure. It terminates
+ * the current operation, whatever that may be.
  * 
- * @author alamäki
+ * @author rhodges
  */
-public class DataGeneratorForTimestamp implements DataGenerator
+public class CrocException extends RuntimeException
 {
-    // 40 year interval for date generation in milliseconds.
-    private static long intervalMillis = 40L * 365L * 24L * 3600L * 1000L;
+    private static final long serialVersionUID = 1L;
 
-    public DataGeneratorForTimestamp()
+    public CrocException(String msg)
     {
+        super(msg);
     }
 
-    /** Generate next timestamp. */
-    public Object generate()
+    public CrocException(String msg, Exception e)
     {
-        long timeValue = (long) ((Math.random() * intervalMillis));
-        return new Timestamp(timeValue);
+        super(msg, e);
     }
 }

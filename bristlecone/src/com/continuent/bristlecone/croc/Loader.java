@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2011 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,32 +16,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
- * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s): Hannu Alamäki
+ * Initial developer(s): Robert Hodges
+ * Contributor(s):
  */
 
-package com.continuent.bristlecone.benchmark.db;
+package com.continuent.bristlecone.croc;
 
-import java.sql.Timestamp;
+import java.util.List;
+
+import com.continuent.bristlecone.benchmark.db.Table;
 
 /**
- * Generates TimeStamp values
+ * Interface to a class that can load data into tables for replicator testing.
  * 
- * @author alamäki
+ * @author <a href="mailto:robert.hodges@continuent.com">Robert Hodges</a>
+ * @version 1.0
  */
-public class DataGeneratorForTimestamp implements DataGenerator
+public interface Loader
 {
-    // 40 year interval for date generation in milliseconds.
-    private static long intervalMillis = 40L * 365L * 24L * 3600L * 1000L;
+    /** Return tables this test uses. */
+    public List<Table> getTables();
 
-    public DataGeneratorForTimestamp()
-    {
-    }
-
-    /** Generate next timestamp. */
-    public Object generate()
-    {
-        long timeValue = (long) ((Math.random() * intervalMillis));
-        return new Timestamp(timeValue);
-    }
+    /** Load data into tables. */
+    public void load(CrocContext context);
 }

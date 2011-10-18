@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2011 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,32 +16,30 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
- * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s): Hannu Alamäki
+ * Initial developer(s): Robert Hodges
+ * Contributor(s):
  */
 
-package com.continuent.bristlecone.benchmark.db;
-
-import java.sql.Timestamp;
+package com.continuent.bristlecone.croc;
 
 /**
- * Generates TimeStamp values
+ * Contains shared data for croc runs. 
+ * This class defines a CrocContext
  * 
- * @author alamäki
+ * @author <a href="mailto:jussi-pekka.kurikka@continuent.com">Jussi-Pekka Kurikka</a>
+ * @version 1.0
  */
-public class DataGeneratorForTimestamp implements DataGenerator
+public interface CrocContext
 {
-    // 40 year interval for date generation in milliseconds.
-    private static long intervalMillis = 40L * 365L * 24L * 3600L * 1000L;
+    public String getMasterUrl();
 
-    public DataGeneratorForTimestamp()
-    {
-    }
+    public String getSlaveUrl();
 
-    /** Generate next timestamp. */
-    public Object generate()
-    {
-        long timeValue = (long) ((Math.random() * intervalMillis));
-        return new Timestamp(timeValue);
-    }
+    public String getUser();
+
+    public String getPassword();
+
+    public boolean isDdlReplication();
+
+    public int getTimeout();
 }
