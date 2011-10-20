@@ -80,7 +80,33 @@ Options:
 Notes:
   Test list is a set of croc Loader class names, one per line
 
-4 HACKING CROC
+4 SETUP PECULIRITIES
+
+4.1 MySQL -> PostgreSQL
+
+Here's an example of running tests against heterogeneous topology with MySQL
+and PostgreSQL running on the same host's different ports:
+
+$ scripts/croc.sh \
+  -masterUrl jdbc:mysql://sp:12001/croc \
+  -slaveUrl jdbc:postgresql://sp:54324/postgres \
+  -user tungsten -password secret -timeout 10 -ddlReplication false \
+  -testList config/all.croc
+
+Notes:
+
+* MySQL database corresponds to a PostgreSQL _schema_, hence you will need to
+  create the corresponding schema in the database "postgres" beforehand:
+
+  CREATE SCHEMA croc;
+
+* You need to create the specified DBMS user and assign it the "croc" schema as
+  the default one. That's where the test tables are created. Eg.:
+  
+  CREATE ROLE tungsten WITH SUPERUSER LOGIN;
+  ALTER USER tungsten SET search_path to croc;
+
+5 HACKING CROC
 
 The croc class files are in package com.continuent.bristlecone.croc.
 Sample Loader implementations are in package
@@ -90,7 +116,7 @@ Croc is designed to work across different types of relational
 databases and even between SQL and NoSQL databases at some point.
 So far it has only been tested on MySQL.
 
-5 ABOUT THE NAME
+6 ABOUT THE NAME
 
 "Croc" is short for "crocodile."  Crocodiles have extremely strong
 jaws and do not let go once they have something in them.  We want

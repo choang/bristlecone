@@ -112,6 +112,8 @@ public class SqlDialectForPostgreSQL extends AbstractSqlDialect
         return "bytea";
       case java.sql.Types.CLOB:
         return "text";
+      case java.sql.Types.BIGINT :
+          return "bigint";
       default: 
         return super.implementationTypeName(type);
     }
