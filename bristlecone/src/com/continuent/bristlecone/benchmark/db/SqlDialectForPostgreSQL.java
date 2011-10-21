@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s):
+ * Contributor(s): Linas Virbalas
  */
 
 package com.continuent.bristlecone.benchmark.db;
@@ -112,8 +112,10 @@ public class SqlDialectForPostgreSQL extends AbstractSqlDialect
         return "bytea";
       case java.sql.Types.CLOB:
         return "text";
-      case java.sql.Types.BIGINT :
+      case java.sql.Types.BIGINT:
           return "bigint";
+      case java.sql.Types.DOUBLE:
+          return "double precision";
       default: 
         return super.implementationTypeName(type);
     }
