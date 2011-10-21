@@ -207,6 +207,15 @@ public class TableComparator
             Object o = rs.getObject(col.getName());
             if (o == null)
                 sb.append("NULL");
+            else if (o instanceof Float)
+            {
+                // Floats have precision issues going cross DBMS type.
+                // Reduce decimal places.
+                float dval = (Float) o;
+                BigDecimal bd = new BigDecimal(dval);
+                bd = bd.setScale(17, BigDecimal.ROUND_HALF_UP);
+                bd.toString();                
+            }
             else if (o instanceof Double)
             {
                 // Doubles have precision issues.  Reduce to 17 places. 

@@ -114,6 +114,8 @@ public class SqlDialectForPostgreSQL extends AbstractSqlDialect
         return "text";
       case java.sql.Types.BIGINT:
           return "bigint";
+      case java.sql.Types.FLOAT:
+          return "real";
       case java.sql.Types.DOUBLE:
           return "double precision";
       default: 
