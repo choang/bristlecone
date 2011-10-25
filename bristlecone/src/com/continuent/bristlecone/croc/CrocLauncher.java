@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges
- * Contributor(s):
+ * Contributor(s): Linas Virbalas
  */
 
 package com.continuent.bristlecone.croc;
@@ -48,6 +48,7 @@ public class CrocLauncher
         String user = "tungsten";
         String password = "secret";
         boolean ddlReplication = true;
+        boolean stageTables = false;
         boolean compare = true;
         int timeout = 60;
         String testList = null;
@@ -79,6 +80,10 @@ public class CrocLauncher
             else if ("-ddlReplication".equals(nextArg))
             {
                 ddlReplication = Boolean.parseBoolean(argv[argc++]);
+            }
+            else if ("-stageTables".equals(nextArg))
+            {
+                stageTables = true;
             }
             else if ("-compare".equals(nextArg))
             {
@@ -119,6 +124,7 @@ public class CrocLauncher
             croc.setMasterUrl(masterUrl);
             croc.setSlaveUrl(slaveUrl);
             croc.setDdlReplication(ddlReplication);
+            croc.setStageTables(stageTables);
             croc.setUser(user);
             croc.setPassword(password);
             croc.setDdlReplication(ddlReplication);
@@ -167,6 +173,7 @@ public class CrocLauncher
         println("Options:");
         println("  -compare {true|false}         If true, compare tables (default=true)");
         println("  -ddlReplication {true|false}  If true, DDL replicates (default=true)");
+        println("  -stageTables                  Create staging tables for test tables");
         println("  -masterUrl url                Master db url");
         println("  -password pw                  Db password");
         println("  -slaveUrl url                 Slave db url");

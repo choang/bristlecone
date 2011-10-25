@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s):
+ * Contributor(s): Linas Virbalas
  */
 
 package com.continuent.bristlecone.benchmark.db;
@@ -28,6 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 import org.apache.log4j.Logger;
 
@@ -40,12 +41,17 @@ import com.continuent.bristlecone.benchmark.BenchmarkException;
  */
 public class TableHelper
 {
-    private static Logger      logger = Logger.getLogger(TableHelper.class);
+    private static Logger      logger           = Logger.getLogger(TableHelper.class);
 
     protected final String     connectionUrl;
     protected final String     login;
     protected final String     password;
     protected final SqlDialect sqlDialect;
+
+    // Used with BatchLoader and staged load method.
+    private String             stageTablePrefix = "stage_xxx";
+    private String             stagePkeyColumn  = "id";
+    private String             stageRowIdColumn = "row_id";
 
     /**
      * Creates a new instance.
@@ -107,6 +113,76 @@ public class TableHelper
         }
     }
 
+    /**
+     * Creates staging tables for the base table. Staging tables are used by
+     * Replicator's BatchLoader if using staged load method.
+     * 
+     * @param baseTable Base table for which to create the corresponding staging
+     *            tables.
+     */
+    private void createStageTables(Table baseTable, boolean dropExisting)
+            throws SQLException
+    {
+        String stageInsertName = stageTablePrefix + "_insert_"
+                + baseTable.getName();
+        String stageDeleteName = stageTablePrefix + "_delete_"
+                + baseTable.getName();
+
+        // Create stage table definition for insert by prefixing the base
+        // name, removing PK constraint and adding a stageRowIdColumn column.
+        Table stageInsertTable = baseTable.clone();
+        stageInsertTable.setName(stageInsertName);
+        Column primaryKey = stageInsertTable.getPrimaryKey();
+        if (primaryKey != null)
+            primaryKey.setPrimaryKey(false);
+        Column rowIdColI = new Column(stageRowIdColumn, Types.INTEGER);
+        stageInsertTable.addColumn(rowIdColI);
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Creating test staging table: " + stageInsertName);
+            logger.debug("Table details: " + stageInsertTable);
+        }
+
+        create(stageInsertTable, dropExisting);
+
+        // There's a bug in Table.clone() - it actually did not clone the column
+        // objects, so we must set PK back on.
+        if (primaryKey != null)
+            primaryKey.setPrimaryKey(true);
+
+        // Create stage table definition for delete by prefixing the base
+        // name and adding the primary key and row_id as columns.
+        Table stageDeleteTable = new Table(stageDeleteName);
+        Column pkeyCol = new Column(this.stagePkeyColumn, Types.INTEGER);
+        stageDeleteTable.addColumn(pkeyCol);
+        Column rowIdColD = new Column(stageRowIdColumn, Types.INTEGER);
+        stageDeleteTable.addColumn(rowIdColD);
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Creating test staging table: " + stageDeleteTable);
+            logger.debug("Table details: " + stageDeleteTable);
+        }
+
+        create(stageDeleteTable, dropExisting);
+    }
+    
+    /**
+     * Creates a table from a definition and corresponding staging tables if
+     * needed. Staging tables are used with Replicator's BatchApplier with
+     * staged load method.
+     * 
+     * @param stageTables If true, create the staging tables.
+     * @see {@link #create(Table, boolean)}
+     */
+    public void create(Table baseTable, boolean dropExisting,
+            boolean stageTables) throws SQLException
+    {
+        create(baseTable, dropExisting);
+        createStageTables(baseTable, dropExisting);
+    }
+    
     /**
      * Creates a table from a definition.
      * 

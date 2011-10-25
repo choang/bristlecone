@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges
- * Contributor(s):
+ * Contributor(s): Linas Virbalas
  */
 
 package com.continuent.bristlecone.croc;
@@ -40,26 +40,27 @@ import com.continuent.bristlecone.benchmark.db.TableHelper;
 
 public class Croc implements CrocContext
 {
-    private static Logger   logger         = Logger.getLogger(Croc.class);
+    private static Logger   logger           = Logger.getLogger(Croc.class);
 
     // Properties for croc runs.
-    private String          masterUrl      = null;
-    private String          slaveUrl       = null;
-    private String          user           = "tungsten";
-    private String          password       = "secret";
-    private boolean         ddlReplication = true;
-    private boolean         compare        = true;
-    private int             timeout        = 60;
-    private String          testList       = null;
+    private String          masterUrl        = null;
+    private String          slaveUrl         = null;
+    private String          user             = "tungsten";
+    private String          password         = "secret";
+    private boolean         ddlReplication   = true;
+    private boolean         stageTables      = true;
+    private boolean         compare          = true;
+    private int             timeout          = 60;
+    private String          testList         = null;
 
     // Runtime parameters.
-    private List<Loader>    tests          = new ArrayList<Loader>();
+    private List<Loader>    tests            = new ArrayList<Loader>();
     private LivenessChecker checker;
     private TableComparator comparator;
 
     // Results.
-    int                     tried          = 0;
-    int                     failed         = 0;
+    int                     tried            = 0;
+    int                     failed           = 0;
 
     /** Create a new Croc instance. */
     public Croc()
@@ -114,6 +115,11 @@ public class Croc implements CrocContext
     public synchronized void setDdlReplication(boolean ddlReplication)
     {
         this.ddlReplication = ddlReplication;
+    }
+    
+    public synchronized void setStageTables(boolean stageTables)
+    {
+        this.stageTables = stageTables;
     }
 
     public synchronized boolean isCompare()
@@ -219,6 +225,7 @@ public class Croc implements CrocContext
         checker.setUser(user);
         checker.setPassword(password);
         checker.setDdlReplication(ddlReplication);
+        checker.setStageTables(stageTables);
         try
         {
             checker.prepare();
@@ -290,7 +297,8 @@ public class Croc implements CrocContext
         List<Table> tables = crocRun.getTables();
         for (Table table : tables)
         {
-            createTable(masterUrl, table);
+            // Do not create staging tables on master.
+            createTable(masterUrl, table, false);
         }
 
         // Create slave tables if desired.
@@ -298,7 +306,9 @@ public class Croc implements CrocContext
         {
             for (Table table : tables)
             {
-                createTable(slaveUrl, table);
+                // If Replicator is using BatchLoader with stage method, create
+                // the staging tables too.
+                createTable(slaveUrl, table, stageTables);
             }
         }
 
@@ -391,7 +401,7 @@ public class Croc implements CrocContext
     }
 
     // Create a test table.
-    public void createTable(String url, Table table)
+    public void createTable(String url, Table table, boolean stageTables)
     {
         if (logger.isDebugEnabled())
         {
@@ -401,7 +411,7 @@ public class Croc implements CrocContext
         TableHelper helper = new TableHelper(url, user, password);
         try
         {
-            helper.create(table, true);
+            helper.create(table, true, stageTables);
         }
         catch (SQLException e)
         {

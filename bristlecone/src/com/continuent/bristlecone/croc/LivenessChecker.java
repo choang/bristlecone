@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges
- * Contributor(s):
+ * Contributor(s): Linas Virbalas
  */
 
 package com.continuent.bristlecone.croc;
@@ -52,6 +52,7 @@ public class LivenessChecker
     private String              user           = "tungsten";
     private String              password       = "secret";
     private boolean             ddlReplication = true;
+    private boolean             stageTables    = false;
 
     // Heartbeat table and database access variables.
     private Table               heartbeatTab;
@@ -94,6 +95,11 @@ public class LivenessChecker
     public synchronized void setDdlReplication(boolean ddlReplication)
     {
         this.ddlReplication = ddlReplication;
+    }
+    
+    public synchronized void setStageTables(boolean stageTables)
+    {
+        this.stageTables = stageTables;
     }
 
     /**
@@ -145,7 +151,7 @@ public class LivenessChecker
         {
             logger.info("Creating slave heartbeat table: "
                     + heartbeatTab.getName());
-            slaveTableHelper.create(heartbeatTab, true);
+            slaveTableHelper.create(heartbeatTab, true, stageTables);
         }
         slaveStmt = slaveConn.createStatement();
         selectSQL = "SELECT seqno FROM monitor_heartbeat WHERE id=" + key;
