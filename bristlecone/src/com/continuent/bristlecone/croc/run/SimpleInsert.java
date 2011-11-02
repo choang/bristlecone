@@ -80,7 +80,8 @@ public class SimpleInsert implements Loader
         Connection conn = null;
         PreparedStatement pstmt = null;
         TableHelper helper = new TableHelper(context.getMasterUrl(),
-                context.getUser(), context.getPassword());
+                context.getMasterUser(), context.getMasterPassword(),
+                context.getDefaultSchema());
         try
         {
             // Set up connection and prepared statement.

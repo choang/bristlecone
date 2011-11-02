@@ -23,12 +23,12 @@
 package com.continuent.bristlecone.croc;
 
 /**
- * An unchecked exception that indicates a serious croc failure. It terminates
- * the current operation, whatever that may be.
+ * An exception that indicates a single test failure. It terminates the current
+ * test but does not terminate the croc run.
  * 
  * @author rhodges
  */
-public class CrocException extends RuntimeException
+public class CrocException extends Exception
 {
     private static final long serialVersionUID = 1L;
 

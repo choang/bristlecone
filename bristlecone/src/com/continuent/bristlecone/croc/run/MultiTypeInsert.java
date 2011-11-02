@@ -39,15 +39,15 @@ import com.continuent.bristlecone.croc.CrocException;
 import com.continuent.bristlecone.croc.Loader;
 
 /**
- * This class defines a loader that tests inserts across multiple data types. 
+ * This class defines a loader that tests inserts across multiple data types.
  * 
  * @author <a href="mailto:robert.hodges@continuent.com">Robert Hodges</a>
  * @version 1.0
  */
 public class MultiTypeInsert implements Loader
 {
-    Table multiTable;
-    DataGenerator fCharGenerator; 
+    Table         multiTable;
+    DataGenerator fCharGenerator;
     DataGenerator fVarcharGenerator;
     DataGenerator fDatetimeGenerator;
     DataGenerator fDateGenerator;
@@ -55,37 +55,37 @@ public class MultiTypeInsert implements Loader
     /** Instantiate and load tables. */
     public MultiTypeInsert()
     {
-        // Define table. 
+        // Define table.
         multiTable = new Table("multi_type_insert");
         Column id = new Column();
         id.setName("id");
         id.setType(Types.INTEGER);
         id.setPrimaryKey(true);
         multiTable.addColumn(id);
-        
+
         Column fChar = new Column();
         fChar.setName("f_char");
         fChar.setType(Types.CHAR);
         fChar.setLength(10);
         multiTable.addColumn(fChar);
-        
+
         Column fVarchar = new Column();
         fVarchar.setName("f_varchar");
         fVarchar.setType(Types.VARCHAR);
         fVarchar.setLength(10);
         multiTable.addColumn(fVarchar);
-        
+
         Column fDatetime = new Column();
         fDatetime.setName("f_datetime");
         fDatetime.setType(Types.TIMESTAMP);
         multiTable.addColumn(fDatetime);
-        
+
         Column fDate = new Column();
         fDate.setName("f_date");
         fDate.setType(Types.DATE);
         multiTable.addColumn(fDate);
-        
-        // Allocate data generators. 
+
+        // Allocate data generators.
         DataGeneratorFactory factory = DataGeneratorFactory.getInstance();
         fCharGenerator = factory.getGenerator(fChar);
         fVarcharGenerator = factory.getGenerator(fVarchar);
@@ -115,7 +115,8 @@ public class MultiTypeInsert implements Loader
         Connection conn = null;
         PreparedStatement pstmt = null;
         TableHelper helper = new TableHelper(context.getMasterUrl(),
-                context.getUser(), context.getPassword());
+                context.getMasterUser(), context.getMasterPassword(),
+                context.getDefaultSchema());
         try
         {
             // Set up connection and prepared statement.

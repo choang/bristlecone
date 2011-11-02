@@ -35,32 +35,37 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.continuent.bristlecone.benchmark.db.SqlDialect;
+import com.continuent.bristlecone.benchmark.db.SqlDialectFactory;
 import com.continuent.bristlecone.benchmark.db.Table;
 import com.continuent.bristlecone.benchmark.db.TableHelper;
 
 public class Croc implements CrocContext
 {
-    private static Logger   logger           = Logger.getLogger(Croc.class);
+    private static Logger   logger         = Logger.getLogger(Croc.class);
 
     // Properties for croc runs.
-    private String          masterUrl        = null;
-    private String          slaveUrl         = null;
-    private String          user             = "tungsten";
-    private String          password         = "secret";
-    private boolean         ddlReplication   = true;
-    private boolean         stageTables      = true;
-    private boolean         compare          = true;
-    private int             timeout          = 60;
-    private String          testList         = null;
+    private String          masterUrl      = null;
+    private String          masterUser     = "tungsten";
+    private String          masterPassword = "secret";
+    private String          slaveUrl       = null;
+    private String          slaveUser      = "tungsten";
+    private String          slavePassword  = "secret";
+    private String          defaultSchema  = null;
+    private boolean         ddlReplication = true;
+    private boolean         stageTables    = true;
+    private boolean         compare        = true;
+    private int             timeout        = 60;
+    private String          testList       = null;
 
     // Runtime parameters.
-    private List<Loader>    tests            = new ArrayList<Loader>();
+    private List<Loader>    tests          = new ArrayList<Loader>();
     private LivenessChecker checker;
     private TableComparator comparator;
 
     // Results.
-    int                     tried            = 0;
-    int                     failed           = 0;
+    int                     tried          = 0;
+    int                     failed         = 0;
 
     /** Create a new Croc instance. */
     public Croc()
@@ -87,24 +92,56 @@ public class Croc implements CrocContext
         this.slaveUrl = slaveUrl;
     }
 
-    public synchronized String getUser()
-    {
-        return user;
-    }
-
     public synchronized void setUser(String user)
     {
-        this.user = user;
-    }
-
-    public synchronized String getPassword()
-    {
-        return password;
+        this.masterUser = user;
+        this.slaveUser = user;
     }
 
     public synchronized void setPassword(String password)
     {
-        this.password = password;
+        this.masterPassword = password;
+        this.slavePassword = password;
+    }
+
+    public synchronized String getMasterUser()
+    {
+        return masterUser;
+    }
+
+    public synchronized void setMasterUser(String user)
+    {
+        this.masterUser = user;
+    }
+
+    public synchronized String getMasterPassword()
+    {
+        return masterPassword;
+    }
+
+    public synchronized void setMasterPassword(String password)
+    {
+        this.masterPassword = password;
+    }
+
+    public synchronized String getSlaveUser()
+    {
+        return slaveUser;
+    }
+
+    public synchronized void setSlaveUser(String slaveUser)
+    {
+        this.slaveUser = slaveUser;
+    }
+
+    public synchronized String getSlavePassword()
+    {
+        return slavePassword;
+    }
+
+    public synchronized void setSlavePassword(String slavePassword)
+    {
+        this.slavePassword = slavePassword;
     }
 
     public synchronized boolean isDdlReplication()
@@ -116,7 +153,12 @@ public class Croc implements CrocContext
     {
         this.ddlReplication = ddlReplication;
     }
-    
+
+    public synchronized boolean isStageTables()
+    {
+        return stageTables;
+    }
+
     public synchronized void setStageTables(boolean stageTables)
     {
         this.stageTables = stageTables;
@@ -142,6 +184,16 @@ public class Croc implements CrocContext
         this.timeout = timeout;
     }
 
+    public synchronized String getDefaultSchema()
+    {
+        return defaultSchema;
+    }
+
+    public synchronized void setDefaultSchema(String defaultSchema)
+    {
+        this.defaultSchema = defaultSchema;
+    }
+
     public synchronized String getTestList()
     {
         return testList;
@@ -159,9 +211,11 @@ public class Croc implements CrocContext
     {
         // Vet options.
         assertPropertyNotNull("masterUrl", masterUrl);
+        assertPropertyNotNull("masterUser", masterUser);
+        assertPropertyNotNull("masterPassword", masterPassword);
         assertPropertyNotNull("slaveUrl", slaveUrl);
-        assertPropertyNotNull("user", user);
-        assertPropertyNotNull("password", password);
+        assertPropertyNotNull("slaveUser", slaveUser);
+        assertPropertyNotNull("slavePassword", slavePassword);
         assertPropertyNotNull("testList", testList);
 
         // Load and instantiate tests.
@@ -188,67 +242,61 @@ public class Croc implements CrocContext
         }
         catch (FileNotFoundException e)
         {
-            throw new CrocException("Unable to read test list: "
+            throw new CrocError("Unable to read test list: "
                     + testListFile.getAbsolutePath(), e);
         }
         catch (IOException e)
         {
-            throw new CrocException("Unable to read test list: "
+            throw new CrocError("Unable to read test list: "
                     + testListFile.getAbsolutePath(), e);
         }
         catch (ClassNotFoundException e)
         {
-            throw new CrocException("Unable to instantiate test class: "
+            throw new CrocError("Unable to instantiate test class: "
                     + className, e);
         }
         catch (IllegalAccessException e)
         {
-            throw new CrocException("Unable to instantiate test class: "
+            throw new CrocError("Unable to instantiate test class: "
                     + className, e);
         }
         catch (InstantiationException e)
         {
-            throw new CrocException("Unable to instantiate test class: "
+            throw new CrocError("Unable to instantiate test class: "
                     + className, e);
         }
 
+        // Load JDBC driver(s).
+        loadJdbcDriver(masterUrl);
+        loadJdbcDriver(slaveUrl);
+
         // Check database liveness.
-        Connection m = getJdbcConnection(masterUrl);
+        Connection m = getJdbcConnection(masterUrl, masterUser, masterPassword);
         this.releaseJdbcConnection(m);
-        Connection s = getJdbcConnection(slaveUrl);
+        Connection s = getJdbcConnection(slaveUrl, slaveUser, slavePassword);
         this.releaseJdbcConnection(s);
 
         // Create a replication liveness checker.
-        this.checker = new LivenessChecker();
-        checker.setMasterUrl(masterUrl);
-        checker.setSlaveUrl(slaveUrl);
-        checker.setUser(user);
-        checker.setPassword(password);
-        checker.setDdlReplication(ddlReplication);
-        checker.setStageTables(stageTables);
+        this.checker = new LivenessChecker(this);
         try
         {
             checker.prepare();
         }
         catch (Exception e)
         {
-            throw new CrocException("Unable to set up liveness checker: "
+            throw new CrocError("Unable to set up liveness checker: "
                     + e.getMessage(), e);
         }
 
         // Create a table comparator.
-        this.comparator = new TableComparator();
-        comparator.setMasterUrl(masterUrl);
-        comparator.setSlaveUrl(slaveUrl);
-        comparator.setUser(user);
-        comparator.setPassword(password);
+        this.comparator = new TableComparator(this);
         try
         {
             comparator.prepare();
         }
         catch (Exception e)
         {
-            throw new CrocException("Unable to set up comparator: "
+            throw new CrocError("Unable to set up comparator: "
                     + e.getMessage(), e);
         }
 
@@ -262,12 +310,29 @@ public class Croc implements CrocContext
             try
             {
                 long start = System.currentTimeMillis();
-                boolean result = doRun(run);
+                boolean result = false;
+                CrocException exception = null;
+                try
+                {
+                    result = doRun(run);
+                }
+                catch (CrocException e)
+                {
+                    exception = e;
+                }
                 long end = System.currentTimeMillis();
                 double duration = (end - start) / 1000.0;
+
+                // Print result.
                 if (result)
                 {
                     logger.info("RUN (" + duration + ") " + name + " OK");
+                }
+                else if (exception != null)
+                {
+                    logger.info("RUN (" + duration + ") " + name
+                            + " FAIL/EXCEPTION");
+                    failed++;
                 }
                 else
                 {
@@ -275,9 +340,10 @@ public class Croc implements CrocContext
                     failed++;
                 }
             }
-            catch (CrocException e)
+            catch (CrocError e)
             {
-                logger.error("Case failed due to exception: " + name);
+                logger.error("Test run failed due to exception on test: "
+                        + name);
                 throw e;
             }
         }
@@ -297,8 +363,7 @@ public class Croc implements CrocContext
         List<Table> tables = crocRun.getTables();
         for (Table table : tables)
         {
-            // Do not create staging tables on master.
-            createTable(masterUrl, table, false);
+            createTable(masterUrl, masterUser, masterPassword, table, false);
         }
 
         // Create slave tables if desired.
@@ -308,7 +373,8 @@ public class Croc implements CrocContext
             {
                 // If Replicator is using BatchLoader with stage method, create
                 // the staging tables too.
-                createTable(slaveUrl, table, stageTables);
+                createTable(slaveUrl, slaveUser, slavePassword, table,
+                        stageTables);
             }
         }
 
@@ -333,8 +399,7 @@ public class Croc implements CrocContext
         }
         else
         {
-            throw new CrocException(
-                    "Replication is not live after table creation");
+            throw new CrocException("Replication is not live after data load");
         }
 
         // Compare tables.
@@ -366,16 +431,47 @@ public class Croc implements CrocContext
 
     // Ensure String property is not null.
     private void assertPropertyNotNull(String name, String value)
-            throws CrocException
+            throws CrocError
     {
         if (value == null)
         {
-            throw new CrocException("Property may not be null: " + name);
+            throw new CrocError("Property may not be null: " + name);
+        }
+    }
+
+    // Load driver corresponding to a particular URL type.
+    public void loadJdbcDriver(String url)
+    {
+        // Get the proper dialect, which should know the driver.
+        SqlDialectFactory dialectFactory = SqlDialectFactory.getInstance();
+        SqlDialect dialect = dialectFactory.getDialect(url);
+        if (dialect == null)
+        {
+            logger.warn("Unable to find driver for url: " + url);
+            return;
+        }
+
+        // Find the driver name from the dialect class.
+        String driver = dialect.getDriver();
+        if (driver == null)
+        {
+            logger.warn("Sql dialect for URL does not specify a driver: " + url);
+            return;
+        }
+
+        // Now load the driver.
+        try
+        {
+            Class.forName(driver);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new CrocError("Unable to load driver: " + driver, e);
         }
     }
 
     // Get a database connection.
-    public Connection getJdbcConnection(String url)
+    public Connection getJdbcConnection(String url, String user, String password)
     {
         try
         {
@@ -383,7 +479,7 @@ public class Croc implements CrocContext
         }
         catch (SQLException e)
         {
-            throw new CrocException("Unable to connect to database: " + url, e);
+            throw new CrocError("Unable to connect to database: " + url, e);
         }
     }
 
@@ -401,22 +497,22 @@ public class Croc implements CrocContext
     }
 
     // Create a test table.
-    public void createTable(String url, Table table, boolean stageTables)
+    public void createTable(String url, String user, String password,
+            Table table, boolean stageTables)
     {
         if (logger.isDebugEnabled())
         {
             logger.debug("Creating test table: " + table.getName());
             logger.debug("Table details: " + table);
         }
-        TableHelper helper = new TableHelper(url, user, password);
+        TableHelper helper = new TableHelper(url, user, password, defaultSchema);
         try
         {
             helper.create(table, true, stageTables);
         }
         catch (SQLException e)
         {
-            throw new CrocException("Unable to create table: "
-                    + table.getName(), e);
+            throw new CrocError("Unable to create table: " + table.getName(), e);
         }
     }
 }

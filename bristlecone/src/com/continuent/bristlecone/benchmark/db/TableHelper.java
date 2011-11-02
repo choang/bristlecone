@@ -46,6 +46,7 @@ public class TableHelper
     protected final String     connectionUrl;
     protected final String     login;
     protected final String     password;
+    protected final String     defaultSchema;
     protected final SqlDialect sqlDialect;
 
     // Used with BatchLoader and staged load method.
@@ -64,9 +65,26 @@ public class TableHelper
      */
     public TableHelper(String url, String login, String password)
     {
+        this(url, login, password, null);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param url JDBC URL of database where tables live
+     * @param login
+     * @param password
+     * @param defaultSchema
+     * @throws BenchmarkException If JDBC driver cannot be loaded or we can't
+     *             find the SqlDialect.
+     */
+    public TableHelper(String url, String login, String password,
+            String defaultSchema)
+    {
         this.connectionUrl = url;
         this.login = login;
         this.password = password;
+        this.defaultSchema = defaultSchema;
         this.sqlDialect = SqlDialectFactory.getInstance().getDialect(url);
         loadDriver(sqlDialect.getDriver());
     }
@@ -167,7 +185,7 @@ public class TableHelper
 
         create(stageDeleteTable, dropExisting);
     }
-    
+
     /**
      * Creates a table from a definition and corresponding staging tables if
      * needed. Staging tables are used with Replicator's BatchApplier with
@@ -180,9 +198,10 @@ public class TableHelper
             boolean stageTables) throws SQLException
     {
         create(baseTable, dropExisting);
-        createStageTables(baseTable, dropExisting);
+        if (stageTables)
+            createStageTables(baseTable, dropExisting);
     }
-    
+
     /**
      * Creates a table from a definition.
      * 
@@ -216,6 +235,15 @@ public class TableHelper
                         stmt.execute(createSql);
                     }
                 }
+            }
+
+            // If additional command to create table is necessary, execute it
+            // now.
+            if (sqlDialect.implementationSupportsSupplementaryTableDdl())
+            {
+                String supplementaryDdl = sqlDialect
+                        .getSupplementaryTableDdl(table);
+                stmt.execute(supplementaryDdl);
             }
         }
         catch (SQLException e)
@@ -329,10 +357,30 @@ public class TableHelper
     {
         // Connect to database.
         logger.debug("Connecting to database: url=" + connectionUrl + " user="
-                + login);
+                + login + " schema=" + defaultSchema);
         Connection conn = DriverManager.getConnection(connectionUrl, login,
                 password);
-        logger.debug("Obtained database connection: " + conn);
+
+        // Set default schema if there is one.
+        if (defaultSchema != null)
+        {
+            // Execute a statement to get the schema.
+            String setDefaultSchema = sqlDialect
+                    .getSetDefaultSchema(defaultSchema);
+            Statement stmt = conn.createStatement();
+            try
+            {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Setting default schema: " + setDefaultSchema);
+                }
+                stmt.execute(setDefaultSchema);
+            }
+            finally
+            {
+                releaseStatement(stmt);
+            }
+        }
         return conn;
     }
 

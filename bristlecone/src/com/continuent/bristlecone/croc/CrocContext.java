@@ -23,23 +23,31 @@
 package com.continuent.bristlecone.croc;
 
 /**
- * Contains shared data for croc runs. 
- * This class defines a CrocContext
+ * Contains shared data for croc runs. This class defines a CrocContext
  * 
- * @author <a href="mailto:jussi-pekka.kurikka@continuent.com">Jussi-Pekka Kurikka</a>
+ * @author <a href="mailto:jussi-pekka.kurikka@continuent.com">Jussi-Pekka
+ *         Kurikka</a>
  * @version 1.0
  */
 public interface CrocContext
 {
     public String getMasterUrl();
 
+    public String getMasterUser();
+
+    public String getMasterPassword();
+
     public String getSlaveUrl();
 
-    public String getUser();
+    public String getSlaveUser();
 
-    public String getPassword();
+    public String getSlavePassword();
+
+    public String getDefaultSchema();
 
     public boolean isDdlReplication();
 
     public int getTimeout();
+    
+    public boolean isStageTables();
 }

@@ -44,15 +44,10 @@ import com.continuent.bristlecone.benchmark.db.TableHelper;
  */
 public class LivenessChecker
 {
-    private static final Logger logger         = Logger.getLogger(LivenessChecker.class);
+    private static final Logger logger       = Logger.getLogger(LivenessChecker.class);
 
     // Parameters.
-    private String              masterUrl      = null;
-    private String              slaveUrl       = null;
-    private String              user           = "tungsten";
-    private String              password       = "secret";
-    private boolean             ddlReplication = true;
-    private boolean             stageTables    = false;
+    CrocContext                 context;
 
     // Heartbeat table and database access variables.
     private Table               heartbeatTab;
@@ -61,45 +56,16 @@ public class LivenessChecker
     private Connection          slaveConn;
     private Statement           slaveStmt;
     private String              selectSQL;
-    private long                currentSeqno   = 0;
+    private long                currentSeqno = 0;
 
     // Random test key used to prevent lamentable failures due to
     // confused replication.
     private int                 key;
 
     /** Create a new liveness checker. */
-    public LivenessChecker()
+    public LivenessChecker(CrocContext context)
     {
-    }
-
-    public synchronized void setMasterUrl(String masterUrl)
-    {
-        this.masterUrl = masterUrl;
-    }
-
-    public synchronized void setSlaveUrl(String slaveUrl)
-    {
-        this.slaveUrl = slaveUrl;
-    }
-
-    public synchronized void setUser(String user)
-    {
-        this.user = user;
-    }
-
-    public synchronized void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    public synchronized void setDdlReplication(boolean ddlReplication)
-    {
-        this.ddlReplication = ddlReplication;
-    }
-    
-    public synchronized void setStageTables(boolean stageTables)
-    {
-        this.stageTables = stageTables;
+        this.context = context;
     }
 
     /**
@@ -133,8 +99,9 @@ public class LivenessChecker
         // Open connection to master and create table.
         logger.info("Creating master heartbeat table: "
                 + heartbeatTab.getName());
-        TableHelper masterTableHelper = new TableHelper(masterUrl, user,
-                password);
+        TableHelper masterTableHelper = new TableHelper(context.getMasterUrl(),
+                context.getMasterUser(), context.getMasterPassword(),
+                context.getDefaultSchema());
         masterTableHelper.create(heartbeatTab, true);
         masterConn = masterTableHelper.getConnection();
 
@@ -145,13 +112,16 @@ public class LivenessChecker
 
         // Create statement to read from the table on the slave. If there is no
         // DDL replication create the slave table explicitly.
-        TableHelper slaveTableHelper = new TableHelper(slaveUrl, user, password);
+        TableHelper slaveTableHelper = new TableHelper(context.getSlaveUrl(),
+                context.getSlaveUser(), context.getSlavePassword(),
+                context.getDefaultSchema());
         slaveConn = slaveTableHelper.getConnection();
-        if (!ddlReplication)
+        if (!context.isDdlReplication())
         {
             logger.info("Creating slave heartbeat table: "
                     + heartbeatTab.getName());
-            slaveTableHelper.create(heartbeatTab, true, stageTables);
+            slaveTableHelper
+                    .create(heartbeatTab, true, context.isStageTables());
         }
         slaveStmt = slaveConn.createStatement();
         selectSQL = "SELECT seqno FROM monitor_heartbeat WHERE id=" + key;

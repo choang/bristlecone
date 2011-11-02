@@ -23,40 +23,50 @@
 package com.continuent.bristlecone.benchmark.db;
 
 /**
- * Derby embedded SQL dialect information. 
+ * Derby embedded SQL dialect information.
  * 
  * @author rhodges
  */
 public class SqlDialectForDerby extends AbstractSqlDialect
 {
-  /** Return the HSQLDB driver. */
-  public String getDriver()
-  {
-    return "org.apache.derby.jdbc.EmbeddedDriver";
-  }
+    /** Return the HSQLDB driver. */
+    public String getDriver()
+    {
+        return "org.apache.derby.jdbc.EmbeddedDriver";
+    }
 
-  /** Returns true if the JDBC URL looks like a Derby URL. */
-  public boolean supportsJdbcUrl(String url)
-  {
-    return (url.startsWith("jdbc:derby"));
-  }
-  
-  /** 
-   * HSQLDB uses "identity" as keyword for auto_increment. 
-   */
-  public String implementationAutoIncrementKeyword()
-  {
-    return "identity";
-  }
-  
-  /** Add support for specialized Derby type names. */
-  public String implementationTypeName(int type)
-  {
-    return super.implementationTypeName(type);
-  }
-  
-  public String implementationSpecificSuffix(Column c)
-  {    
-      return super.implementationSpecifcSuffix(c);     
-  }
+    /** Returns true if the JDBC URL looks like a Derby URL. */
+    public boolean supportsJdbcUrl(String url)
+    {
+        return (url.startsWith("jdbc:derby"));
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.continuent.bristlecone.benchmark.db.SqlDialect#getSetDefaultSchema(java.lang.String)
+     */
+    public String getSetDefaultSchema(String schema)
+    {
+        return "SET CURRENT SCHEMA=" + schema;
+    }
+
+    /**
+     * HSQLDB uses "identity" as keyword for auto_increment.
+     */
+    public String implementationAutoIncrementKeyword()
+    {
+        return "identity";
+    }
+
+    /** Add support for specialized Derby type names. */
+    public String implementationTypeName(int type)
+    {
+        return super.implementationTypeName(type);
+    }
+
+    public String implementationSpecificSuffix(Column c)
+    {
+        return super.implementationSpecifcSuffix(c);
+    }
 }

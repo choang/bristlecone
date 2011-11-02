@@ -44,9 +44,14 @@ public class CrocLauncher
     public static void main(String argv[]) throws Exception
     {
         String masterUrl = null;
+        String masterUser = null;
+        String masterPassword = null;
         String slaveUrl = null;
-        String user = "tungsten";
-        String password = "secret";
+        String slaveUser = null;
+        String slavePassword = null;
+        String user = null;
+        String password = null;
+        String defaultSchema = null;
         boolean ddlReplication = true;
         boolean stageTables = false;
         boolean compare = true;
@@ -65,9 +70,25 @@ public class CrocLauncher
             {
                 masterUrl = argv[argc++];
             }
+            else if ("-masterUser".equals(nextArg))
+            {
+                masterUser = argv[argc++];
+            }
+            else if ("-masterPassword".equals(nextArg))
+            {
+                masterPassword = argv[argc++];
+            }
             else if ("-slaveUrl".equals(nextArg))
             {
                 slaveUrl = argv[argc++];
+            }
+            else if ("-slaveUser".equals(nextArg))
+            {
+                slaveUser = argv[argc++];
+            }
+            else if ("-slavePassword".equals(nextArg))
+            {
+                slavePassword = argv[argc++];
             }
             else if ("-user".equals(nextArg))
             {
@@ -76,6 +97,10 @@ public class CrocLauncher
             else if ("-password".equals(nextArg))
             {
                 password = argv[argc++];
+            }
+            else if ("-defaultSchema".equals(nextArg))
+            {
+                defaultSchema = argv[argc++];
             }
             else if ("-ddlReplication".equals(nextArg))
             {
@@ -122,11 +147,23 @@ public class CrocLauncher
             logger.info("Initiating...");
             Croc croc = new Croc();
             croc.setMasterUrl(masterUrl);
+            if (masterUser != null)
+                croc.setMasterUser(masterUser);
+            if (masterPassword != null)
+                croc.setMasterPassword(masterPassword);
             croc.setSlaveUrl(slaveUrl);
+            if (slaveUser != null)
+                croc.setSlaveUser(slaveUser);
+            if (slavePassword != null)
+                croc.setSlavePassword(slavePassword);
             croc.setDdlReplication(ddlReplication);
             croc.setStageTables(stageTables);
-            croc.setUser(user);
-            croc.setPassword(password);
+            if (user != null)
+                croc.setUser(user);
+            if (password != null)
+                croc.setPassword(password);
+            if (defaultSchema != null)
+                croc.setDefaultSchema(defaultSchema);
             croc.setDdlReplication(ddlReplication);
             croc.setCompare(compare);
             croc.setTimeout(timeout);
@@ -134,7 +171,7 @@ public class CrocLauncher
 
             croc.run();
         }
-        catch (CrocException e)
+        catch (CrocError e)
         {
             logger.fatal("ERROR: " + e.getMessage());
             if (verbose)
@@ -174,12 +211,17 @@ public class CrocLauncher
         println("  -compare {true|false}         If true, compare tables (default=true)");
         println("  -ddlReplication {true|false}  If true, DDL replicates (default=true)");
         println("  -stageTables                  Create staging tables for test tables");
+        println("  -masterPassword password      Master db password");
         println("  -masterUrl url                Master db url");
-        println("  -password pw                  Db password");
+        println("  -masterUser user              Master db user");
+        println("  -password pw                  Db password (overrides master and slave)");
+        println("  -slavePassword password       Slave db password");
         println("  -slaveUrl url                 Slave db url");
+        println("  -slaveUser user               Slave db user");
         println("  -testList file                File containing list of tests");
         println("  -timeout secs                 Time out to wait for replication (default=60)");
-        println("  -user user                    Db login");
+        println("  -user user                    Db user (overrides master and slave)");
+        println("  -defaultSchema schema         Default schema name (required for PostgreSQL)");
         println("  -verbose                      Print verbose error output");
         println("  -help                         Print usage and exit");
         println("Notes:");

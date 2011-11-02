@@ -23,48 +23,59 @@
 package com.continuent.bristlecone.benchmark.db;
 
 /**
- * Hypersonic DBMS dialect information. 
+ * Hypersonic DBMS dialect information.
  * 
  * @author rhodges
  */
 public class SqlDialectForHSQLDB extends AbstractSqlDialect
 {
-  /** Return the HSQLDB driver. */
-  public String getDriver()
-  {
-    return "org.hsqldb.jdbcDriver";
-  }
-
-  /** Returns true if the JDBC URL looks like a PostgreSQL URL. */
-  public boolean supportsJdbcUrl(String url)
-  {
-    return (url.startsWith("jdbc:hsqldb"));
-  }
-  
-  /** 
-   * HSQLDB uses "identity" as keyword for auto_increment. 
-   */
-  public String implementationAutoIncrementKeyword()
-  {
-    return "identity";
-  }
-  
-  /** Add support for specialized PostgreSQL BLOB/CLOB names. */
-  public String implementationTypeName(int type)
-  {
-    switch (type)
+    /** Return the HSQLDB driver. */
+    public String getDriver()
     {
-      case java.sql.Types.BLOB: 
-        return "longvarbinary";
-      case java.sql.Types.CLOB:
-        return "longvarchar";
-      default: 
-        return super.implementationTypeName(type);
+        return "org.hsqldb.jdbcDriver";
     }
-  }
-  public String implementationSpecificSuffix(Column c)
-  {    
-      return super.implementationSpecifcSuffix(c);     
-  }
+
+    /** Returns true if the JDBC URL looks like a PostgreSQL URL. */
+    public boolean supportsJdbcUrl(String url)
+    {
+        return (url.startsWith("jdbc:hsqldb"));
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.continuent.bristlecone.benchmark.db.SqlDialect#getSetDefaultSchema(java.lang.String)
+     */
+    public String getSetDefaultSchema(String schema)
+    {
+        return "SET SCHEMA " + schema;
+    }
+
+    /**
+     * HSQLDB uses "identity" as keyword for auto_increment.
+     */
+    public String implementationAutoIncrementKeyword()
+    {
+        return "identity";
+    }
+
+    /** Add support for specialized PostgreSQL BLOB/CLOB names. */
+    public String implementationTypeName(int type)
+    {
+        switch (type)
+        {
+            case java.sql.Types.BLOB :
+                return "longvarbinary";
+            case java.sql.Types.CLOB :
+                return "longvarchar";
+            default :
+                return super.implementationTypeName(type);
+        }
+    }
+
+    public String implementationSpecificSuffix(Column c)
+    {
+        return super.implementationSpecifcSuffix(c);
+    }
 
 }

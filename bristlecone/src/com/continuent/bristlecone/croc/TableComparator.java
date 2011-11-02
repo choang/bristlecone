@@ -35,20 +35,17 @@ import com.continuent.bristlecone.benchmark.db.Table;
 import com.continuent.bristlecone.benchmark.db.TableHelper;
 
 /**
- * Implements a comparator function that can check the contents of 
- * tables in different databases. 
+ * Implements a comparator function that can check the contents of tables in
+ * different databases.
  * 
  * @author rhodges
  */
 public class TableComparator
 {
-    private static final Logger logger    = Logger.getLogger(TableComparator.class);
+    private static final Logger logger = Logger.getLogger(TableComparator.class);
 
     // Parameters.
-    private String              masterUrl = null;
-    private String              slaveUrl  = null;
-    private String              user      = "tungsten";
-    private String              password  = "secret";
+    CrocContext                 context;
 
     // Connection parameters.
     private TableHelper         masterTableHelper;
@@ -59,28 +56,9 @@ public class TableComparator
     private Statement           slaveStmt;
 
     /** Create a new table comparator. */
-    public TableComparator()
+    public TableComparator(CrocContext context)
     {
-    }
-
-    public synchronized void setMasterUrl(String masterUrl)
-    {
-        this.masterUrl = masterUrl;
-    }
-
-    public synchronized void setSlaveUrl(String slaveUrl)
-    {
-        this.slaveUrl = slaveUrl;
-    }
-
-    public synchronized void setUser(String user)
-    {
-        this.user = user;
-    }
-
-    public synchronized void setPassword(String password)
-    {
-        this.password = password;
+        this.context = context;
     }
 
     /**
@@ -89,18 +67,22 @@ public class TableComparator
     public void prepare() throws Exception
     {
         // Open connection to master.
-        masterTableHelper = new TableHelper(masterUrl, user, password);
+        masterTableHelper = new TableHelper(context.getMasterUrl(),
+                context.getMasterUser(), context.getMasterPassword(),
+                context.getDefaultSchema());
         masterConn = masterTableHelper.getConnection();
         masterStmt = masterConn.createStatement();
 
         // Open connection to slave.
-        slaveTableHelper = new TableHelper(slaveUrl, user, password);
+        slaveTableHelper = new TableHelper(context.getSlaveUrl(),
+                context.getSlaveUser(), context.getSlavePassword(),
+                context.getDefaultSchema());
         slaveConn = slaveTableHelper.getConnection();
         slaveStmt = slaveConn.createStatement();
     }
 
     /**
-     * Compare tables on master and slave using a match-merge approach. 
+     * Compare tables on master and slave using a match-merge approach.
      * 
      * @param table Table to compare
      * @return True if comparison succeeds, otherwise false
@@ -214,11 +196,11 @@ public class TableComparator
                 float dval = (Float) o;
                 BigDecimal bd = new BigDecimal(dval);
                 bd = bd.setScale(17, BigDecimal.ROUND_HALF_UP);
-                bd.toString();                
+                bd.toString();
             }
             else if (o instanceof Double)
             {
-                // Doubles have precision issues.  Reduce to 17 places. 
+                // Doubles have precision issues. Reduce to 17 places.
                 double dval = (Double) o;
                 BigDecimal bd = new BigDecimal(dval);
                 bd = bd.setScale(17, BigDecimal.ROUND_HALF_UP);

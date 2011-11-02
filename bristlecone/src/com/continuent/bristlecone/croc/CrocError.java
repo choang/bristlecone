@@ -22,21 +22,23 @@
 
 package com.continuent.bristlecone.croc;
 
-import java.util.List;
-
-import com.continuent.bristlecone.benchmark.db.Table;
-
 /**
- * Interface to a class that can load data into tables for replicator testing.
+ * An unchecked exception that indicates a serious failure. It terminates the
+ * croc run.
  * 
- * @author <a href="mailto:robert.hodges@continuent.com">Robert Hodges</a>
- * @version 1.0
+ * @author rhodges
  */
-public interface Loader
+public class CrocError extends RuntimeException
 {
-    /** Return tables this test uses. */
-    public List<Table> getTables();
+    private static final long serialVersionUID = 1L;
 
-    /** Load data into tables. */
-    public void load(CrocContext context) throws CrocException;
+    public CrocError(String msg)
+    {
+        super(msg);
+    }
+
+    public CrocError(String msg, Exception e)
+    {
+        super(msg, e);
+    }
 }
