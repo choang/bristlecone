@@ -168,6 +168,7 @@ public class CrocLauncher
             croc.setCompare(compare);
             croc.setTimeout(timeout);
             croc.setTestList(testList);
+            croc.setVerbose(verbose);
 
             croc.run();
         }

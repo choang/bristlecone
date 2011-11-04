@@ -57,6 +57,7 @@ public class Croc implements CrocContext
     private boolean         compare        = true;
     private int             timeout        = 60;
     private String          testList       = null;
+    private boolean         verbose        = false;
 
     // Runtime parameters.
     private List<Loader>    tests          = new ArrayList<Loader>();
@@ -204,6 +205,16 @@ public class Croc implements CrocContext
         this.testList = testList;
     }
 
+    public synchronized boolean isVerbose()
+    {
+        return verbose;
+    }
+
+    public synchronized void setVerbose(boolean verbose)
+    {
+        this.verbose = verbose;
+    }
+
     /**
      * Execute a croc test run.
      */
@@ -331,7 +342,10 @@ public class Croc implements CrocContext
                 else if (exception != null)
                 {
                     logger.info("RUN (" + duration + ") " + name
-                            + " FAIL/EXCEPTION");
+                            + " FAIL/EXCEPTION [" + exception.getMessage()
+                            + "]");
+                    if (verbose)
+                        logger.info(exception.getMessage(), exception);
                     failed++;
                 }
                 else
@@ -385,8 +399,7 @@ public class Croc implements CrocContext
         }
         else
         {
-            throw new CrocException(
-                    "Replication is not live after table creation");
+            throw new CrocError("Replication is not live after table creation");
         }
 
         // Call croc load() method.
@@ -399,7 +412,7 @@ public class Croc implements CrocContext
         }
         else
         {
-            throw new CrocException("Replication is not live after data load");
+            throw new CrocError("Replication is not live after data load");
         }
 
         // Compare tables.
