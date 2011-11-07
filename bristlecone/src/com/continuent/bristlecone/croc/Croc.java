@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -57,6 +58,7 @@ public class Croc implements CrocContext
     private boolean         compare        = true;
     private int             timeout        = 60;
     private String          testList       = null;
+    private String          test           = null;
     private boolean         verbose        = false;
 
     // Runtime parameters.
@@ -205,6 +207,16 @@ public class Croc implements CrocContext
         this.testList = testList;
     }
 
+    public synchronized String getTest()
+    {
+        return test;
+    }
+
+    public synchronized void setTest(String test)
+    {
+        this.test = test;
+    }
+
     public synchronized boolean isVerbose()
     {
         return verbose;
@@ -227,54 +239,85 @@ public class Croc implements CrocContext
         assertPropertyNotNull("slaveUrl", slaveUrl);
         assertPropertyNotNull("slaveUser", slaveUser);
         assertPropertyNotNull("slavePassword", slavePassword);
-        assertPropertyNotNull("testList", testList);
 
-        // Load and instantiate tests.
-        logger.info("Loading croc run list");
-        File testListFile = new File(testList);
-        FileReader fr = null;
-        String className = null;
-        try
+        // Determine test names.
+        List<String> testNames = new LinkedList<String>();
+        if (test != null)
         {
-            fr = new FileReader(testListFile);
-            BufferedReader reader = new BufferedReader(fr);
-            String line;
-            while ((line = reader.readLine()) != null)
+            testNames.add(test);
+        }
+        else if (testList != null)
+        {
+            logger.info("Loading croc run list");
+            File testListFile = new File(testList);
+            FileReader fr = null;
+            try
             {
-                line = line.trim();
-                if (line.length() > 0 && !line.startsWith("#"))
+                fr = new FileReader(testListFile);
+                BufferedReader reader = new BufferedReader(fr);
+                String line;
+                while ((line = reader.readLine()) != null)
                 {
-                    className = line;
-                    Class<?> clazz = Class.forName(className);
-                    Loader run = (Loader) clazz.newInstance();
-                    this.tests.add(run);
+                    line = line.trim();
+                    if (line.length() > 0 && !line.startsWith("#"))
+                    {
+                        testNames.add(line);
+                    }
+                }
+            }
+            catch (FileNotFoundException e)
+            {
+                throw new CrocError("Unable to read test list: "
+                        + testListFile.getAbsolutePath(), e);
+            }
+            catch (IOException e)
+            {
+                throw new CrocError("Unable to read test list: "
+                        + testListFile.getAbsolutePath(), e);
+            }
+            finally
+            {
+                if (fr != null)
+                {
+                    try
+                    {
+                        fr.close();
+                    }
+                    catch (IOException e)
+                    {
+                    }
                 }
             }
         }
-        catch (FileNotFoundException e)
+        else
         {
-            throw new CrocError("Unable to read test list: "
-                    + testListFile.getAbsolutePath(), e);
+            throw new CrocError("You must specify either a test or a test list");
         }
-        catch (IOException e)
+
+        // Instantiate tests.
+        for (String className : testNames)
         {
-            throw new CrocError("Unable to read test list: "
-                    + testListFile.getAbsolutePath(), e);
-        }
-        catch (ClassNotFoundException e)
-        {
-            throw new CrocError("Unable to instantiate test class: "
-                    + className, e);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new CrocError("Unable to instantiate test class: "
-                    + className, e);
-        }
-        catch (InstantiationException e)
-        {
-            throw new CrocError("Unable to instantiate test class: "
-                    + className, e);
+            try
+            {
+                Class<?> clazz = Class.forName(className);
+                Loader run = (Loader) clazz.newInstance();
+                this.tests.add(run);
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new CrocError("Unable to instantiate test class: "
+                        + className, e);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new CrocError("Unable to instantiate test class: "
+                        + className, e);
+            }
+            catch (InstantiationException e)
+            {
+                throw new CrocError("Unable to instantiate test class: "
+                        + className, e);
+            }
         }
 
         // Load JDBC driver(s).

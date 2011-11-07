@@ -26,20 +26,22 @@ import java.sql.Time;
 import com.continuent.bristlecone.benchmark.db.DataGenerator;
 
 /**
- * Generates time values
+ * Generates time values in the range of 0 to 23:59:59.999. Values are limited
+ * to milliseconds due to Java semantics.
  * 
  * @author alamäki
  */
 public class DataGeneratorForTime implements DataGenerator
 {
+    private static long maxTime = 24 * 60 * 60 * 1000;
 
-  /** Generate next time. */
-  public Object generate()
-  {
-    long sign = 1;
-    if (Math.random() < 0.5)
-      sign = -1;
-    long timeValue = sign * (long) (Math.random() * System.currentTimeMillis());
-    return new Time(timeValue);
-  }
+    /** Generate next time. */
+    public Object generate()
+    {
+        long sign = 1;
+        if (Math.random() < 0.5)
+            sign = -1;
+        long timeValue = sign * (long) (Math.random() * maxTime);
+        return new Time(timeValue);
+    }
 }

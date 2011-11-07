@@ -56,6 +56,7 @@ public class CrocLauncher
         boolean stageTables = false;
         boolean compare = true;
         int timeout = 60;
+        String test = null;
         String testList = null;
         boolean verbose = false;
 
@@ -118,6 +119,10 @@ public class CrocLauncher
             {
                 timeout = Integer.parseInt(argv[argc++]);
             }
+            else if ("-test".equals(nextArg))
+            {
+                test = argv[argc++];
+            }
             else if ("-testList".equals(nextArg))
             {
                 testList = argv[argc++];
@@ -167,6 +172,7 @@ public class CrocLauncher
             croc.setDdlReplication(ddlReplication);
             croc.setCompare(compare);
             croc.setTimeout(timeout);
+            croc.setTest(test);
             croc.setTestList(testList);
             croc.setVerbose(verbose);
 
@@ -219,6 +225,7 @@ public class CrocLauncher
         println("  -slavePassword password       Slave db password");
         println("  -slaveUrl url                 Slave db url");
         println("  -slaveUser user               Slave db user");
+        println("  -test class                   Name of a single test class to run");
         println("  -testList file                File containing list of tests");
         println("  -timeout secs                 Time out to wait for replication (default=60)");
         println("  -user user                    Db user (overrides master and slave)");
