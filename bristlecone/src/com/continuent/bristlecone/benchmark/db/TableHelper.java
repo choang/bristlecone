@@ -51,7 +51,6 @@ public class TableHelper
 
     // Used with BatchLoader and staged load method.
     private String             stageTablePrefix = "stage_xxx";
-    private String             stagePkeyColumn  = "id";
     private String             stageRowIdColumn = "row_id";
 
     /**
@@ -172,7 +171,7 @@ public class TableHelper
         // Create stage table definition for delete by prefixing the base
         // name and adding the primary key and row_id as columns.
         Table stageDeleteTable = new Table(stageDeleteName);
-        Column pkeyCol = new Column(this.stagePkeyColumn, Types.INTEGER);
+        Column pkeyCol = baseTable.getPrimaryKey();
         stageDeleteTable.addColumn(pkeyCol);
         Column rowIdColD = new Column(stageRowIdColumn, Types.INTEGER);
         stageDeleteTable.addColumn(rowIdColD);
