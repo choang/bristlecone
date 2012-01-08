@@ -41,7 +41,7 @@ import com.continuent.bristlecone.benchmark.BenchmarkException;
  */
 public class TableHelper
 {
-    private static Logger      logger           = Logger.getLogger(TableHelper.class);
+    private static Logger      logger            = Logger.getLogger(TableHelper.class);
 
     protected final String     connectionUrl;
     protected final String     login;
@@ -50,8 +50,8 @@ public class TableHelper
     protected final SqlDialect sqlDialect;
 
     // Used with BatchLoader and staged load method.
-    private String             stageTablePrefix = "stage_xxx";
-    private String             stageRowIdColumn = "row_id";
+    private String             stageTablePrefix  = "stage_xxx_";
+    private String             stageColumnPrefix = "tungsten_";
 
     /**
      * Creates a new instance.
@@ -140,49 +140,38 @@ public class TableHelper
     private void createStageTables(Table baseTable, boolean dropExisting)
             throws SQLException
     {
-        String stageInsertName = stageTablePrefix + "_insert_"
-                + baseTable.getName();
-        String stageDeleteName = stageTablePrefix + "_delete_"
-                + baseTable.getName();
+        String stageName = stageTablePrefix + baseTable.getName();
+        Table stageTable = new Table();
+        stageTable.setName(stageName);
 
-        // Create stage table definition for insert by prefixing the base
-        // name, removing PK constraint and adding a stageRowIdColumn column.
-        Table stageInsertTable = baseTable.clone();
-        stageInsertTable.setName(stageInsertName);
-        Column primaryKey = stageInsertTable.getPrimaryKey();
-        if (primaryKey != null)
-            primaryKey.setPrimaryKey(false);
-        Column rowIdColI = new Column(stageRowIdColumn, Types.INTEGER);
-        stageInsertTable.addColumn(rowIdColI);
+        // Populate stage table columns by first prepending seqno and opcode.
+        Column seqnoCol = new Column(stageColumnPrefix + "seqno", Types.INTEGER);
+        stageTable.addColumn(seqnoCol);
+        Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR, 1);
+        stageTable.addColumn(opCol);
+
+        // Add columns from base table. Suppress primary key value(s), which
+        // means we must clone column to avoid affecting original table
+        // definition.
+        for (Column col : baseTable.getColumns())
+        {
+            Column newCol = col.clone();
+            newCol.setPrimaryKey(false);
+            stageTable.addColumn(newCol);
+        }
+
+        // Add row ID column to the end.
+        Column rowIdCol = new Column(stageColumnPrefix + "row_id",
+                Types.INTEGER);
+        stageTable.addColumn(rowIdCol);
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("Creating test staging table: " + stageInsertName);
-            logger.debug("Table details: " + stageInsertTable);
+            logger.debug("Creating test staging table: " + stageName);
+            logger.debug("Table details: " + stageTable);
         }
 
-        create(stageInsertTable, dropExisting);
-
-        // There's a bug in Table.clone() - it actually did not clone the column
-        // objects, so we must set PK back on.
-        if (primaryKey != null)
-            primaryKey.setPrimaryKey(true);
-
-        // Create stage table definition for delete by prefixing the base
-        // name and adding the primary key and row_id as columns.
-        Table stageDeleteTable = new Table(stageDeleteName);
-        Column pkeyCol = baseTable.getPrimaryKey();
-        stageDeleteTable.addColumn(pkeyCol);
-        Column rowIdColD = new Column(stageRowIdColumn, Types.INTEGER);
-        stageDeleteTable.addColumn(rowIdColD);
-
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("Creating test staging table: " + stageDeleteTable);
-            logger.debug("Table details: " + stageDeleteTable);
-        }
-
-        create(stageDeleteTable, dropExisting);
+        create(stageTable, dropExisting);
     }
 
     /**
@@ -390,6 +379,8 @@ public class TableHelper
         logger.debug("Releasing database connection: " + conn);
         try
         {
+            if (conn != null)
+                conn.close();
             conn.close();
         }
         catch (SQLException e)
@@ -405,7 +396,8 @@ public class TableHelper
         logger.debug("Releasing database statement: " + stmt);
         try
         {
-            stmt.close();
+            if (stmt != null)
+                stmt.close();
         }
         catch (SQLException e)
         {
