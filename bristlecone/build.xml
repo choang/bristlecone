@@ -37,6 +37,7 @@
 	<property name="lib" value="${basedir}/lib" />
 
 	<property name="configdir" value="${basedir}/config" />
+	<property name="samplesdir" value="${basedir}/samples" />
 	<property name="libdir" value="${basedir}/lib" />
 	<property name="libextdir" value="${basedir}/lib-ext" />
 	<property name="xmldir" value="${basedir}/xml" />
@@ -223,6 +224,11 @@
 		<copy todir="${build.bristlecone}/config/benchmark">
 			<fileset dir="${configdir}/benchmark">
 				<include name="*.properties" />
+			</fileset>
+		</copy>
+		<copy todir="${build.bristlecone}/samples">
+			<fileset dir="${samplesdir}">
+			  <exclude name="**/.svn" />
 			</fileset>
 		</copy>
 		<copy todir="${build.bristlecone}/bin">

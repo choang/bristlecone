@@ -1,0 +1,16 @@
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/evaluator.dtd">
+<EvaluatorConfiguration name="readonly" testDuration="1200"
+	autoCommit="true" statusInterval="500" htmlFile="readonlyResults.html">
+
+	<DataSource name="s2" driver="com.continuent.tungsten.router.jdbc.TSRDriver" 		
+		url="jdbc:t-router://@{DATASERVICENAME}/evaluator?qos=RO_RELAXED"
+		user="@{CONN_CLIENTLOGIN}" 
+		password="@{CONN_CLIENTPASSWORD}"/>
+
+	<TableGroup name="ta" size="100" dataSource="s2" initializeDDL="false">
+		<ThreadGroup name="B" dataSource="s2" threadCount="10" thinkTime="10"
+			readSize="5"
+			rampUpInterval="5" rampUpIncrement="20" reconnectInterval="1" />
+	</TableGroup>
+
+</EvaluatorConfiguration>
