@@ -23,16 +23,27 @@
 package com.continuent.bristlecone.benchmark.db;
 
 /**
- * PostgreSQL DBMS dialect information.
+ * Vertica DBMS dialect information.
  * 
  * @author rhodges
  */
 public class SqlDialectForVertica extends SqlDialectForPostgreSQL
 {
-    /** Return the PostgreSQL driver. */
+    /** Return the Vertica driver. */
     public String getDriver()
     {
-        return "com.vertica.Driver";
+        // Unfortunately there are a couple of possibilities, so we need 
+        // to check both of them. 
+        String driver = "com.vertica.Driver";
+        try
+        {
+            Class.forName(driver);
+            return driver;
+        }
+        catch (Exception e)
+        {
+            return "com.vertica.jdbc.Driver";
+        }
     }
 
     /** Returns true if the JDBC URL looks like a PostgreSQL URL. */
