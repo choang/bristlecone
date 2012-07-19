@@ -2,23 +2,23 @@
 <EvaluatorConfiguration name="readwrite" testDuration="1200"
 	autoCommit="false" statusInterval="500" htmlFile="readwriteResults.html">
 
-	<DataSource name="s1" driver="com.continuent.tungsten.router.jdbc.TSRDriver" 		
-		url="jdbc:t-router://@{DATASERVICENAME}/evaluator?qos=RW_STRICT"
-		user="@{CONN_CLIENTLOGIN}" 
+	<DataSource name="s1" driver="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator@qos=RW_STRICT&amp;createDatabaseIfNotExist=true"
+		user="@{CONN_CLIENTLOGIN}"
 		password="@{CONN_CLIENTPASSWORD}"/>
 	 
-	<DataSource name="s2" driver="com.continuent.tungsten.router.jdbc.TSRDriver" 		
-		url="jdbc:t-router://@{DATASERVICENAME}/evaluator?qos=RO_RELAXED"
-		user="@{CONN_CLIENTLOGIN}" 
+	<DataSource name="s2" driver="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator@qos=RO_RELAXED&amp;createDatabaseIfNotExist=true"
+		user="@{CONN_CLIENTLOGIN}"
 		password="@{CONN_CLIENTPASSWORD}"/>
 
 	<TableGroup name="ta" size="100" dataSource="s1">
-		<ThreadGroup dataSource="s1" name="A" threadCount="10" thinkTime="50"
-			updates="30" deletes="40" inserts="30" readSize="10"
-			rampUpInterval="5" rampUpIncrement="5" reconnectInterval="1" />
-		<ThreadGroup name="B" dataSource="s2" threadCount="10" thinkTime="10"
-			readSize="5"
-			rampUpInterval="5" rampUpIncrement="20" reconnectInterval="1" />
+		<ThreadGroup name="A" dataSource="s1" threadCount="10" thinkTime="50"
+			updates="15" deletes="5" inserts="10" readSize="1000"
+			rampUpInterval="5" rampUpIncrement="2" reconnectInterval="10" />
+        <ThreadGroup name="B" dataSource="s2" threadCount="10" thinkTime="500"
+            readSize="1000"
+            rampUpInterval="5" rampUpIncrement="2" reconnectInterval="10" />
 	</TableGroup>
 
 </EvaluatorConfiguration>
