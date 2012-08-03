@@ -35,10 +35,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.jfree.ui.RefineryUtilities;
@@ -451,8 +449,8 @@ public class Evaluator implements RowFactory, Runnable
                     {
                         // if it does not stop who cares
                     }
-
-                    logger.error(t.getCurrent().toString());
+                    if (t.getCurrent() != null)
+                        logger.error(t.getCurrent().toString());
                     logger.error(message);
                 }
             }
@@ -775,8 +773,7 @@ public class Evaluator implements RowFactory, Runnable
             String base2 = tableGroup.getBase2TableName();
 
             String timestampType = ds.getTimestampType();
-            if (tableGroup.isInitializeDDL()
-                    && isTableAvailable(conn, joinedTable))
+            if (tableGroup.isInitializeDDL())
                 executeSQLIgnoreErrors(conn, "drop table " + joinedTable);
 
             if (!isTableAvailable(conn, joinedTable))
@@ -787,7 +784,7 @@ public class Evaluator implements RowFactory, Runnable
             else
                 s.executeUpdate(tableGroup.getTruncateTable() + joinedTable);
 
-            if (tableGroup.isInitializeDDL() && isTableAvailable(conn, base1))
+            if (tableGroup.isInitializeDDL())
                 executeSQLIgnoreErrors(conn, "drop table " + base1);
 
             if (!isTableAvailable(conn, base1))
@@ -798,7 +795,7 @@ public class Evaluator implements RowFactory, Runnable
             else
                 s.executeUpdate(tableGroup.getTruncateTable() + base1);
 
-            if (tableGroup.isInitializeDDL() && isTableAvailable(conn, base2))
+            if (tableGroup.isInitializeDDL())
                 executeSQLIgnoreErrors(conn, "drop table " + base2);
 
             if (!isTableAvailable(conn, base2))
