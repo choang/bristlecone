@@ -3,7 +3,7 @@
 	autoCommit="false" statusInterval="500" htmlFile="readwriteResults.html">
 
 	<DataSource name="s1" driver="com.mysql.jdbc.Driver"
-		url="jdbc:mysql://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator&amp;createDatabaseIfNotExist=true"
+		url="jdbc:mysql://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator?createDatabaseIfNotExist=true"
 		user="@{CONN_CLIENTLOGIN}"
 		password="@{CONN_CLIENTPASSWORD}"/>
 
