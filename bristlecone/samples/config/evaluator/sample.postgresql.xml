@@ -1,4 +1,4 @@
-<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/pcluster.dtd">
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://../xml/evaluator.dtd">
 <EvaluatorConfiguration name="postgres" testDuration="1200"
 	autoCommit="true" statusInterval="2" xmlFile="postgresResults.xml">
 	<Database driver="org.postgresql.Driver" 

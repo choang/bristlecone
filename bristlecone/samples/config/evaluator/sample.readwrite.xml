@@ -1,4 +1,4 @@
-<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/evaluator.dtd">
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://../xml/evaluator.dtd">
 <EvaluatorConfiguration name="readwrite" testDuration="1200"
 	autoCommit="false" statusInterval="500" htmlFile="readwriteResults.html">
 
