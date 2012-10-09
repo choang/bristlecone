@@ -1,4 +1,4 @@
-<!DOCTYPE EvaluatorConfiguration SYSTEM "file://C:/Documents and Settings/rhannus/workspace/evaluator/evaluator.dtd">
+<!DOCTYPE EvaluatorConfiguration SYSTEM "file://../xml/evaluator.dtd">
 <EvaluatorConfiguration name="mysql" testDuration="1200"
 	autoCommit="true" statusInterval="2" htmlFile="mysqlResults.html">
 	<Database driver="com.mysql.jdbc.Driver" 		
