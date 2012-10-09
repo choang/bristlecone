@@ -777,73 +777,99 @@ public class Evaluator implements RowFactory, Runnable
                 executeSQLIgnoreErrors(conn, "drop table " + joinedTable);
 
             if (!isTableAvailable(conn, joinedTable))
-                s.execute("create table " + joinedTable
-                        + " (k1 integer, k2 integer, created " + timestampType
-                        + ", " + "" + "changed " + timestampType
-                        + ", value integer, primary key(k1, k2))");
+            {
+                if (tableGroup.isInitializeDDL())
+                    s.execute("create table " + joinedTable
+                            + " (k1 integer, k2 integer, created "
+                            + timestampType + ", " + "" + "changed "
+                            + timestampType
+                            + ", value integer, primary key(k1, k2))");
+                else
+                    throwNonExistingTableException(tableGroup, joinedTable);
+            }
             else
-                s.executeUpdate(tableGroup.getTruncateTable() + joinedTable);
-
+            {
+                if (tableGroup.isInitializeDDL())
+                    s.executeUpdate(tableGroup.getTruncateTable() + joinedTable);
+            }
             if (tableGroup.isInitializeDDL())
                 executeSQLIgnoreErrors(conn, "drop table " + base1);
 
             if (!isTableAvailable(conn, base1))
-                s.execute("create table " + base1
-                        + " (k1 integer primary key, created " + timestampType
-                        + ", " + "changed " + timestampType
-                        + ", value integer)");
+            {
+                if (tableGroup.isInitializeDDL())
+                    s.execute("create table " + base1
+                            + " (k1 integer primary key, created "
+                            + timestampType + ", " + "changed " + timestampType
+                            + ", value integer)");
+                else
+                    throwNonExistingTableException(tableGroup, base1);
+            }
             else
-                s.executeUpdate(tableGroup.getTruncateTable() + base1);
+            {
+                if (tableGroup.isInitializeDDL())
+                    s.executeUpdate(tableGroup.getTruncateTable() + base1);
+            }
 
             if (tableGroup.isInitializeDDL())
                 executeSQLIgnoreErrors(conn, "drop table " + base2);
 
             if (!isTableAvailable(conn, base2))
-                s.execute("create table " + base2
-                        + " (k2 integer primary key, created " + timestampType
-                        + ", " + "changed " + timestampType
-                        + ", value integer)");
+            {
+                if (tableGroup.isInitializeDDL())
+                    s.execute("create table " + base2
+                            + " (k2 integer primary key, created "
+                            + timestampType + ", " + "changed " + timestampType
+                            + ", value integer)");
+                else
+                    throwNonExistingTableException(tableGroup, base2);
+            }
             else
-                s.executeUpdate(tableGroup.getTruncateTable() + base2);
-
-            conn.setAutoCommit(ds.isAutoCommit());
-            int valueRange = tableGroup.getValueRange();
-            PreparedStatement joinedInsert = conn
-                    .prepareStatement("insert into "
-                            + joinedTable
-                            + " select a.k1, b.k2, a.created, a.changed, (b.value * a.value) -(b.value * a.value "
-                            + "/ " + valueRange + " * " + valueRange
-                            + ") from " + base1 + " a join " + base2
-                            + " b on 1 = 1");
-            PreparedStatement ins1 = conn.prepareStatement("insert into "
-                    + base1 + " values(?, ?, ?, ?)");
-            PreparedStatement ins2 = conn.prepareStatement("insert into "
-                    + base2 + " values(?, ?, ?, ?)");
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-
-            for (int i = 0; i < tableGroup.getTableSize(); i++)
             {
-                addRow(tableGroup, ins1, now, i);
+                if (tableGroup.isInitializeDDL())
+                    s.executeUpdate(tableGroup.getTruncateTable() + base2);
             }
-            if (!conn.getAutoCommit())
+            if (tableGroup.isInitializeDDL())
             {
-                conn.commit();
-            }
-            for (int i = 0; i < tableGroup.getTableSize(); i++)
-            {
-                int k2 = i * 1000;
-                addRow(tableGroup, ins2, now, k2);
-            }
+                conn.setAutoCommit(ds.isAutoCommit());
+                int valueRange = tableGroup.getValueRange();
+                PreparedStatement joinedInsert = conn
+                        .prepareStatement("insert into "
+                                + joinedTable
+                                + " select a.k1, b.k2, a.created, a.changed, (b.value * a.value) -(b.value * a.value "
+                                + "/ " + valueRange + " * " + valueRange
+                                + ") from " + base1 + " a join " + base2
+                                + " b on 1 = 1");
+                PreparedStatement ins1 = conn.prepareStatement("insert into "
+                        + base1 + " values(?, ?, ?, ?)");
+                PreparedStatement ins2 = conn.prepareStatement("insert into "
+                        + base2 + " values(?, ?, ?, ?)");
+                Timestamp now = new Timestamp(System.currentTimeMillis());
 
-            if (!conn.getAutoCommit())
-            {
-                conn.commit();
-            }
+                for (int i = 0; i < tableGroup.getTableSize(); i++)
+                {
+                    addRow(tableGroup, ins1, now, i);
+                }
+                if (!conn.getAutoCommit())
+                {
+                    conn.commit();
+                }
+                for (int i = 0; i < tableGroup.getTableSize(); i++)
+                {
+                    int k2 = i * 1000;
+                    addRow(tableGroup, ins2, now, k2);
+                }
 
-            joinedInsert.executeUpdate();
-            if (!conn.getAutoCommit())
-            {
-                conn.commit();
+                if (!conn.getAutoCommit())
+                {
+                    conn.commit();
+                }
+
+                joinedInsert.executeUpdate();
+                if (!conn.getAutoCommit())
+                {
+                    conn.commit();
+                }
             }
         }
         catch (SQLException e)
@@ -865,6 +891,16 @@ public class Evaluator implements RowFactory, Runnable
             }
         }
 
+    }
+
+    protected void throwNonExistingTableException(TableGroup tableGroup,
+            String joinedTable) throws EvaluatorException
+    {
+        throw new EvaluatorException("Table " + joinedTable
+                + " does not exist. Since you specified "
+                + "initializeDDL=false for table group \'" + tableGroup.getTableName()
+                + "\', you will need to create the table yourself"
+                + " (or run evaluator with a write-enabled configuration)");
     }
 
     protected boolean isTableAvailable(Connection conn, String tableName)
