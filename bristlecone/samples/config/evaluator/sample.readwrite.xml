@@ -2,8 +2,8 @@
 <EvaluatorConfiguration name="readwrite" testDuration="1200"
 	autoCommit="false" statusInterval="500" htmlFile="readwriteResults.html">
 
-	<DataSource name="s1" driver="com.mysql.jdbc.Driver"
-		url="jdbc:mysql://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator?createDatabaseIfNotExist=true"
+	<DataSource name="s1" driver="@{REPL_DBJDBCDRIVER}"
+		url="jdbc:@{REPL_DBJDBCVENDOR}://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator?createDatabaseIfNotExist=true"
 		user="@{CONN_CLIENTLOGIN}"
 		password="@{CONN_CLIENTPASSWORD}"/>
 
