@@ -59,9 +59,6 @@
 		<fileset dir="${lib}">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="${project.commons}/build/jars">
-			<include name="*.jar" />
-		</fileset>
 	</path>
 	<path id="testclasspath">
 		<fileset dir="${libdir}">
@@ -182,9 +179,6 @@
 		</copy>
 		<copy todir="${build.bristlecone}/lib" verbose="true">
 			<fileset dir="${libdir}">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${project.commons}/build/jars">
 				<include name="*.jar" />
 			</fileset>
 		</copy>

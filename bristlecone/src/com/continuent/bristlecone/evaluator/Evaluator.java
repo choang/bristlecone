@@ -41,7 +41,7 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 import org.jfree.ui.RefineryUtilities;
 
-import com.continuent.tungsten.commons.config.TungstenProperties;
+import com.continuent.tungsten.common.config.TungstenProperties;
 
 /**
  * @author <a href="mailto:ralph.hannus@continuent.com">Ralph Hannus</a>

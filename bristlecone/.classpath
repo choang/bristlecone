@@ -18,6 +18,6 @@
 	<classpathentry kind="lib" path="lib/ApacheJMeter_core.jar"/>
 	<classpathentry kind="lib" path="lib/ApacheJMeter_java.jar"/>
 	<classpathentry kind="lib" path="lib/logkit-1.2.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/commons"/>
+	<classpathentry kind="lib" path="lib/tungsten-common.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
