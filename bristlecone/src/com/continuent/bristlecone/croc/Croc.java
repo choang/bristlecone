@@ -55,6 +55,7 @@ public class Croc implements CrocContext
     private String          defaultSchema  = null;
     private boolean         ddlReplication = true;
     private boolean         stageTables    = true;
+    private boolean         newStageFormat = false;
     private boolean         compare        = true;
     private int             timeout        = 60;
     private String          testList       = null;
@@ -165,6 +166,16 @@ public class Croc implements CrocContext
     public synchronized void setStageTables(boolean stageTables)
     {
         this.stageTables = stageTables;
+    }
+
+    public synchronized boolean isNewStageFormat()
+    {
+        return newStageFormat;
+    }
+
+    public synchronized void setNewStageFormat(boolean newStageFormat)
+    {
+        this.newStageFormat = newStageFormat;
     }
 
     public synchronized boolean isCompare()
@@ -420,7 +431,8 @@ public class Croc implements CrocContext
         List<Table> tables = crocRun.getTables();
         for (Table table : tables)
         {
-            createTable(masterUrl, masterUser, masterPassword, table, false);
+            createTable(masterUrl, masterUser, masterPassword, table, false,
+                    newStageFormat);
         }
 
         // Create slave tables if desired.
@@ -431,7 +443,7 @@ public class Croc implements CrocContext
                 // If Replicator is using BatchLoader with stage method, create
                 // the staging tables too.
                 createTable(slaveUrl, slaveUser, slavePassword, table,
-                        stageTables);
+                        stageTables, newStageFormat);
             }
         }
 
@@ -554,7 +566,7 @@ public class Croc implements CrocContext
 
     // Create a test table.
     public void createTable(String url, String user, String password,
-            Table table, boolean stageTables)
+            Table table, boolean stageTables, boolean newStageFormat)
     {
         if (logger.isDebugEnabled())
         {
@@ -564,7 +576,7 @@ public class Croc implements CrocContext
         TableHelper helper = new TableHelper(url, user, password, defaultSchema);
         try
         {
-            helper.create(table, true, stageTables);
+            helper.create(table, true, stageTables, newStageFormat);
         }
         catch (SQLException e)
         {

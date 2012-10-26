@@ -54,6 +54,7 @@ public class CrocLauncher
         String defaultSchema = null;
         boolean ddlReplication = true;
         boolean stageTables = false;
+        boolean newStageFormat = false;
         boolean compare = true;
         int timeout = 60;
         String test = null;
@@ -111,6 +112,10 @@ public class CrocLauncher
             {
                 stageTables = true;
             }
+            else if ("-newStageFormat".equals(nextArg))
+            {
+                newStageFormat = true;
+            }
             else if ("-compare".equals(nextArg))
             {
                 compare = Boolean.parseBoolean(argv[argc++]);
@@ -163,6 +168,7 @@ public class CrocLauncher
                 croc.setSlavePassword(slavePassword);
             croc.setDdlReplication(ddlReplication);
             croc.setStageTables(stageTables);
+            croc.setNewStageFormat(newStageFormat);
             if (user != null)
                 croc.setUser(user);
             if (password != null)
@@ -218,6 +224,7 @@ public class CrocLauncher
         println("  -compare {true|false}         If true, compare tables (default=true)");
         println("  -ddlReplication {true|false}  If true, DDL replicates (default=true)");
         println("  -stageTables                  Create staging tables for test tables");
+        println("  -newStageTables               Use Replicator 2.0.7+ stage table format");
         println("  -masterPassword password      Master db password");
         println("  -masterUrl url                Master db url");
         println("  -masterUser user              Master db user");
@@ -234,7 +241,6 @@ public class CrocLauncher
         println("  -help                         Print usage and exit");
         println("Notes:");
         println("  Test list is a set of croc Loader class names, one per line");
-
     }
 
     // Fail gloriously.

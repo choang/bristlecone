@@ -48,6 +48,8 @@ public interface CrocContext
     public boolean isDdlReplication();
 
     public int getTimeout();
-    
+
     public boolean isStageTables();
+
+    public boolean isNewStageFormat();
 }

@@ -137,18 +137,37 @@ public class TableHelper
      * @param baseTable Base table for which to create the corresponding staging
      *            tables.
      */
-    private void createStageTables(Table baseTable, boolean dropExisting)
-            throws SQLException
+    private void createStageTables(Table baseTable, boolean dropExisting,
+            boolean newStageFormat) throws SQLException
     {
         String stageName = stageTablePrefix + baseTable.getName();
         Table stageTable = new Table();
         stageTable.setName(stageName);
 
-        // Populate stage table columns by first prepending seqno and opcode.
-        Column seqnoCol = new Column(stageColumnPrefix + "seqno", Types.INTEGER);
-        stageTable.addColumn(seqnoCol);
-        Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR, 1);
-        stageTable.addColumn(opCol);
+        // Populate stage table columns. 
+        if (newStageFormat)
+        {
+            // New format uses opcode, seqno, row_id. 
+            Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
+                    1);
+            stageTable.addColumn(opCol);
+            Column seqnoCol = new Column(stageColumnPrefix + "seqno",
+                    Types.INTEGER);
+            stageTable.addColumn(seqnoCol);
+            Column rowIdCol = new Column(stageColumnPrefix + "row_id",
+                    Types.INTEGER);
+            stageTable.addColumn(rowIdCol);
+        }
+        else
+        {
+            // Old format is seqno, opcode with row_id at end. 
+            Column seqnoCol = new Column(stageColumnPrefix + "seqno",
+                    Types.INTEGER);
+            stageTable.addColumn(seqnoCol);
+            Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
+                    1);
+            stageTable.addColumn(opCol);
+        }
 
         // Add columns from base table. Suppress primary key value(s), which
         // means we must clone column to avoid affecting original table
@@ -160,10 +179,13 @@ public class TableHelper
             stageTable.addColumn(newCol);
         }
 
-        // Add row ID column to the end.
-        Column rowIdCol = new Column(stageColumnPrefix + "row_id",
-                Types.INTEGER);
-        stageTable.addColumn(rowIdCol);
+        // Add row ID column to the end if using old format.
+        if (!newStageFormat)
+        {
+            Column rowIdCol = new Column(stageColumnPrefix + "row_id",
+                    Types.INTEGER);
+            stageTable.addColumn(rowIdCol);
+        }
 
         if (logger.isDebugEnabled())
         {
@@ -183,11 +205,11 @@ public class TableHelper
      * @see {@link #create(Table, boolean)}
      */
     public void create(Table baseTable, boolean dropExisting,
-            boolean stageTables) throws SQLException
+            boolean stageTables, boolean newStageFormat) throws SQLException
     {
         create(baseTable, dropExisting);
         if (stageTables)
-            createStageTables(baseTable, dropExisting);
+            createStageTables(baseTable, dropExisting, newStageFormat);
     }
 
     /**
