@@ -105,7 +105,7 @@ public class Evaluator implements RowFactory, Runnable
     // "012345678901234567890123456789012345678901234567890" +
     // "012345678901234567890123456789012345678901234567890" +
     // "012345678901234567890123456789012345678901234567890";
-
+    
     public Evaluator(Configuration conf)
     {
         this.conf = conf;
@@ -188,8 +188,7 @@ public class Evaluator implements RowFactory, Runnable
                     }
                     else
                     {
-                        println("Unrecognized flag (try -help for usage): "
-                                + nextArg);
+                        logger.error("Unrecognized flag (try -help for usage): " + nextArg);
                         System.exit(1);
                     }
                 }
@@ -202,7 +201,7 @@ public class Evaluator implements RowFactory, Runnable
             // Ensure we have a config file.
             if (configFile == null)
             {
-                println("You must supply a config file (try -help for usage)");
+                logger.error("You must supply a config file (try -help for usage)");
                 System.exit(1);
             }
 
@@ -258,21 +257,14 @@ public class Evaluator implements RowFactory, Runnable
         System.exit(0);
     }
 
-    /** Print to standard out. */
-    protected static void println(String message)
-    {
-        System.out.println(message);
-    }
-
-    /** Print usage. */
+     /** Print usage. */
     protected static void usage()
     {
-        println("Usage: java " + Evaluator.class.getName()
-                + " [options] config_file");
-        println("  -graph    Log results on graphical display");
-        println("  -name     Supply alternate name for HTML/XML output");
-        println("  -help     Print usage");
-        println("Config file format is defined by evaluator.dtd");
+        logger.warn("Usage: java " + Evaluator.class.getName() + " [options] config_file");
+        logger.warn("  -graph    Log results on graphical display");
+        logger.warn("  -name     Supply alternate name for HTML/XML output");
+        logger.warn("  -help     Print usage");
+        logger.warn("Config file format is defined by evaluator.dtd");
     }
 
     /**
@@ -371,6 +363,7 @@ public class Evaluator implements RowFactory, Runnable
         readyToStart = true;
         logger.info("############################ Starting test run ############################");
         int runTime = conf.getTestDuration() * 1000;
+        String sep = conf.getSeparator();
 
         // Interval to be used to log statistics. Graphical stats
         // are accumulated and handled independently of this.
@@ -461,7 +454,7 @@ public class Evaluator implements RowFactory, Runnable
         }
         logger.debug("All threads have stopped.");
         Statistics stats = collectStatistics();
-        printStatistics(stats, "Total", conf.getTestDuration() * 1000);
+        printStatistics(stats, "Total", conf.getTestDuration() * 1000, sep);
 
         String xmlFile = conf.getXmlFile();
 
@@ -609,6 +602,7 @@ public class Evaluator implements RowFactory, Runnable
         Statistics delta = stats.diff(previousStats);
         DateFormat f = DateFormat.getDateTimeInstance();
         String label = f.format(new Date());
+        String sep = conf.getSeparator();
 
         // TODO: There's a bug here, but I can't see it right now, and the other
         // stuff works.
@@ -640,7 +634,7 @@ public class Evaluator implements RowFactory, Runnable
 
             average.setInterval(((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
             printStatistics(average, label,
-                    ((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
+                    ((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000, sep);
 
             synchronized (listeners)
             {
@@ -671,15 +665,20 @@ public class Evaluator implements RowFactory, Runnable
 
     }
 
-    private void printStatistics(Statistics stats, String label, float interval)
+
+    private void printStatistics(Statistics stats, String label, float interval, String sep)
     {
         statsList.put(label, stats);
-        System.out.println(getThreads().size() + "/" + stats.getThreads()
-                + "  " + stats.getQueries() / interval + " ops/sec, "
-                + stats.getAverageResponseTime() + " ms/op, "
-                + stats.getRowsRead() + " rows/select,  " + stats.getUpdates()
-                + " updates, " + stats.getDeletes() + " deletes, "
-                + stats.getInserts() + " inserts");
+        StringBuffer sb = new StringBuffer()
+                  .append(System.currentTimeMillis()).append(sep)
+                  .append(getThreads().size()).append("/").append(stats.getThreads()).append(sep)
+                  .append(stats.getQueries()/interval).append(sep).append("ops/sec").append(sep)
+                  .append(stats.getAverageResponseTime()).append(sep).append("ms/op").append(sep)
+                  .append(stats.getRowsRead()).append(sep).append("rows/select").append(sep)
+                  .append(stats.getUpdates()).append(sep).append("updates").append(sep)
+                  .append(stats.getDeletes()).append(sep).append("deletes").append(sep)
+                  .append(stats.getInserts()).append(sep).append("inserts");
+        logger.info(sb);
     }
 
     private Statistics collectStatistics()

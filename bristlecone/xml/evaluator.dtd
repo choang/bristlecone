@@ -76,6 +76,7 @@
 	xmlFile CDATA ""
 	htmlFile CDATA ""
 	csvFile CDATA ""
+	separator CDATA ""
 	statusInterval CDATA "2"
 >
 <!--

@@ -69,6 +69,10 @@ public class Configuration extends DefaultHandler
     private String                 htmlFile;
     private String                 csvFile;
     private String                 timestampType;
+    private String                 separator;
+
+    protected static final String  SPACE = " ";
+    protected static final String  COMMA = ",";
 
     /**
      * Retrieves the path for the output XML file
@@ -374,6 +378,7 @@ public class Configuration extends DefaultHandler
             this.xmlFile = attributes.getValue("xmlFile");
             this.htmlFile = attributes.getValue("htmlFile");
             this.csvFile = attributes.getValue("csvFile");
+            this.setSeparator(attributes.getValue("separator"));
         }
         else if (name.equals("Database"))
         {
@@ -685,6 +690,16 @@ public class Configuration extends DefaultHandler
     public void setUser(String user)
     {
         this.user = user;
+    }
+
+    public String getSeparator()
+    {
+        return separator;
+    }
+
+    public void setSeparator(String separator)
+    {
+        this.separator = (separator.equals("")) ? SPACE : separator;
     }
 
 }
