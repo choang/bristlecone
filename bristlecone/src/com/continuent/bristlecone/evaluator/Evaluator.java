@@ -897,7 +897,8 @@ public class Evaluator implements RowFactory, Runnable
     {
         throw new EvaluatorException("Table " + joinedTable
                 + " does not exist. Since you specified "
-                + "initializeDDL=false for table group \'" + tableGroup.getTableName()
+                + "initializeDDL=false for table group \'"
+                + tableGroup.getTableName()
                 + "\', you will need to create the table yourself"
                 + " (or run evaluator with a write-enabled configuration)");
     }
@@ -905,26 +906,30 @@ public class Evaluator implements RowFactory, Runnable
     protected boolean isTableAvailable(Connection conn, String tableName)
             throws SQLException
     {
-        ResultSet rs = conn.getMetaData().getTables(null, "%", tableName,
-                new String[]{"TABLE"});
-        boolean result = rs.next();
-        rs.close();
-        if (!result)
-        { // hsql
-            rs = conn.getMetaData().getTables(null, "%",
-                    tableName.toUpperCase(), new String[]{"TABLE"});
-            result = rs.next();
-            rs.close();
+        Statement st = null;
+        try
+        {
+            st = conn.createStatement();
+            st.executeQuery("SELECT COUNT(*) FROM " + tableName);
+            return true;
         }
-        if (!result)
-        { // postgres
-            rs = conn.getMetaData().getTables(null, "%",
-                    tableName.toLowerCase(), new String[]{"TABLE"});
-            result = rs.next();
-            rs.close();
+        catch (SQLException sqle)
+        {
+            return false;
         }
-
-        return result;
+        finally
+        {
+            if (st != null)
+            {
+                try
+                {
+                    st.close();
+                }
+                catch (SQLException ignored)
+                {
+                }
+            }
+        }
     }
 
     protected boolean isStoredProcedureAvailable(Connection conn,

@@ -209,7 +209,9 @@ This specifies the number of rows in the base tables.
 
 5.8.6 ThreadGroup
 
-The ThreadGroup tag defines a set of client threads that will generate requests against the target database. A ThreadGroup has the following attributes:
+The ThreadGroup tag defines a set of client threads that will generate 
+requests against the target database. A ThreadGroup has the following 
+attributes:
 
 5.8.6.1 Name (required)
 
