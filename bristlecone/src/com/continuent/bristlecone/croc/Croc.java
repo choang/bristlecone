@@ -43,33 +43,36 @@ import com.continuent.bristlecone.benchmark.db.TableHelper;
 
 public class Croc implements CrocContext
 {
-    private static Logger   logger         = Logger.getLogger(Croc.class);
+    private static Logger   logger            = Logger.getLogger(Croc.class);
 
     // Properties for croc runs.
-    private String          masterUrl      = null;
-    private String          masterUser     = "tungsten";
-    private String          masterPassword = "secret";
-    private String          slaveUrl       = null;
-    private String          slaveUser      = "tungsten";
-    private String          slavePassword  = "secret";
-    private String          defaultSchema  = null;
-    private boolean         ddlReplication = true;
-    private boolean         stageTables    = true;
-    private boolean         newStageFormat = false;
-    private boolean         compare        = true;
-    private int             timeout        = 60;
-    private String          testList       = null;
-    private String          test           = null;
-    private boolean         verbose        = false;
+    private String          masterUrl         = null;
+    private String          masterUser        = "tungsten";
+    private String          masterPassword    = "secret";
+    private String          slaveUrl          = null;
+    private String          slaveUser         = "tungsten";
+    private String          slavePassword     = "secret";
+    private String          defaultSchema     = null;
+    private boolean         ddlReplication    = true;
+    private boolean         stageTables       = true;
+    private String          slaveStageUrl     = null;
+    private String          stageTablePrefix  = null;
+    private String          stageColumnPrefix = null;
+    private boolean         newStageFormat    = false;
+    private boolean         compare           = true;
+    private int             timeout           = 60;
+    private String          testList          = null;
+    private String          test              = null;
+    private boolean         verbose           = false;
 
     // Runtime parameters.
-    private List<Loader>    tests          = new ArrayList<Loader>();
+    private List<Loader>    tests             = new ArrayList<Loader>();
     private LivenessChecker checker;
     private TableComparator comparator;
 
     // Results.
-    int                     tried          = 0;
-    int                     failed         = 0;
+    int                     tried             = 0;
+    int                     failed            = 0;
 
     /** Create a new Croc instance. */
     public Croc()
@@ -176,6 +179,39 @@ public class Croc implements CrocContext
     public synchronized void setNewStageFormat(boolean newStageFormat)
     {
         this.newStageFormat = newStageFormat;
+    }
+
+    public String getSlaveStageUrl()
+    {
+        if (slaveStageUrl == null)
+            return slaveUrl;
+        else
+            return slaveStageUrl;
+    }
+
+    public void setSlaveStageUrl(String slaveStageUrl)
+    {
+        this.slaveStageUrl = slaveStageUrl;
+    }
+
+    public String getStageTablePrefix()
+    {
+        return stageTablePrefix;
+    }
+
+    public void setStageTablePrefix(String stageTablePrefix)
+    {
+        this.stageTablePrefix = stageTablePrefix;
+    }
+
+    public String getStageColumnPrefix()
+    {
+        return stageColumnPrefix;
+    }
+
+    public void setStageColumnPrefix(String stageColumnPrefix)
+    {
+        this.stageColumnPrefix = stageColumnPrefix;
     }
 
     public synchronized boolean isCompare()
@@ -573,14 +609,36 @@ public class Croc implements CrocContext
             logger.debug("Creating test table: " + table.getName());
             logger.debug("Table details: " + table);
         }
-        TableHelper helper = new TableHelper(url, user, password, defaultSchema);
+
+        // Create base table.
         try
         {
-            helper.create(table, true, stageTables, newStageFormat);
+            TableHelper helper = new TableHelper(url, user, password,
+                    defaultSchema);
+            helper.create(table, true);
         }
         catch (SQLException e)
         {
             throw new CrocError("Unable to create table: " + table.getName(), e);
+        }
+
+        if (stageTables)
+        {
+            try
+            {
+                TableHelper stageHelper = new TableHelper(getSlaveStageUrl(),
+                        user, password, defaultSchema);
+                if (stageTablePrefix != null)
+                    stageHelper.setStageTablePrefix(stageTablePrefix);
+                if (stageColumnPrefix != null)
+                    stageHelper.setStageColumnPrefix(stageColumnPrefix);
+                stageHelper.createStageTable(table, true, newStageFormat);
+            }
+            catch (SQLException e)
+            {
+                throw new CrocError("Unable to create table: "
+                        + table.getName(), e);
+            }
         }
     }
 }

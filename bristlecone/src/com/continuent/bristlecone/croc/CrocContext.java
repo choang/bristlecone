@@ -52,4 +52,6 @@ public interface CrocContext
     public boolean isStageTables();
 
     public boolean isNewStageFormat();
+
+    public String getSlaveStageUrl();
 }

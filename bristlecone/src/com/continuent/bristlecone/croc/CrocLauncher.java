@@ -55,6 +55,9 @@ public class CrocLauncher
         boolean ddlReplication = true;
         boolean stageTables = false;
         boolean newStageFormat = false;
+        String slaveStageUrl = null;
+        String stageTablePrefix = null;
+        String stageColumnPrefix = null;
         boolean compare = true;
         int timeout = 60;
         String test = null;
@@ -116,6 +119,18 @@ public class CrocLauncher
             {
                 newStageFormat = true;
             }
+            else if ("-slaveStageUrl".equals(nextArg))
+            {
+                slaveStageUrl = argv[argc++];
+            }
+            else if ("-stageTablePrefix".equals(nextArg))
+            {
+                stageTablePrefix = argv[argc++];
+            }
+            else if ("-stageColumnPrefix".equals(nextArg))
+            {
+                stageColumnPrefix = argv[argc++];
+            }
             else if ("-compare".equals(nextArg))
             {
                 compare = Boolean.parseBoolean(argv[argc++]);
@@ -168,6 +183,12 @@ public class CrocLauncher
                 croc.setSlavePassword(slavePassword);
             croc.setDdlReplication(ddlReplication);
             croc.setStageTables(stageTables);
+            if (slaveStageUrl != null)
+                croc.setSlaveStageUrl(slaveStageUrl);
+            if (stageTablePrefix != null)
+                croc.setStageTablePrefix(stageTablePrefix);
+            if (stageColumnPrefix != null)
+                croc.setStageColumnPrefix(stageColumnPrefix);
             croc.setNewStageFormat(newStageFormat);
             if (user != null)
                 croc.setUser(user);
@@ -224,6 +245,9 @@ public class CrocLauncher
         println("  -compare {true|false}         If true, compare tables (default=true)");
         println("  -ddlReplication {true|false}  If true, DDL replicates (default=true)");
         println("  -stageTables                  Create staging tables for test tables");
+        println("  -stageColumnPrefix            Stage column prefix for tungsten columns (default=tungsten_)");
+        println("  -slaveStageUrl                URL for staging tables (default=slaveUrl)");
+        println("  -stageTablePrefix             Stage table name prefix (default=staging_xxx_)");
         println("  -newStageTables               Use Replicator 2.0.7+ stage table format");
         println("  -masterPassword password      Master db password");
         println("  -masterUrl url                Master db url");

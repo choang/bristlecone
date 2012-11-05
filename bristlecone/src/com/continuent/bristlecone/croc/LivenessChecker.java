@@ -120,8 +120,17 @@ public class LivenessChecker
         {
             logger.info("Creating slave heartbeat table: "
                     + heartbeatTab.getName());
-            slaveTableHelper.create(heartbeatTab, true,
-                    context.isStageTables(), context.isNewStageFormat());
+            slaveTableHelper.create(heartbeatTab, true);
+            if (context.isStageTables())
+            {
+                logger.debug("Creating staging table for slave heartbeat table: "
+                        + heartbeatTab.getName());
+                TableHelper stageTableHelper = new TableHelper(
+                        context.getSlaveStageUrl(), context.getSlaveUser(),
+                        context.getSlavePassword(), context.getDefaultSchema());
+                stageTableHelper.createStageTable(heartbeatTab, true,
+                        context.isNewStageFormat());
+            }
         }
         slaveStmt = slaveConn.createStatement();
         selectSQL = "SELECT seqno FROM monitor_heartbeat WHERE id=" + key;

@@ -88,6 +88,34 @@ public class TableHelper
         loadDriver(sqlDialect.getDriver());
     }
 
+    public String getStageTablePrefix()
+    {
+        return stageTablePrefix;
+    }
+
+    /**
+     * Sets the prefix for stage tables names.
+     * 
+     * @param stageTablePrefix
+     */
+    public void setStageTablePrefix(String stageTablePrefix)
+    {
+        this.stageTablePrefix = stageTablePrefix;
+    }
+
+    public String getStageColumnPrefix()
+    {
+        return stageColumnPrefix;
+    }
+
+    /**
+     * Sets the prefix for extra Tungsten columns in stage tables.
+     */
+    public void setStageColumnPrefix(String stageColumnPrefix)
+    {
+        this.stageColumnPrefix = stageColumnPrefix;
+    }
+
     /**
      * Loads a JDBC driver.
      */
@@ -131,23 +159,25 @@ public class TableHelper
     }
 
     /**
-     * Creates staging tables for the base table. Staging tables are used by
-     * Replicator's BatchLoader if using staged load method.
+     * Creates staging table for the base table. Staging tables are used by
+     * Replicator's SimpleBatchLoader for warehouse loading.
      * 
      * @param baseTable Base table for which to create the corresponding staging
      *            tables.
+     * @param dropExisting Remove existing if true
+     * @param newStageFormat Use new stage table format if true
      */
-    private void createStageTables(Table baseTable, boolean dropExisting,
+    public void createStageTable(Table baseTable, boolean dropExisting,
             boolean newStageFormat) throws SQLException
     {
         String stageName = stageTablePrefix + baseTable.getName();
         Table stageTable = new Table();
         stageTable.setName(stageName);
 
-        // Populate stage table columns. 
+        // Populate stage table columns.
         if (newStageFormat)
         {
-            // New format uses opcode, seqno, row_id. 
+            // New format uses opcode, seqno, row_id.
             Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
                     1);
             stageTable.addColumn(opCol);
@@ -160,7 +190,7 @@ public class TableHelper
         }
         else
         {
-            // Old format is seqno, opcode with row_id at end. 
+            // Old format is seqno, opcode with row_id at end.
             Column seqnoCol = new Column(stageColumnPrefix + "seqno",
                     Types.INTEGER);
             stageTable.addColumn(seqnoCol);
@@ -194,22 +224,6 @@ public class TableHelper
         }
 
         create(stageTable, dropExisting);
-    }
-
-    /**
-     * Creates a table from a definition and corresponding staging tables if
-     * needed. Staging tables are used with Replicator's BatchApplier with
-     * staged load method.
-     * 
-     * @param stageTables If true, create the staging tables.
-     * @see {@link #create(Table, boolean)}
-     */
-    public void create(Table baseTable, boolean dropExisting,
-            boolean stageTables, boolean newStageFormat) throws SQLException
-    {
-        create(baseTable, dropExisting);
-        if (stageTables)
-            createStageTables(baseTable, dropExisting, newStageFormat);
     }
 
     /**
