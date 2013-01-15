@@ -224,7 +224,7 @@
 		</copy>
 		<copy todir="${build.bristlecone}/bin">
 			<fileset dir="${bindir}">
-				<include name="*.*" />
+				<include name="*" />
 			</fileset>
 			<filterset>
 				<filter token="VERSION" value="${version}" />
