@@ -2,7 +2,7 @@
 <EvaluatorConfiguration name="postgres" testDuration="1200"
 	autoCommit="true" statusInterval="2" xmlFile="postgresResults.xml">
 	<Database driver="org.postgresql.Driver" 
-		url="jdbc:postgresql://@{HOST.HOST}:@{REPL_DBPORT}/evaluator?createDatabaseIfNotExist=true" 
+		url="jdbc:postgresql://@{HOST.HOST}:@{REPL_DBPORT}/evaluator?createDatabaseIfNotExist=true&amp;autoReconnect=true" 
 		user="@{CONN_CLIENTLOGIN}" 
 		password="@{CONN_CLIENTPASSWORD}"/>
 	 

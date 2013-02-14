@@ -2,7 +2,7 @@
 <EvaluatorConfiguration name="mysql" testDuration="1200"
 	autoCommit="true" statusInterval="2" htmlFile="mysqlResults.html">
 	<Database driver="com.mysql.jdbc.Driver" 		
-		url="jdbc:mysql://@{HOST.HOST}:@{REPL_DBPORT}/evaluator?createDatabaseIfNotExist=true"
+		url="jdbc:mysql://@{HOST.HOST}:@{REPL_DBPORT}/evaluator?createDatabaseIfNotExist=true&amp;autoReconnect=true"
 		user="@{CONN_CLIENTLOGIN}" 
 		password="@{CONN_CLIENTPASSWORD}"/>
 	 
