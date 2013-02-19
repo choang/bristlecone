@@ -232,7 +232,7 @@
 		</copy>
 		<chmod perm="a+x" type="file">
 			<fileset dir="${build.bristlecone}/bin">
-				<include name="**/*.sh" />
+                <include name="**/*.{sh,pl}" />
 			</fileset>
 		</chmod>
 
