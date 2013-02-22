@@ -46,7 +46,18 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
         }
     }
 
-    /** Returns true if the JDBC URL looks like a PostgreSQL URL. */
+    /**
+     * Implements a generic create table that should work for all DBMS.
+     */
+    public String getCreateTable(Table t)
+    {
+        // Add ORDER BY on first column value to enable automatic creation of 
+        // projection at table create time in Vertica 6+. 
+        String createTable = super.getCreateTable(t);
+        return createTable + " ORDER BY " + t.getColumns()[0].getName();
+    }
+
+    /** Returns true if the JDBC URL looks like a Vertica URL. */
     public boolean supportsJdbcUrl(String url)
     {
         return url.startsWith("jdbc:vertica");
@@ -78,7 +89,9 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
      */
     public boolean implementationSupportsSupplementaryTableDdl()
     {
-        return true;
+        // We no longer need this because we force projection creation at 
+        // table creation time. 
+        return false;
     }
 
     /**
