@@ -105,7 +105,7 @@ public class Evaluator implements RowFactory, Runnable
     // "012345678901234567890123456789012345678901234567890" +
     // "012345678901234567890123456789012345678901234567890" +
     // "012345678901234567890123456789012345678901234567890";
-    
+
     public Evaluator(Configuration conf)
     {
         this.conf = conf;
@@ -188,7 +188,8 @@ public class Evaluator implements RowFactory, Runnable
                     }
                     else
                     {
-                        logger.error("Unrecognized flag (try -help for usage): " + nextArg);
+                        logger.error("Unrecognized flag (try -help for usage): "
+                                + nextArg);
                         System.exit(1);
                     }
                 }
@@ -257,10 +258,11 @@ public class Evaluator implements RowFactory, Runnable
         System.exit(0);
     }
 
-     /** Print usage. */
+    /** Print usage. */
     protected static void usage()
     {
-        logger.warn("Usage: java " + Evaluator.class.getName() + " [options] config_file");
+        logger.warn("Usage: java " + Evaluator.class.getName()
+                + " [options] config_file");
         logger.warn("  -graph    Log results on graphical display");
         logger.warn("  -name     Supply alternate name for HTML/XML output");
         logger.warn("  -help     Print usage");
@@ -295,6 +297,7 @@ public class Evaluator implements RowFactory, Runnable
         initializeDB();
         createThreads();
         initialized = true;
+        new GCRunner();
     }
 
     /**
@@ -634,7 +637,8 @@ public class Evaluator implements RowFactory, Runnable
 
             average.setInterval(((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000);
             printStatistics(average, label,
-                    ((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000, sep);
+                    ((float) (SAMPLES_TO_ACCUMULATE * SAMPLE_QUANTUM)) / 1000,
+                    sep);
 
             synchronized (listeners)
             {
@@ -665,19 +669,22 @@ public class Evaluator implements RowFactory, Runnable
 
     }
 
-
-    private void printStatistics(Statistics stats, String label, float interval, String sep)
+    private void printStatistics(Statistics stats, String label,
+            float interval, String sep)
     {
         statsList.put(label, stats);
-        StringBuffer sb = new StringBuffer()
-                  .append(System.currentTimeMillis()).append(sep)
-                  .append(getThreads().size()).append("/").append(stats.getThreads()).append(sep)
-                  .append(stats.getQueries()/interval).append(sep).append("ops/sec").append(sep)
-                  .append(stats.getAverageResponseTime()).append(sep).append("ms/op").append(sep)
-                  .append(stats.getRowsRead()).append(sep).append("rows/select").append(sep)
-                  .append(stats.getUpdates()).append(sep).append("updates").append(sep)
-                  .append(stats.getDeletes()).append(sep).append("deletes").append(sep)
-                  .append(stats.getInserts()).append(sep).append("inserts");
+        StringBuffer sb = new StringBuffer().append(System.currentTimeMillis())
+                .append(sep).append(getThreads().size()).append("/")
+                .append(stats.getThreads()).append(sep)
+                .append(stats.getQueries() / interval).append(sep)
+                .append("ops/sec").append(sep)
+                .append(stats.getAverageResponseTime()).append(sep)
+                .append("ms/op").append(sep).append(stats.getRowsRead())
+                .append(sep).append("rows/select").append(sep)
+                .append(stats.getUpdates()).append(sep).append("updates")
+                .append(sep).append(stats.getDeletes()).append(sep)
+                .append("deletes").append(sep).append(stats.getInserts())
+                .append(sep).append("inserts");
         logger.info(sb);
     }
 
@@ -1084,6 +1091,35 @@ public class Evaluator implements RowFactory, Runnable
     public void setGraph(boolean graph)
     {
         this.graph = graph;
+    }
+
+    private class GCRunner implements Runnable
+    {
+        private Thread runner = null;
+
+        public GCRunner()
+        {
+            runner = new Thread(this);
+            runner.start();
+        }
+
+        public void run()
+        {
+            System.out.println("GC started");
+            while (true)
+            {
+                try
+                {
+                    Thread.sleep(3000);
+                }
+                catch (Exception ignored)
+                {
+                }
+
+                Runtime.getRuntime().gc();
+            }
+        }
+
     }
 
 }
