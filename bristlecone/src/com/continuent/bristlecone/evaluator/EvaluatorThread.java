@@ -507,7 +507,7 @@ public class EvaluatorThread extends Thread
         }
         catch (Throwable t)
         {
-            throw new EvaluatorException("Unexpected test batch failed", t);
+            throw new EvaluatorException("Unexpected test batch failed:" + t, t);
         }
         finally
         {

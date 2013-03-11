@@ -36,7 +36,7 @@ public class ThreadConfiguration
      * Collects execution statistics for this group. Every method that
      * manipulates this structure must be synchronized.
      */
-    Statistics         stats     = new Statistics();
+    private Statistics stats      = null;
 
     private String     dataSource = null;
     private String     name;
@@ -52,6 +52,7 @@ public class ThreadConfiguration
     public ThreadConfiguration(TableGroup tableGroup)
     {
         this.tableGroup = tableGroup;
+        stats = new Statistics();
     }
 
     public int getCount()
@@ -136,7 +137,7 @@ public class ThreadConfiguration
 
     public synchronized Statistics getStatistics()
     {
-        return new Statistics(stats);
+        return stats;
     }
 
     public void setName(String name)
