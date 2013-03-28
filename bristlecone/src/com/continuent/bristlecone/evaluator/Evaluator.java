@@ -789,7 +789,7 @@ public class Evaluator implements RowFactory, Runnable
                             + " (k1 integer, k2 integer, created "
                             + timestampType + ", " + "" + "changed "
                             + timestampType
-                            + ", value integer, primary key(k1, k2))");
+                            + ", value integer, primary key(k1, k2), key (k2), key (value))");
                 else
                     throwNonExistingTableException(tableGroup, joinedTable);
             }
@@ -807,7 +807,7 @@ public class Evaluator implements RowFactory, Runnable
                     s.execute("create table " + base1
                             + " (k1 integer primary key, created "
                             + timestampType + ", " + "changed " + timestampType
-                            + ", value integer)");
+                            + ", value integer, key (value))");
                 else
                     throwNonExistingTableException(tableGroup, base1);
             }
@@ -826,7 +826,7 @@ public class Evaluator implements RowFactory, Runnable
                     s.execute("create table " + base2
                             + " (k2 integer primary key, created "
                             + timestampType + ", " + "changed " + timestampType
-                            + ", value integer)");
+                            + ", value integer, key (value))");
                 else
                     throwNonExistingTableException(tableGroup, base2);
             }
