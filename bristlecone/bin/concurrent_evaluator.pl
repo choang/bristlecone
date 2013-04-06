@@ -1140,7 +1140,9 @@ sub get_evaluator_list
 {
     my ($options) = @_;
     my $evaluator_path = "$options->{continuent_root}/tungsten/bristlecone/bin/evaluator.sh";
-    my $status_directory = $options->{status_directory} || dirname($evaluator_path);
+    my $writing_directory = dirname($evaluator_path);
+    $writing_directory =~ s{/bin/?$}{/share};
+    my $status_directory = $options->{status_directory} || $writing_directory;
     my @pid_files = glob("$status_directory/*.pid");
     return @pid_files
 }
@@ -1222,7 +1224,7 @@ sub get_evaluator_pid
     }
     else
     {
-        $active_pids_text = qx/ps aux | grep Evaluator| grep -v "grep Evaluator"| grep '$options->{config_file}'| awk '{print \$2}'/ ;
+        $active_pids_text = qx/ps aux | grep Evaluator| grep -v "grep Evaluator"| grep '$options->{status_directory}.$options->{config_file}'| awk '{print \$2}'/ ;
         #$extended_active_pids_text = qx/ps aux | grep Evaluator| grep '$options->{config_file}'/ ;
     }
     #print "++ $extended_active_pids_text ++\n";
@@ -1260,6 +1262,7 @@ sub stop_evaluator
 {
     my ($options, $what) = @_;
     my @pid_files = get_evaluator_list($options);
+    # print Dumper $options, \@pid_files; 
     for my $pid_file (@pid_files)
     {
         # print "++ $pid_file\n";
@@ -1366,6 +1369,10 @@ sub stop_evaluator
             {
                 die "PID mismatch using $pid_file and $job_file\n";
             }
+        }
+        else 
+        {
+            die "Job file $job_file not found\n";
         }
     } 
 }
@@ -1533,8 +1540,8 @@ EVALUATOR_EOF
             # print "## ($elapsed) $result\n" if $result;
             if ($result && ($result > 1000))
             {
-                # print "ev_pid $evaluator_pid - child_pid: $child_pid\n";
-                # print "write_to($writing_directory, $evaluator_pidfile,$evaluator_pid)\n";
+                #print "ev_pid $evaluator_pid - child_pid: $child_pid\n";
+                #print "write_to($writing_directory, $evaluator_pidfile,$evaluator_pid)\n";
                 write_to($writing_directory, $evaluator_pidfile,"$evaluator_pid\n");
                 my $status_report = 
                      "Task started at   : $start_time \n"
