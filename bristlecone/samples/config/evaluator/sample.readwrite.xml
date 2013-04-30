@@ -14,7 +14,7 @@
 
     <TableGroup name="ta" size="1000" dataSource="s1"> 
         <ThreadGroup name="A" dataSource="s1" threadCount="5" thinkTime="10" 
-            updates="1000" deletes="400" inserts="1000" readSize="1" 
+            updates="20" deletes="20" inserts="20" readSize="1" 
             rampUpInterval="30" rampUpIncrement="1" reconnectInterval="10" /> 
         <ThreadGroup name="B" dataSource="s2" threadCount="5" thinkTime="10"
             readSize="1000"
