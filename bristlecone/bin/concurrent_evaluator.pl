@@ -785,6 +785,16 @@ $cli->add_option(
 );
 
 $cli->add_option(
+    mysql_defaults_file => {
+        parse => 'mysql-defaults-file=s',
+        value => undef,
+        so    => 35,
+        help    => ['mysql defaults file containing username and password']
+    }
+);
+
+
+$cli->add_option(
     port => {
         parse => 'port=i',
         value => 3306,
@@ -1258,6 +1268,28 @@ sub get_evaluator_pid
     }
 }
 
+sub make_mysql_cli
+{
+    my ($options, $host, $port) = @_;
+    $host = $options->{host} unless $host;
+    $port = $options->{port} unless $port;
+    my $MYSQL= sprintf( $options->{mysql_bin} .'/mysql -h %s -u%s -p%s -P%d ',
+        $host,
+        $options->{user},
+        $options->{password},
+        $port 
+    );
+    if ($options->{mysql_defaults_file})
+    {
+        $MYSQL= sprintf( $options->{mysql_bin} .'/mysql --defaults-file=%s -h %s -P%d ',
+            $options->{mysql_defaults_file},
+            $host,
+            $port 
+        );
+    }
+    return $MYSQL; 
+}
+
 sub stop_evaluator
 {
     my ($options, $what) = @_;
@@ -1340,12 +1372,7 @@ sub stop_evaluator
                         }
                         if ($options->{remove}{database})
                         {
-                            my $MYSQL= sprintf( $options->{mysql_bin} .'/mysql -h %s -u%s -p%s -P%d ',
-                                $host,
-                                $options->{user},
-                                $options->{password},
-                                $port 
-                            );
+                            my $MYSQL= make_mysql_cli($options, $host, $port);
                             if ($options->{verbose})
                             {
                                 print qq($MYSQL -e 'drop schema if exists $database'\n);
@@ -1452,12 +1479,7 @@ EVALUATOR_EOF
     my ($pid_file_found, $evaluator_pid, $evaluator_running) = get_evaluator_pid($options);
     # print "pid_file_found: $pid_file_found, pid: $evaluator_pid, running: $evaluator_running\n"; exit;
     my $must_wait_for_cleanup = 0;
-    my $MYSQL= sprintf( $options->{mysql_bin} .'/mysql -h %s -u%s -p%s -P%d ',
-        $options->{host},
-        $options->{user},
-        $options->{password},
-        $options->{port} 
-    );
+    my $MYSQL= make_mysql_cli($options);
 
     if ($evaluator_running && $pid_file_found)
     {
