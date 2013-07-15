@@ -186,9 +186,6 @@
 			<fileset dir="${libextdir}">
 				<include name="*.jar" />
 			</fileset>
-			<fileset dir="${project.sql-router}/build/jars">
-				<include name="*.jar" />
-			</fileset>
 		</copy>
 		<copy todir="${build.bristlecone}/lib-ext">
 			<fileset dir="${libextdir}/mysql">
