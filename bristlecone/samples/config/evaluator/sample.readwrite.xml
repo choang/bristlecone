@@ -3,7 +3,7 @@
 	autoCommit="false" statusInterval="500" htmlFile="readwriteResults.html" separator=" ">
 
     <DataSource name="s1" driver="@{REPL_DBJDBCDRIVER}"
-        url="jdbc:@{REPL_DBJDBCVENDOR}://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator@qos=RW_STRICT&amp;createDatabaseIfNotExist=true&amp;autoReconnect=true"
+        url="jdbc:@{REPL_DBJDBCSCHEME}://@{HOST.HOST}:@{CONN_LISTEN_PORT}/evaluator@qos=RW_STRICT&amp;createDatabaseIfNotExist=true&amp;autoReconnect=true"
         user="@{CONN_CLIENTLOGIN}"
         password="@{CONN_CLIENTPASSWORD}"/>
      
