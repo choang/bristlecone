@@ -3,7 +3,6 @@
 	<classpathentry kind="lib" path="lib/jcommon-1.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib-ext/mysql/drizzle-jdbc-0.9-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.13-bin.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
