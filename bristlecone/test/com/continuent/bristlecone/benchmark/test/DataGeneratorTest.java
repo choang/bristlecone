@@ -35,6 +35,11 @@ public class DataGeneratorTest extends TestCase
     return new BigDecimal(Double.toString(doubleValue)).stripTrailingZeros();
   }
 
+  private BigDecimal getBigDecimal(float floatValue)
+  {
+    return new BigDecimal(Float.toString(floatValue)).stripTrailingZeros();
+  }
+
   /**
    * Test that double generator generates at least a few numbers with decimal
    * digits.
@@ -63,5 +68,35 @@ public class DataGeneratorTest extends TestCase
         + " runs");
 
     assertTrue("No double values with decimal numbers generated", decimals > 0);
+  }
+
+  /**
+   * Test that float generator generates at least a few numbers with decimal
+   * digits.
+   */
+  public void testFloatDistribution() throws Exception
+  {
+    Column c = new Column("f", java.sql.Types.FLOAT);
+    DataGenerator dg = DataGeneratorFactory.getInstance().getGenerator(c);
+
+    int decimals = 0;
+    int runs = 100;
+    for (int i = 0; i < runs; i++)
+    {
+      Float obj = (Float) dg.generate();
+      float f = obj.floatValue();
+      BigDecimal bf = getBigDecimal(f);
+
+      if (bf.scale() > 0)
+      {
+        System.out.println(f + " = " + bf);
+        decimals++;
+      }
+    }
+
+    System.out.println("Numbers with decimals: " + decimals + " out of " + runs
+        + " runs");
+
+    assertTrue("No float values with decimal numbers generated", decimals > 0);
   }
 }

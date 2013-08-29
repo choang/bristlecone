@@ -30,7 +30,7 @@ package com.continuent.bristlecone.benchmark.db;
  */
 public class DataGeneratorForFloat implements DataGenerator
 {
-  private static final float max = Float.MAX_VALUE;
+  private static final boolean astronomicalNumbersOnly = false;
  
   /** Create a new instance. */
   DataGeneratorForFloat()
@@ -40,6 +40,21 @@ public class DataGeneratorForFloat implements DataGenerator
   /** Generate next value up to the boundary value. */
   public Object generate()
   {
+    float max = 0;
+    if (astronomicalNumbersOnly)
+    {
+      max = Float.MAX_VALUE;
+    }
+    else
+    {
+      // REP-132 - must use different magnitude each time, otherwise we
+      // generate only astronomical numbers.
+      // 38 is the power of Float.MAX_VALUE.
+      float magnitude = (int) (38 * Math.random());
+      // 3.4028235 is Float.MAX_VALUE without power.
+      max = (float) (3.4028235 * Math.pow(10, magnitude));
+    }
+
     double sign = (Math.random() >= 0.5) ? -1.0 : 1.0;
     float absvalue = ((float) Math.random() * max);  
     return new Float(sign * absvalue);
