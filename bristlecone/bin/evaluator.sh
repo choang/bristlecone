@@ -26,6 +26,8 @@ fi
 
 CP=$CP:$CLUSTER_HOME/conf
 CP=$CP:$BHOME/config
+# Add cluster-home/lib to class path
+CP=$CP:$CLUSTER_HOME/lib/*
 
 
 BRISTLECONE_JVMDEBUG_PORT=54001

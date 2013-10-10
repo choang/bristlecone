@@ -11,6 +11,10 @@ set CP=.
 set CP=%CP%;%BHOME%\lib-ext\hsqldb.jar
 set CP=%CP%;%BHOME%\lib-ext\mysql-connector-java-5.0.8-bin.jar
 set CP=%CP%;%BHOME%\lib\tungsten-commons.jar
+
+rem # Add cluster-home/lib to class path
+set CP=%CP%;%BHOME%\..\cluster-home\lib\tungsten-commons.jar
+
 set CP=%CP%;%BHOME%\lib-ext\tungsten-sqlrouter.jar
 set CP=%CP%;%BHOME%\lib\log4j.jar
 set CP=%CP%;%BHOME%\lib\bristlecone.jar

@@ -5,6 +5,7 @@
 # (c) 2006-2007 Continuent, Inc.. All rights reserved. 
 
 BHOME=`dirname $0`/..
+CLUSTER_HOME=$BHOME/../cluster-home
 
 # Load all jars from the lib and lib-ext directories. 
 for jar in $BHOME/lib/*.jar $BHOME/lib-ext/*.jar
@@ -16,6 +17,8 @@ do
   fi
 done
 CP=$CP:$BHOME/config
+# Add cluster-home/lib to class path
+CP=$CP:$CLUSTER_HOME/lib/*
 
 BRISTLECONE_JVMDEBUG_PORT=54001
 # uncomment to debug

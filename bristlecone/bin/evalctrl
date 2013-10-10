@@ -36,6 +36,9 @@ done
 
 # Add configuration directory to class path.
 CP=$CP:$CLUSTER_LIB/conf
+# Add cluster-home/lib to class path
+CP=$CP:$CLUSTER_HOME/lib/*
+
 #echo "CLASSPATH=$CP"
 # Find Java.
 if [ -z "$JAVA_HOME" ]; then
