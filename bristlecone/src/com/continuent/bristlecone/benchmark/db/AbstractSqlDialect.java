@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2013 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s):
+ * Contributor(s): Stephane Giron
  */
 
 package com.continuent.bristlecone.benchmark.db;
@@ -100,7 +100,8 @@ public abstract class AbstractSqlDialect implements SqlDialect
         {
             sb.append("(").append(col.getLength());
             if (implementationTypeNeedsPrecision(col.getType())
-                    && col.getPrecision() > 0)
+                    && col.getPrecision() > 0
+                    && col.getPrecision() <= col.getLength())
             {
                 sb.append(",").append(col.getPrecision());
             }
