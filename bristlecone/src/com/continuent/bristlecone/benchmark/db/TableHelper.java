@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2014 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -85,7 +85,8 @@ public class TableHelper
         this.password = password;
         this.defaultSchema = defaultSchema;
         this.sqlDialect = SqlDialectFactory.getInstance().getDialect(url);
-        loadDriver(sqlDialect.getDriver());
+        if (sqlDialect != null)
+            loadDriver(sqlDialect.getDriver());
     }
 
     public String getStageTablePrefix()
