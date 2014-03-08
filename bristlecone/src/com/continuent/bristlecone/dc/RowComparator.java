@@ -103,7 +103,7 @@ public class RowComparator
             {
                 logger.error("T1 is larger than T2: table=" + t1.getTable()
                         + " row=" + row);
-                logger.info("T1: " + t1.toString());
+                logger.info("First extra row in T1: " + t1Row.toString());
                 return false;
             }
         }
@@ -115,15 +115,15 @@ public class RowComparator
             row++;
             logger.error("T2 is larger than master: table=" + t2.getTable()
                     + " row=" + row);
-            logger.info("T2: " + t2.toString());
+            Row t2Row = t2.fetch();
+            logger.info("First extra row in T2: " + t2Row.toString());
             return false;
         }
 
-        // If there are no rows at all that is bad.
+        // If there are no rows at all that is interesting but not bad.
         if (row == 0)
         {
-            logger.error("Table is empty on T1 and T2: table=" + t1.getTable());
-            return false;
+            logger.warn("Tables T1 and T2 are empty: table=" + t1.getTable());
         }
 
         // If we get this far, the tables are the same.
