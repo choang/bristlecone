@@ -50,7 +50,8 @@ public class DCLauncher
         String slavePassword = null;
         String user = null;
         String password = null;
-        String schema = null;
+        String masterSchema = null;
+        String slaveSchema = null;
         String table = null;
         List<String> keys = null;
         String driver = null;
@@ -95,9 +96,13 @@ public class DCLauncher
             {
                 password = argv[argc++];
             }
-            else if ("-schema".equals(nextArg))
+            else if ("-schema1".equals(nextArg))
             {
-                schema = argv[argc++];
+                masterSchema = argv[argc++];
+            }
+            else if ("-schema2".equals(nextArg))
+            {
+                slaveSchema = argv[argc++];
             }
             else if ("-table".equals(nextArg))
             {
@@ -164,8 +169,10 @@ public class DCLauncher
                 dc.setUser(user);
             if (password != null)
                 dc.setPassword(password);
-            if (schema != null)
-                dc.setSchema(schema);
+            if (masterSchema != null)
+                dc.setMasterSchema(masterSchema);
+            if (slaveSchema != null)
+                dc.setSlaveSchema(slaveSchema);
             if (table != null)
                 dc.setTable(table);
             if (keys != null && keys.size() > 0)

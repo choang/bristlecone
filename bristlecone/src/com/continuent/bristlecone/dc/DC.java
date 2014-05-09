@@ -37,10 +37,11 @@ public class DC
     private String        masterUrl      = null;
     private String        masterUser     = "tungsten";
     private String        masterPassword = "secret";
+    private String        masterSchema   = null;
     private String        slaveUrl       = null;
     private String        slaveUser      = "tungsten";
     private String        slavePassword  = "secret";
-    private String        schema         = null;
+    private String        slaveSchema    = null;
     private String        table          = null;
     private List<String>  keys           = null;
     private String        driver         = null;
@@ -123,14 +124,24 @@ public class DC
         this.slavePassword = slavePassword;
     }
 
-    public String getSchema()
+    public String getMasterSchema()
     {
-        return schema;
+        return masterSchema;
     }
 
-    public void setSchema(String schema)
+    public void setMasterSchema(String masterSchema)
     {
-        this.schema = schema;
+        this.masterSchema = masterSchema;
+    }
+
+    public String getSlaveSchema()
+    {
+        return slaveSchema;
+    }
+
+    public void setSlaveSchema(String slaveSchema)
+    {
+        this.slaveSchema = slaveSchema;
     }
 
     public String getTable()
@@ -195,7 +206,7 @@ public class DC
             f1.setUrl(masterUrl);
             f1.setUser(masterUser);
             f1.setPassword(masterPassword);
-            f1.setSchema(schema);
+            f1.setSchema(masterSchema);
             f1.setTable(table);
             f1.setKeys(keys);
             f1.prepare();
@@ -204,7 +215,7 @@ public class DC
             f2.setUrl(slaveUrl);
             f2.setUser(slaveUser);
             f2.setPassword(slavePassword);
-            f2.setSchema(schema);
+            f2.setSchema(slaveSchema);
             f2.setTable(table);
             f2.setKeys(keys);
             f2.prepare();

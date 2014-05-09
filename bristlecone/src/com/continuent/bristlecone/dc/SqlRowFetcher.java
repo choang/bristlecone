@@ -127,7 +127,7 @@ public class SqlRowFetcher
         connection = DriverManager.getConnection(url, user, password);
         statement = connection.createStatement();
 
-        // Design a query to fetch rows in orcer.
+        // Design a query to fetch rows in order.
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT * from ");
         if (schema != null)
