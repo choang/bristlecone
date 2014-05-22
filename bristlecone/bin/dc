@@ -20,10 +20,13 @@ done
 
 # If there are external libs, include them here. 
 if [ ! -z $TUNGSTEN_EXT_LIBS ]; then
-  for jar in $TUNGSTEN_EXT_LIBS/*.jar 
-  do
-    CP=$CP:$jar
-  done
+    for jardir in `echo $TUNGSTEN_EXT_LIBS | sed -e 's/:/ /g'`
+    do
+        for jar in $jardir/*.jar 
+        do
+            CP=$CP:$jar
+        done
+    done
 fi
 
 # Add config. 
