@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2014 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,12 +17,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Robert Hodges and Ralph Hannus.
- * Contributor(s): Hannu Alamäki
+ * Contributor(s): Hannu Alamäki, Linas Virbalas
  */
 
 package com.continuent.bristlecone.benchmark.db;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * Generates date values
@@ -31,11 +33,15 @@ import java.sql.Date;
  */
 public class DataGeneratorForDate implements DataGenerator
 {
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat(
+        "yyyy-MM-dd");
 
     private long max;
 
     DataGeneratorForDate()
     {
+        dateFormatter.setLenient(false);
+      
         long maxVal = (8099 - 1970);
         maxVal *= 365L;
         maxVal *= 24L;
@@ -47,6 +53,8 @@ public class DataGeneratorForDate implements DataGenerator
     /** Create a new instance with an upper bound. */
     DataGeneratorForDate(long maxValue)
     {
+        dateFormatter.setLenient(false);
+      
         this.max = maxValue;
     }
 
@@ -57,6 +65,23 @@ public class DataGeneratorForDate implements DataGenerator
         long absvalue = (long) (Math.random() * max);
 
         long dateValue = sign * absvalue;
-        return new Date(dateValue);
+        
+        Date date = new Date(dateValue);
+     
+        // REP-131 - catch invalid dates.
+        // 1. Make a string out of this date - this doesn't fix invalid dates.
+        String sDate = dateFormatter.format((Date) date);
+        // 2. Now try to parse it - ParseException thrown if date is invalid.
+        try
+        {
+            dateFormatter.parse(sDate);
+        }
+        catch (ParseException e)
+        {
+            // Re-generate date until it's valid. 
+            date = (Date) generate(); 
+        }
+        
+        return date;
     }
 }

@@ -23,6 +23,8 @@
 package com.continuent.bristlecone.benchmark.test;
 
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import com.continuent.bristlecone.benchmark.db.Column;
 import com.continuent.bristlecone.benchmark.db.DataGenerator;
 import com.continuent.bristlecone.benchmark.db.DataGeneratorFactory;
@@ -98,5 +100,29 @@ public class DataGeneratorTest extends TestCase
         + " runs");
 
     assertTrue("No float values with decimal numbers generated", decimals > 0);
+  }
+
+  /**
+   * Test that invalid dates are not generated.
+   */
+  public void testInvalidDates() throws Exception
+  {
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    dateFormatter.setLenient(false);
+
+    Column c = new Column("d", java.sql.Types.DATE);
+    DataGenerator dg = DataGeneratorFactory.getInstance().getGenerator(c);
+
+    int runs = 10000;
+    for (int i = 0; i < runs; i++)
+    {
+      Date date = (Date) dg.generate();
+
+      // Make a string out of this date - this doesn't fix invalid dates.
+      String sDate = dateFormatter.format((Date) date);
+
+      // Now try to parse it - ParseException is thrown date is invalid.
+      dateFormatter.parse(sDate);
+    }
   }
 }
