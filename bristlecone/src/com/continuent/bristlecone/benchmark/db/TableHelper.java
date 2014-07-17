@@ -178,7 +178,7 @@ public class TableHelper
         // Populate stage table columns.
         if (newStageFormat)
         {
-            // New format uses opcode, seqno, row_id.
+            // New format uses opcode, seqno, row_id, and timestamp. 
             Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
                     1);
             stageTable.addColumn(opCol);
@@ -188,6 +188,9 @@ public class TableHelper
             Column rowIdCol = new Column(stageColumnPrefix + "row_id",
                     Types.INTEGER);
             stageTable.addColumn(rowIdCol);
+            Column commitTimestampCol = new Column(stageColumnPrefix + "commit_timestamp",
+                    Types.TIMESTAMP);
+            stageTable.addColumn(commitTimestampCol);
         }
         else
         {
