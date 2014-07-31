@@ -301,6 +301,9 @@ public class Croc implements CrocContext
             try
             {
                 fr = new FileReader(testListFile);
+                // We need to close fr to prevent real leaks.  Reader can be safely
+                // garbage collected. 
+                @SuppressWarnings("resource")
                 BufferedReader reader = new BufferedReader(fr);
                 String line;
                 while ((line = reader.readLine()) != null)

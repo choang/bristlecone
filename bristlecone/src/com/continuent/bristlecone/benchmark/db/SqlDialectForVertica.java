@@ -127,6 +127,8 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
             case AdditionalTypes.UBIGINT :
             case AdditionalTypes.UNBIGINT :
                 return "number";
+            case java.sql.Types.CLOB :
+                return "varchar";
             default :
                 return super.implementationTypeName(type);
         }
