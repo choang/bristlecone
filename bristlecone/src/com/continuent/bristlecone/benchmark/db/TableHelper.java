@@ -180,7 +180,7 @@ public class TableHelper
         {
             // New format uses opcode, seqno, row_id, and timestamp. 
             Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
-                    1);
+                    2);
             stageTable.addColumn(opCol);
             Column seqnoCol = new Column(stageColumnPrefix + "seqno",
                     Types.INTEGER);
@@ -199,7 +199,7 @@ public class TableHelper
                     Types.INTEGER);
             stageTable.addColumn(seqnoCol);
             Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
-                    1);
+                    2);
             stageTable.addColumn(opCol);
         }
 
