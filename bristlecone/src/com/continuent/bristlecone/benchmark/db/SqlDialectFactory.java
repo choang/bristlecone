@@ -39,6 +39,8 @@ public class SqlDialectFactory
   {
     List<SqlDialect> al = new ArrayList<SqlDialect>();
     al.add(new SqlDialectForMysql());
+    // TODO: add vendor support (now Redshift is chosen over PostgreSQL).
+    al.add(new SqlDialectForRedshift());
     al.add(new SqlDialectForPostgreSQL());
     al.add(new SqlDialectForVertica());
     al.add(new SqlDialectForPCluster());
