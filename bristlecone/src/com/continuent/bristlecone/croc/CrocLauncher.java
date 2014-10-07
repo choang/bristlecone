@@ -212,6 +212,7 @@ public class CrocLauncher
             {
                 e.printStackTrace();
             }
+            exitWithFailure();
         }
         catch (Throwable t)
         {
@@ -227,6 +228,7 @@ public class CrocLauncher
             {
                 println("SUB-EXCEPTION: " + cause.getMessage());
             }
+            exitWithFailure();
         }
     }
 
