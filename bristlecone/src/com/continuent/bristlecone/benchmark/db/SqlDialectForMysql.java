@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2014 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -106,6 +106,8 @@ public class SqlDialectForMysql extends AbstractSqlDialect
             case java.sql.Types.TIMESTAMP :
                 // Allow null value for timestamps
                 return "timestamp null";
+            case AdditionalTypes.DATETIME :
+                return "datetime";
             default :
                 return super.implementationTypeName(type);
         }

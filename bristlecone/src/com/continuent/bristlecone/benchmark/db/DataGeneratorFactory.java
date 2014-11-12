@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2014 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -115,6 +115,8 @@ public class DataGeneratorFactory
           return new DataGeneratorForYear();
       case AdditionalTypes.TIMESTAMPLOCAL :
       case java.sql.Types.TIMESTAMP:
+        return new DataGeneratorForTimestamp();
+      case AdditionalTypes.DATETIME :
         return new DataGeneratorForTimestamp();
       
       default:

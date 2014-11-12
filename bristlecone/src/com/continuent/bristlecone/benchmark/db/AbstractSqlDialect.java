@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2013 Continuent Inc.
+ * Copyright (C) 2006-2014 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -512,6 +512,7 @@ public abstract class AbstractSqlDialect implements SqlDialect
             case AdditionalTypes.ENUM :
             case AdditionalTypes.SET :
             case AdditionalTypes.YEAR :
+            case AdditionalTypes.DATETIME :
                 return false;
 
             case java.sql.Types.BIT :
