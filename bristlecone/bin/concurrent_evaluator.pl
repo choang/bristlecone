@@ -1416,8 +1416,8 @@ sub start_evaluator
         autoCommit="true" 
         statusInterval="2" 
         htmlFile="mysqlResults.html" >
-        <Database driver="com.mysql.jdbc.Driver"        
-            url="jdbc:mysql://$options->{host}:$options->{port}/$options->{database_name}?createDatabaseIfNotExist=true"
+        <Database driver="org.drizzle.jdbc.DrizzleDriver"        
+            url="jdbc:mysql:thin://$options->{host}:$options->{port}/$options->{database_name}?createDatabaseIfNotExist=true"
             user="$options->{user}"
             password="$options->{password}"/> 
          
