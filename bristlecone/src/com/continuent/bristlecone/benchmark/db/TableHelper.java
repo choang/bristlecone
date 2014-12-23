@@ -178,9 +178,9 @@ public class TableHelper
         // Populate stage table columns.
         if (newStageFormat)
         {
-            // New format uses opcode, seqno, row_id, and timestamp. 
+            // New format uses opcode, seqno, row_id.
             Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
-                    2);
+                    1);
             stageTable.addColumn(opCol);
             Column seqnoCol = new Column(stageColumnPrefix + "seqno",
                     Types.INTEGER);
@@ -188,9 +188,6 @@ public class TableHelper
             Column rowIdCol = new Column(stageColumnPrefix + "row_id",
                     Types.INTEGER);
             stageTable.addColumn(rowIdCol);
-            Column commitTimestampCol = new Column(stageColumnPrefix + "commit_timestamp",
-                    Types.TIMESTAMP);
-            stageTable.addColumn(commitTimestampCol);
         }
         else
         {
@@ -199,7 +196,7 @@ public class TableHelper
                     Types.INTEGER);
             stageTable.addColumn(seqnoCol);
             Column opCol = new Column(stageColumnPrefix + "opcode", Types.CHAR,
-                    2);
+                    1);
             stageTable.addColumn(opCol);
         }
 

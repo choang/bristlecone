@@ -32,7 +32,7 @@ public class SqlDialectForMysql extends AbstractSqlDialect
     /** Return MySQL driver. */
     public String getDriver()
     {
-        return "org.drizzle.jdbc.DrizzleDriver";
+        return "com.mysql.jdbc.Driver";
     }
 
     /** Returns true if the JDBC URL looks like a PostgreSQL URL. */

@@ -399,7 +399,7 @@ public class EvaluatorThread extends Thread
             catch (EvaluatorException e)
             {
                 eval.addFailure(e);
-                logger.error("Error duing run: ", e);
+                logger.error(e);
                 try
                 {
                     reconnect();
