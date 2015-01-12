@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  *
  * Initial developer(s): Hannu Alamäki.
- * Contributor(s):
+ * Contributor(s): Linas Virbalas
  */
 
 package com.continuent.bristlecone.benchmark.db;
@@ -55,8 +55,12 @@ public class SqlDialectForOracle extends AbstractSqlDialect
     {
         switch (col.getType())
         {
+            case Types.FLOAT :
+                return col.getName() + " BINARY_FLOAT ";
             case Types.DOUBLE :
                 return col.getName() + " BINARY_DOUBLE ";
+            case AdditionalTypes.UNSMALLINT :
+                return col.getName() + " NUMBER ";
             case Types.TIME :
                 col.setType(Types.DATE);
                 return super.implementationColumnSpecification(col);
@@ -71,6 +75,8 @@ public class SqlDialectForOracle extends AbstractSqlDialect
     {
         switch (type)
         {
+            case Types.FLOAT :
+                return "binary_float";
             case Types.TIME :
                 return "date";
             case java.sql.Types.TINYINT :
