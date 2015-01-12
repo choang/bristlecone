@@ -104,7 +104,7 @@ public class SqlDialectForOracle extends AbstractSqlDialect
     /**
      * Returns a generic SELECT for all columns and rows in a sorted,
      * deterministic way. This is over ridden in Oracle since Oracle needs
-     * special introducer for XML columns
+     * special introducer for XML, CLOB, time and timestamp holding columns.
      */
     @Override
     public String getSelectAllSorted(Table t)
@@ -130,6 +130,25 @@ public class SqlDialectForOracle extends AbstractSqlDialect
                 // SQL += "decode(" + col.getName() +
                 // ", NULL, NULL, xmltype.getclobval(" + col.getName() + "))";
                 SQL += "xmltype.getclobval(" + col.getName() + ")";
+            }
+            else if (col.getType() == Types.CLOB)
+            {
+                SQL += "dbms_lob.substr(" + col.getName() + ", 4000, 1) as "
+                        + col.getName();
+            }
+            else if (col.getType() == Types.DATE
+                    && col.getName().equals("croc_inserttime"))
+            {
+                // A workaround to compare time part instead of date based on a
+                // table name.
+                SQL += "to_char(" + col.getName() + ", 'HH24:MI:SS') as "
+                        + col.getName();
+            }
+            else if (col.getType() == Types.TIMESTAMP)
+            {
+                SQL += "to_char(" + col.getName()
+                        + ", 'YYYY-MM-DD HH24:MI:SS') || '.0' as "
+                        + col.getName();
             }
             else
             {
