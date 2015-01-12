@@ -55,6 +55,8 @@ public class SqlDialectForOracle extends AbstractSqlDialect
     {
         switch (col.getType())
         {
+            case Types.CHAR :
+                return col.getName() + " CHAR(" + col.getLength() + ") ";
             case Types.FLOAT :
                 return col.getName() + " BINARY_FLOAT ";
             case Types.DOUBLE :
@@ -75,6 +77,8 @@ public class SqlDialectForOracle extends AbstractSqlDialect
     {
         switch (type)
         {
+            case Types.CHAR :
+                return "char";
             case Types.FLOAT :
                 return "binary_float";
             case Types.TIME :
@@ -137,7 +141,7 @@ public class SqlDialectForOracle extends AbstractSqlDialect
                         + col.getName();
             }
             else if (col.getType() == Types.DATE
-                    && col.getName().equals("croc_inserttime"))
+                    && t.getName().equals("croc_inserttime"))
             {
                 // A workaround to compare time part instead of date based on a
                 // table name.
