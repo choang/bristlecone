@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2014 Continuent Inc.
+ * Copyright (C) 2006-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -611,6 +611,18 @@ public abstract class AbstractSqlDialect implements SqlDialect
     public String getSupplementaryTableDdl(Table table)
     {
         // Return nothing if table DDL is not supported.
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.continuent.bristlecone.benchmark.db.SqlDialect#getSessionUTC()
+     */
+    public String getSessionUTC()
+    {
+        // Return a null if there is no command to normalize the session time
+        // zone to UTC.
         return null;
     }
 }

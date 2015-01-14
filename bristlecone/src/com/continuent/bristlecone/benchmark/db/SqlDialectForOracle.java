@@ -24,11 +24,8 @@ package com.continuent.bristlecone.benchmark.db;
 
 import java.sql.Types;
 
-//import sun.rmi.runtime.GetThreadPoolAction;
-
 public class SqlDialectForOracle extends AbstractSqlDialect
 {
-
     @Override
     public boolean supportsJdbcUrl(String url)
     {
@@ -315,9 +312,19 @@ public class SqlDialectForOracle extends AbstractSqlDialect
         return "DROP TRIGGER " + triggerName;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.continuent.bristlecone.benchmark.db.AbstractSqlDialect#getSessionUTC()
+     */
+    public String getSessionUTC()
+    {
+        // Sets the session time zone to UTC on Oracle connection.
+        return "alter session set time_zone='UTC'";
+    }
+
     public String implementationSpecificSuffix(Column c)
     {
         return super.implementationSpecifcSuffix(c);
     }
-
 }

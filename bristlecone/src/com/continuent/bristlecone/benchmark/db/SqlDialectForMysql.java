@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2014 Continuent Inc.
+ * Copyright (C) 2006-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -61,6 +61,17 @@ public class SqlDialectForMysql extends AbstractSqlDialect
             sql += " ENGINE= " + t.getDatabaseEngine();
 
         return sql;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.continuent.bristlecone.benchmark.db.AbstractSqlDialect#getSessionUTC()
+     */
+    public String getSessionUTC()
+    {
+        // Sets the session time zone to UTC on a MySQL connection.
+        return "SET session time_zone=utc";
     }
 
     /**

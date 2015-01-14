@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,8 +32,8 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
     /** Return the Vertica driver. */
     public String getDriver()
     {
-        // Unfortunately there are a couple of possibilities, so we need 
-        // to check both of them. 
+        // Unfortunately there are a couple of possibilities, so we need
+        // to check both of them.
         String driver = "com.vertica.Driver";
         try
         {
@@ -51,8 +51,8 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
      */
     public String getCreateTable(Table t)
     {
-        // Add ORDER BY on first column value to enable automatic creation of 
-        // projection at table create time in Vertica 6+. 
+        // Add ORDER BY on first column value to enable automatic creation of
+        // projection at table create time in Vertica 6+.
         String createTable = super.getCreateTable(t);
         return createTable + " ORDER BY " + t.getColumns()[0].getName();
     }
@@ -89,8 +89,8 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
      */
     public boolean implementationSupportsSupplementaryTableDdl()
     {
-        // We no longer need this because we force projection creation at 
-        // table creation time. 
+        // We no longer need this because we force projection creation at
+        // table creation time.
         return false;
     }
 
@@ -101,8 +101,19 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
      */
     public String getSupplementaryTableDdl(Table table)
     {
-        // Necessary to create default projects required for DML. 
+        // Necessary to create default projects required for DML.
         return "select implement_temp_design('')";
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.continuent.bristlecone.benchmark.db.AbstractSqlDialect#getSessionUTC()
+     */
+    public String getSessionUTC()
+    {
+        // Sets the session time zone to UTC on a Vertica connection.
+        return "SET timezone TO 'UTC'";
     }
 
     /**
@@ -113,7 +124,7 @@ public class SqlDialectForVertica extends SqlDialectForPostgreSQL
     {
         switch (type)
         {
-            // Any unsigned integer is assigned to bigint.
+        // Any unsigned integer is assigned to bigint.
             case AdditionalTypes.UTINYINT :
             case AdditionalTypes.UNTINYINT :
             case AdditionalTypes.USMALLINT :

@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2011 Continuent Inc.
+ * Copyright (C) 2011-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -63,6 +63,7 @@ public class CrocLauncher
         String test = null;
         String testList = null;
         boolean verbose = false;
+        boolean normalizeTime = false;
 
         // Parse arguments.
         int argc = 0;
@@ -151,6 +152,10 @@ public class CrocLauncher
             {
                 verbose = true;
             }
+            else if ("-normalizeTime".equals(nextArg))
+            {
+                normalizeTime = true;
+            }
             else if ("-help".equals(nextArg))
             {
                 usage();
@@ -202,6 +207,7 @@ public class CrocLauncher
             croc.setTest(test);
             croc.setTestList(testList);
             croc.setVerbose(verbose);
+            croc.setNormalizeTime(normalizeTime);
 
             croc.run();
         }
@@ -254,6 +260,7 @@ public class CrocLauncher
         println("  -masterPassword password      Master db password");
         println("  -masterUrl url                Master db url");
         println("  -masterUser user              Master db user");
+        println("  -normalizeTime                Normalize time zone used for comparison to UTC");
         println("  -password pw                  Db password (overrides master and slave)");
         println("  -slavePassword password       Slave db password");
         println("  -slaveUrl url                 Slave db url");

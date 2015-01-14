@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2011 Continuent Inc.
+ * Copyright (C) 2011-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,6 @@ package com.continuent.bristlecone.croc;
 /**
  * Contains shared data for croc runs. This class defines a CrocContext
  * 
- * @author <a href="mailto:jussi-pekka.kurikka@continuent.com">Jussi-Pekka
- *         Kurikka</a>
  * @version 1.0
  */
 public interface CrocContext
@@ -54,4 +52,6 @@ public interface CrocContext
     public boolean isNewStageFormat();
 
     public String getSlaveStageUrl();
+
+    public boolean isNormalizeTime();
 }

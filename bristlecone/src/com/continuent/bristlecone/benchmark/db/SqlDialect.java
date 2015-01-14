@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -140,6 +140,14 @@ public interface SqlDialect
      */
     public String getSelectByColumnWithLimit(Table t, Column c, int limit);
 
+    /**
+     * Returns a command to normalize the session time zone to UTC or null 
+     * if such a command does not exist.  When present executing this statement
+     * permits time-related data to be selected and compare even when DBMS 
+     * server time zones differ. 
+     */
+    public String getSessionUTC();
+    
     /**
      * Returns true if the given type requires a transaction to update.
      * 

@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2006-2007 Continuent Inc.
+ * Copyright (C) 2006-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -66,12 +66,29 @@ public class TableComparator
      */
     public void prepare() throws Exception
     {
+        // See if we need to normalize time.
+        boolean normalizeTime = context.isNormalizeTime();
+
         // Open connection to master.
         masterTableHelper = new TableHelper(context.getMasterUrl(),
                 context.getMasterUser(), context.getMasterPassword(),
                 context.getDefaultSchema());
         masterConn = masterTableHelper.getConnection();
         masterStmt = masterConn.createStatement();
+        if (normalizeTime)
+        {
+            String normalizeSessionToUTC = masterTableHelper.getSqlDialect()
+                    .getSessionUTC();
+            if (normalizeSessionToUTC == null)
+            {
+                logger.warn("Unable to normalize master row comparison session to UTC; not supported");
+            }
+            else
+            {
+                logger.debug("Normalizing master row comparison session to UTC");
+                masterStmt.execute(normalizeSessionToUTC);
+            }
+        }
 
         // Open connection to slave.
         slaveTableHelper = new TableHelper(context.getSlaveUrl(),
@@ -79,6 +96,20 @@ public class TableComparator
                 context.getDefaultSchema());
         slaveConn = slaveTableHelper.getConnection();
         slaveStmt = slaveConn.createStatement();
+        if (normalizeTime)
+        {
+            String normalizeSessionToUTC = slaveTableHelper.getSqlDialect()
+                    .getSessionUTC();
+            if (normalizeSessionToUTC == null)
+            {
+                logger.warn("Unable to normalize slave row comparison session to UTC; not supported");
+            }
+            else
+            {
+                logger.debug("Normalizing slave row comparison session to UTC");
+                slaveStmt.execute(normalizeSessionToUTC);
+            }
+        }
     }
 
     /**

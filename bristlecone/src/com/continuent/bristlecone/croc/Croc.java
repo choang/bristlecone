@@ -1,6 +1,6 @@
 /**
  * Bristlecone Test Tools for Databases
- * Copyright (C) 2011 Continuent Inc.
+ * Copyright (C) 2011-2015 Continuent Inc.
  * Contact: bristlecone@lists.forge.continuent.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,6 +64,7 @@ public class Croc implements CrocContext
     private String          testList          = null;
     private String          test              = null;
     private boolean         verbose           = false;
+    private boolean         normalizeTime     = false;
 
     // Runtime parameters.
     private List<Loader>    tests             = new ArrayList<Loader>();
@@ -274,6 +275,16 @@ public class Croc implements CrocContext
         this.verbose = verbose;
     }
 
+    public synchronized void setNormalizeTime(boolean normalizeTime)
+    {
+        this.normalizeTime = normalizeTime;
+    }
+
+    public synchronized boolean isNormalizeTime()
+    {
+        return normalizeTime;
+    }
+
     /**
      * Execute a croc test run.
      */
@@ -301,8 +312,8 @@ public class Croc implements CrocContext
             try
             {
                 fr = new FileReader(testListFile);
-                // We need to close fr to prevent real leaks.  Reader can be safely
-                // garbage collected. 
+                // We need to close fr to prevent real leaks. Reader can be
+                // safely garbage collected.
                 @SuppressWarnings("resource")
                 BufferedReader reader = new BufferedReader(fr);
                 String line;
