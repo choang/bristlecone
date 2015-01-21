@@ -32,7 +32,7 @@ import java.sql.Timestamp;
 public class DataGeneratorForTimestamp implements DataGenerator
 {
     // 40 year interval for date generation in milliseconds.
-    private static long intervalMillis = 40L * 365L * 24L * 3600L * 1000L;
+    private static long intervalMillis = 40L * 365L * 24L * 3600L;
 
     public DataGeneratorForTimestamp()
     {
@@ -41,7 +41,7 @@ public class DataGeneratorForTimestamp implements DataGenerator
     /** Generate next timestamp. */
     public Object generate()
     {
-        long timeValue = (long) ((Math.random() * intervalMillis));
+        long timeValue = (long) ((Math.random() * intervalMillis)) * 1000L;
         return new Timestamp(timeValue);
     }
 }
