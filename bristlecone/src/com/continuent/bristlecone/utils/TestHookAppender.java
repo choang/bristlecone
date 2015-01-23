@@ -119,7 +119,6 @@ public class TestHookAppender extends AppenderSkeleton
         exitOnError = flag;
     }
 
-    @Override
     public void close()
     {
         // TODO Auto-generated method stub
