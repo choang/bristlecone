@@ -3,8 +3,8 @@
 	<classpathentry kind="lib" path="lib/jcommon-1.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib-ext/mysql/mysql-connector-java-5.1.13-bin.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/logkit-1.2.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="lib/jline-0.9.94.jar"/>
 	<classpathentry kind="lib" path="lib/ApacheJMeter_core.jar"/>
 	<classpathentry kind="lib" path="lib/ApacheJMeter_java.jar"/>
-	<classpathentry kind="lib" path="lib/logkit-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/tungsten-common.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
