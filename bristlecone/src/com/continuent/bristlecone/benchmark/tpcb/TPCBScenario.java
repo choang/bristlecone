@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Properties;
 
-import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.log4j.Logger;
 
 import com.continuent.bristlecone.benchmark.Scenario;
@@ -230,15 +229,6 @@ public class TPCBScenario implements Scenario
     {
         logger.info("Total TPCBs   = " + statistics.getTPCBCount());
         logger.info("Total Queries = " + statistics.getQueryCount());
-    }
-
-    /**
-     * Ran at end of test to tear down state. {@inheritDoc}
-     * 
-     * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient#teardownTest(org.apache.jmeter.protocol.java.sampler.JavaSamplerContext)
-     */
-    public void teardownTest(JavaSamplerContext context)
-    {
     }
 
     // Create prepared statements for the run.
