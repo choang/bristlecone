@@ -12,8 +12,6 @@
 	<classpathentry kind="lib" path="xml"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="config"/>
-	<classpathentry kind="lib" path="lib/ApacheJMeter_core.jar"/>
-	<classpathentry kind="lib" path="lib/ApacheJMeter_java.jar"/>
 	<classpathentry kind="lib" path="lib/tungsten-common.jar"/>
 	<classpathentry kind="output" path="eclipse-build"/>
 </classpath>
